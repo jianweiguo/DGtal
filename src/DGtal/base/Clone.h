@@ -202,6 +202,8 @@ namespace DGtal
     // ----------------------- Standard services ------------------------------
   public:
 
+	  typedef typename CountedPtr<T> CPtrT; //Won't compile on Windows else
+
     /**
        Destructor. Does nothing.
      */
@@ -251,7 +253,7 @@ namespace DGtal
        the object is duplicated (and only once).  This allows things like: CountedPtr<A> a2 = a1;
        where a1 is of type Clone<A>. It also allows CowPtr<A> a2 = a1;
     */
-    operator CountedPtr<T>() const;
+    operator CPtrT() const;
     // /**
     //    Cast operator to a CowPtr<T> instance. This is only at this moment that
     //    the object is duplicated (and only once).  This allows things like: CowPtr<A> a2 = a1;

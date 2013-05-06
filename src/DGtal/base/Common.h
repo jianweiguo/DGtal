@@ -85,7 +85,15 @@
 
 #ifdef _MSC_VER
 #define random rand
+#define srandom srand
+#define atoll _atoi64
+#define strtold stold
+#define log2(x) ((log(x)/log(2)))
 #endif
+
+//#if (_MSC_VER >= 1600)
+//
+//#endif
 
 #if defined( WIN32 )
 #define _USE_MATH_DEFINES

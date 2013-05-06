@@ -147,7 +147,7 @@ DGtal::Trace::endBlock()
   ASSERT (myCurrentLevel >0);
   
   localClock =  myClockStack.top();
-  tick = localClock->stopClock();
+  tick = (long)localClock->stopClock();
   
   myCurrentLevel--;
   myCurrentPrefix = "";

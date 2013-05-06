@@ -56,7 +56,7 @@ int main( int argc, char** argv )
 
   //! [approximation-process]
   long double epsilon = 1e-14;
-  long double number0 = strtold( argv[ 1 ], 0 );
+  long double number0 = std::strtold( argv[ 1 ], 0 );
   long double number = number0;
   ASSERT( number >= 0.0 );
   Fraction f;

@@ -81,9 +81,9 @@ DGtal::Clone<T>::allocate() const
 //-----------------------------------------------------------------------------
 template <typename T>
 inline
-DGtal::Clone<T>::operator CountedPtr<T>() const
+DGtal::Clone<T>::operator CPtrT() const
 { 
-  return CountedPtr<T>( allocate() ); // duplicated once 
+  return CPtrT( allocate() ); // duplicated once 
 }
 
 

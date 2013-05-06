@@ -492,6 +492,11 @@ template <typename MapLXY, unsigned int L, unsigned int X, unsigned int Y>
 unsigned int
 generateData( MapLXY & m, double proba_no_label, double proba_label )
 {
+
+	#ifdef _MSC_VER
+	#define random random // Beceause random was overrided to rand (std::random isn't defined on Windows)
+	#endif
+
   boost::random::mt19937 rng;         // produces randomness out of thin air
   rng.seed( 0 );
   boost::random::uniform_smallint<> diceL(0, L-1);  
