@@ -10,6 +10,7 @@ ENDFOREACH(FILE)
 
 SET(TESTS_SURFACES_SRC
   testNormalVectorEstimatorEmbedder
+  testScaleSpace2D
   testIntegralInvariantCurvatureEstimator2D
   testIntegralInvariantMeanCurvatureEstimator3D
   testIntegralInvariantGaussianCurvatureEstimator3D
