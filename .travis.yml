@@ -4,6 +4,8 @@ compiler:
   - gcc
   - clang
 
+cache: apt
+
 env:
   - BTYPE="-DCMAKE_BUILD_TYPE=Debug -DWITH_QGLVIEWER=true -DBUILD_TESTING=ON"
   - BTYPE="-DCMAKE_BUILD_TYPE=Debug -DWITH_CAIRO=true -DBUILD_TESTING=ON"
@@ -52,6 +54,4 @@ script:
   - make
   - cd ..
   - make
-
-after_script:
-  - "make test"
+  - make test
