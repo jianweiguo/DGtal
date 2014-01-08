@@ -43,7 +43,7 @@
 
 #include "DGtal/io/writers/PGMWriter.h"
 #include "DGtal/io/writers/PPMWriter.h"
-#include "DGtal/io/readers/PNMReader.h"
+#include "DGtal/io/readers/PGMReader.h"
 #include "DGtal/io/writers/RawWriter.h"
 #include "DGtal/io/boards/Board2D.h"
 ///////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,6 @@ bool testPNMWriter()
   typedef TSpace::Point Point;
   typedef HyperRectDomain<TSpace> Domain;
   typedef HueShadeColorMap<unsigned char> Hue;
-  typedef RandomColorMap  Rand;
   typedef HueShadeColorMap<unsigned char,2> HueTwice;
   typedef GrayscaleColorMap<unsigned char> Gray;
   // Gradient using the "Jet" preset.
@@ -121,7 +120,6 @@ bool testRWIssue254()
   typedef SpaceND<2> TSpace;
   typedef TSpace::Point Point;
   typedef HyperRectDomain<TSpace> Domain;
-  typedef GrayscaleColorMap<unsigned char> Gray;
 
   Point a ( 0, 0);
   Point b ( 15, 15);
@@ -133,7 +131,7 @@ bool testRWIssue254()
 
   PGMWriter<Image>::exportPGM("export-gray-first.pgm",image);
   
-  Image imageRead = PNMReader<Image>::importPGM("export-gray-first.pgm");
+  Image imageRead = PGMReader<Image>::importPGM("export-gray-first.pgm");
 
   PGMWriter<Image>::exportPGM("export-gray-second.pgm",imageRead);
 

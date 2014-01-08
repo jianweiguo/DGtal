@@ -37,7 +37,7 @@
 
 #include "DGtal/images/ImageAdapter.h"
 #include "DGtal/io/colormaps/GrayscaleColorMap.h"
-#include "DGtal/io/readers/PNMReader.h"
+#include "DGtal/io/readers/PGMReader.h"
 #include "DGtal/io/boards/Board2D.h"
 
 #include "ConfigTest.h"
@@ -66,6 +66,7 @@ bool testSimple()
 
     Z2i::Domain domain(Z2i::Point(2,2), Z2i::Point(4,4));
     typedef ImageAdapter<VImage, Z2i::Domain, DefaultFunctor, VImage::Value, DefaultFunctor, DefaultFunctor > MyImageAdapter;
+    BOOST_CONCEPT_ASSERT(( CImage< MyImageAdapter > ));
     
     DefaultFunctor idD;
     DefaultFunctor idV;
@@ -157,6 +158,7 @@ bool test_g_f_fm1()
 
     Z2i::Domain domain(Z2i::Point(2,2), Z2i::Point(4,4));
     typedef ImageAdapter<VImage, Z2i::Domain, DefaultFunctor, VImage::Value, ConstValueFunctor<VImage::Value>, DefaultFunctor > MyImageAdapter;
+    BOOST_CONCEPT_ASSERT(( CImage< MyImageAdapter > ));
     
     DefaultFunctor idD;
     ConstValueFunctor<VImage::Value> idV(3);
@@ -172,6 +174,7 @@ bool test_g_f_fm1()
     
     //! [ImageAdapterConstruction]
     typedef ImageAdapter<VImage, Z2i::Domain, DefaultFunctor, bool, DefaultFunctor, Thresholder<VImage::Value> > MyImageAdapter2;
+    BOOST_CONCEPT_ASSERT(( CImage< MyImageAdapter2 > ));
     
     DefaultFunctor idD_2, idV_2;
     Thresholder<VImage::Value> idVm1_2( 4 );
@@ -198,6 +201,7 @@ bool test_g_f_fm1()
     trace.warning()<< "Original image at (2,2) = "<< (image)(Z2i::Point(2,2)) << std::endl;
     
     typedef ImageAdapter<VImage, Z2i::Domain, MyTransValueFunctor<Z2i::Point>, VImage::Value, DefaultFunctor, DefaultFunctor > MyImageAdapter3;
+    BOOST_CONCEPT_ASSERT(( CImage< MyImageAdapter3 > ));
     
     MyTransValueFunctor<Z2i::Point> idD_3(Z2i::Point(2,2));
     DefaultFunctor idV_3;
@@ -237,6 +241,7 @@ bool test_range_constRange()
 
     Z2i::Domain domain(Z2i::Point(2,2), Z2i::Point(4,4));
     typedef ImageAdapter<VImage, Z2i::Domain, DefaultFunctor, VImage::Value, DefaultFunctor, DefaultFunctor > MyImageAdapter;
+    BOOST_CONCEPT_ASSERT(( CImage< MyImageAdapter > ));
     
     DefaultFunctor idD;
     DefaultFunctor idV;
@@ -290,7 +295,7 @@ bool testImageAdapter()
     typedef GrayscaleColorMap<unsigned char> Gray;
 
     string filename = testPath + "samples/church-small.pgm";
-    VImage image = PNMReader<VImage>::importPGM(filename);
+    VImage image = PGMReader<VImage>::importPGM(filename);
     trace.info() << "Imported image: " << image << endl;
 
     Board2D aBoard;
@@ -404,6 +409,7 @@ bool testImageAdapter()
     
 
     typedef ImageAdapter<VImage, DigitalSetDomain<Z2i::DigitalSet>, DefaultFunctor, VImage::Value, DefaultFunctor, DefaultFunctor> MyImageAdapter2;
+    // BOOST_CONCEPT_ASSERT(( CImage< MyImageAdapter2 > )); // pb here
 
     DefaultFunctor idflD, idflV, idflVm1;
     MyImageAdapter2 floor_lamp(image, my_specific_domain_floor_lamp, idflD, idflV, idflVm1);

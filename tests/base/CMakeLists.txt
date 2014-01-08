@@ -9,7 +9,6 @@ SET(DGTAL_TESTS_SRC
    testOutputIteratorAdapter
    testClock
    testTrace
-   testStatistics
    testcpp11
    testCountedPtr
    testBits
@@ -22,6 +21,7 @@ SET(DGTAL_TESTS_SRC
    testIteratorFunctions
    testIteratorCirculatorTraits
    testCloneAndAliases
+   testClone2
    testOwningOrAliasingPtr
    )
 
@@ -30,4 +30,5 @@ FOREACH(FILE ${DGTAL_TESTS_SRC})
   target_link_libraries (${FILE} DGtal DGtalIO)
   add_test(${FILE} ${FILE})
 ENDFOREACH(FILE)
+
 

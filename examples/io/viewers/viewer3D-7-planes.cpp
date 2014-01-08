@@ -22,7 +22,7 @@
  *
  * @date 2012/03/05
  *
- * Functions for testing class COBANaivePlane.
+ * Functions for testing class COBANaivePlaneComputer.
  *
  * This file is part of the DGtal library.
  */
@@ -34,7 +34,7 @@
 #include "DGtal/io/viewers/Viewer3D.h"
 #include "DGtal/base/Common.h"
 #include "DGtal/helpers/StdDefs.h"
-#include "DGtal/geometry/surfaces/COBANaivePlane.h"
+#include "DGtal/geometry/surfaces/COBANaivePlaneComputer.h"
 ///////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
@@ -44,7 +44,7 @@ using namespace DGtal;
 // Standard services - public :
 template <typename Viewer3D, typename Domain, typename Predicate>
 void
-displayPredicate( Viewer3D & viewer, 
+displayPredicate( Viewer3D & viewer,
                   const Domain & domain, const Predicate & pred )
 {
   for ( typename Domain::ConstIterator itB = domain.begin(), itE = domain.end();
@@ -54,19 +54,21 @@ displayPredicate( Viewer3D & viewer,
         viewer << *itB;
     }
 }
- 
+
 int main( int argc, char** argv )
 {
   using namespace Z3i;
 
   QApplication application(argc,argv);
-  trace.beginBlock ( "Testing class COBANaivePlane" );
+  trace.beginBlock ( "Testing class COBANaivePlaneComputer" );
 
   unsigned int nbok = 0;
   unsigned int nb = 0;
-  typedef BigInteger Integer;
 
-  COBANaivePlane<Z3, BigInteger> plane;
+  typedef COBANaivePlaneComputer<Z3, BigInteger> PlaneComputer;
+  typedef PlaneComputer::Primitive Primitive;
+  PlaneComputer plane;
+
   plane.init( 2, 100, 1, 1 );
   Point pt0( 0, 0, 0 );
   bool pt0_inside = plane.extend( pt0 );
@@ -75,12 +77,12 @@ int main( int argc, char** argv )
   Point pt1( 8, 1, 3 );
   bool pt1_inside = plane.extend( pt1 );
   ++nb, nbok += pt1_inside == true ? 1 : 0;
-  trace.info() << "(" << nbok << "/" << nb << ") add " << pt1 
+  trace.info() << "(" << nbok << "/" << nb << ") add " << pt1
                << " Plane=" << plane << std::endl;
   Point pt2( 2, 7, 1 );
   bool pt2_inside = plane.extend( pt2 );
   ++nb, nbok += pt2_inside == true ? 1 : 0;
-  trace.info() << "(" << nbok << "/" << nb << ") add " << pt2 
+  trace.info() << "(" << nbok << "/" << nb << ") add " << pt2
                << " Plane=" << plane << std::endl;
 
   Point pt3( 0, 5, 12 );
@@ -101,10 +103,30 @@ int main( int argc, char** argv )
   trace.info() << "(" << nbok << "/" << nb << ") add " << pt5
                << " Plane=" << plane << std::endl;
 
+  Point pt6 = Point( 1, 0, 1 );
+  bool pt6_inside = plane.extend( pt6 );
+  ++nb, nbok += pt6_inside == true ? 1 : 0;
+  trace.info() << "(" << nbok << "/" << nb << ") add " << pt5
+               << " Plane=" << plane << std::endl;
+
+  Primitive strip = plane.primitive();
+  trace.info() << "strip=" << strip
+               << " axis=" << strip.mainAxis()
+               << " axiswidth=" << strip.axisWidth()
+               << " diag=" << strip.mainDiagonal()
+               << " diagwidth=" << strip.diagonalWidth()
+               << std::endl;
+  ++nb, nbok += strip.axisWidth() < 1.0 ? 1 : 0;
+  trace.info() << "(" << nbok << "/" << nb << ") axiswidth < 1 "
+               << std::endl;
+  ++nb, nbok += strip.diagonalWidth() < sqrt(3.0) ? 1 : 0;
+  trace.info() << "(" << nbok << "/" << nb << ") axiswidth < sqrt(3) "
+               << std::endl;
   trace.emphase() << ( nbok == nb ? "Passed." : "Error." ) << endl;
   trace.endBlock();
 
-  Viewer3D viewer;
+  typedef Viewer3D<> MyViewer;
+  MyViewer viewer;
   viewer.show();
   Color red( 255, 0, 0 );
   Color green( 0, 255, 0 );
@@ -116,10 +138,11 @@ int main( int argc, char** argv )
   viewer << ( pt3_inside ? CustomColors3D( green, green ) : CustomColors3D( red, red ) ) << pt3;
   viewer << ( pt4_inside ? CustomColors3D( green, green ) : CustomColors3D( red, red ) ) << pt4;
   viewer << ( pt5_inside ? CustomColors3D( green, green ) : CustomColors3D( red, red ) ) << pt5;
+  viewer << ( pt6_inside ? CustomColors3D( green, green ) : CustomColors3D( red, red ) ) << pt6;
   viewer << CustomColors3D( grey, grey );
-  displayPredicate( viewer, domain, plane );
+  displayPredicate( viewer, domain, strip );
 
-  viewer << Viewer3D::updateDisplay;
+  viewer << MyViewer::updateDisplay;
 
 
   return application.exec();

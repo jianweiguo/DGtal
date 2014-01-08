@@ -74,6 +74,11 @@ bool testSimple()
     OutputImage::ConstRange r1 = image1->constRange();
     cout << "image1: "; std::copy( r1.begin(), r1.end(), std::ostream_iterator<int>(cout,", ") ); cout << endl;
     
+    Z2i::Domain domain1b(Z2i::Point(0,0), Z2i::Point(1,2));
+    OutputImage *image1b = factImage.requestImage(domain1b);
+    OutputImage::ConstRange r1b = image1b->constRange();
+    cout << "image1b: "; std::copy( r1b.begin(), r1b.end(), std::ostream_iterator<int>(cout,", ") ); cout << endl;
+    
     Z2i::Domain domain2(Z2i::Point(2,0), Z2i::Point(3,1));
     OutputImage *image2 = factImage.requestImage(domain2);
     OutputImage::ConstRange r2 = image2->constRange();
@@ -93,10 +98,13 @@ bool testSimple()
     trace.info() << endl << "ImageCache with DGtal::CACHE_READ_POLICY_LAST, DGtal::CACHE_WRITE_POLICY_WT" << endl;
     
     typedef ImageCacheReadPolicyLAST<OutputImage, MyImageFactoryFromImage> MyImageCacheReadPolicyLAST;
-    typedef ImageCacheWritePolicyWT<OutputImage, MyImageFactoryFromImage> MyImageCacheWritePolicyWT;  
-    typedef ImageCache<OutputImage, MyImageFactoryFromImage, MyImageCacheReadPolicyLAST, MyImageCacheWritePolicyWT > MyImageCache;
-    MyImageCache imageCache(factImage);
-    /*VImage*/OutputImage::Value aValue;
+    typedef ImageCacheWritePolicyWT<OutputImage, MyImageFactoryFromImage> MyImageCacheWritePolicyWT;
+    MyImageCacheReadPolicyLAST imageCacheReadPolicyLAST(factImage);
+    MyImageCacheWritePolicyWT imageCacheWritePolicyWT(factImage);
+    
+    typedef ImageCache<OutputImage, MyImageFactoryFromImage, MyImageCacheReadPolicyLAST, MyImageCacheWritePolicyWT> MyImageCache;
+    MyImageCache imageCache(factImage, imageCacheReadPolicyLAST, imageCacheWritePolicyWT);
+    OutputImage::Value aValue;
     
     trace.info() << "READING from cache (empty cache): " << imageCache << endl;
     if (imageCache.read(Z2i::Point(2,2), aValue)) 
@@ -189,8 +197,10 @@ bool testSimple()
     trace.info() << endl << "ImageCache with DGtal::CACHE_READ_POLICY_LAST, DGtal::CACHE_WRITE_POLICY_WB" << endl;
     
     typedef ImageCacheWritePolicyWB<OutputImage, MyImageFactoryFromImage> MyImageCacheWritePolicyWB;
+    MyImageCacheWritePolicyWB imageCacheWritePolicyWB(factImage);
+    
     typedef ImageCache<OutputImage, MyImageFactoryFromImage, MyImageCacheReadPolicyLAST, MyImageCacheWritePolicyWB > MyImageCache2;
-    MyImageCache2 imageCache2(factImage);
+    MyImageCache2 imageCache2(factImage, imageCacheReadPolicyLAST, imageCacheWritePolicyWB);
     
     imageCache2.update(domain4); // image4
     
@@ -227,8 +237,10 @@ bool testSimple()
     trace.info() << endl << "ImageCache with DGtal::CACHE_READ_POLICY_FIFO, DGtal::CACHE_WRITE_POLICY_WB" << endl;
     
     typedef ImageCacheReadPolicyFIFO<OutputImage, MyImageFactoryFromImage> MyImageCacheReadPolicyFIFO;
+    MyImageCacheReadPolicyFIFO imageCacheReadPolicyFIFO(factImage, 3);
+    
     typedef ImageCache<OutputImage, MyImageFactoryFromImage, MyImageCacheReadPolicyFIFO, MyImageCacheWritePolicyWB > MyImageCache3;
-    MyImageCache3 imageCache3(factImage, 3);
+    MyImageCache3 imageCache3(factImage, imageCacheReadPolicyFIFO, imageCacheWritePolicyWB);
     
     imageCache3.update(domain4); // image4
     

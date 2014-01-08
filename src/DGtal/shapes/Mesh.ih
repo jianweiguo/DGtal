@@ -222,7 +222,8 @@ DGtal::Mesh<TPoint>::nbVertex() const
 template<typename TPoint>
 inline
 const DGtal::Color & 
-DGtal::Mesh<TPoint>::getFaceColor(unsigned int i) const{
+DGtal::Mesh<TPoint>::getFaceColor(unsigned int i) const
+{
   if(mySaveFaceColor){
     return myFaceColorList.at(i);
   }else{
@@ -231,43 +232,13 @@ DGtal::Mesh<TPoint>::getFaceColor(unsigned int i) const{
 }
 
 
-
-
 template<typename TPoint>
 inline
-typename  DGtal::Mesh<TPoint>::VertexStorage::const_iterator 
-DGtal::Mesh<TPoint>::VertexBegin() const{
-  return myVertexList.begin();
+bool 
+DGtal::Mesh<TPoint>::isStoringFaceColors() const
+{
+  return mySaveFaceColor;
 }
-
-
-
-template<typename TPoint>
-inline
-typename  DGtal::Mesh<TPoint>::VertexStorage::const_iterator 
-DGtal::Mesh<TPoint>::VertexEnd() const{
-  return myVertexList.end();
-}
-
-
-
-
-template<typename TPoint>
-inline
-typename  DGtal::Mesh<TPoint>::FaceStorage::const_iterator 
-DGtal::Mesh<TPoint>::FaceBegin() const{
-  return myFaceList.begin();
-}
-
-
-
-template<typename TPoint>
-inline
-typename  DGtal::Mesh<TPoint>::FaceStorage::const_iterator 
-DGtal::Mesh<TPoint>::FaceEnd() const{
-  return myFaceList.end();
-}
-
 
 
 

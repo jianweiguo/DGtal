@@ -41,7 +41,7 @@ int main( int /* argc */, char** /* argv */ )
 {
   //! [graphTraversal-graph-instanciation]
   using namespace Z2i;
-  Point p1( -50, -50 ), p2( 50, 50 );
+  Point p1( -41, -36 ), p2( 18, 18 );
   Domain domain( p1, p2 );
   DigitalSet shape_set( domain );
   Shapes<Domain>::addNorm2Ball( shape_set, Point( -2, -1 ), 9 );
@@ -85,21 +85,21 @@ int main( int /* argc */, char** /* argv */ )
 
   {
     //! [graphTraversal-vertex-edge-enumeration]
-    int n = 0;
-    int m = 0;
+    int nn = 0;
+    int mm = 0;
     std::vector<Vertex> neighbors;
     for ( Graph::ConstIterator it = g.begin(), itEnd = g.end();
-          it != itEnd; ++it, ++n )
+          it != itEnd; ++it, ++nn )
       { 
         Vertex vtx = *it;
         std::back_insert_iterator< std::vector<Vertex> > neighIt 
           = std::back_inserter( neighbors );
         g.writeNeighbors( neighIt, vtx );
-        m += neighbors.size();
+        mm += neighbors.size();
         neighbors.clear();
       }
-    trace.info() << "Graph has " << n << " vertices and "
-                 << (m/2) << " edges." << std::endl;
+    trace.info() << "Graph has " << nn << " vertices and "
+                 << (mm/2) << " edges." << std::endl;
     //! [graphTraversal-vertex-edge-enumeration]
   }
 

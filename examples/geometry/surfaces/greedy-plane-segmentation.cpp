@@ -40,16 +40,16 @@
 #include <QtGui/qapplication.h>
 #include "DGtal/base/Common.h"
 #include "DGtal/io/readers/VolReader.h"
-#include "DGtal/io/viewers/Viewer3D.h"
-#include "DGtal/io/Display3D.h"
 
+#include "DGtal/io/Display3D.h"
+#include "DGtal/io/viewers/Viewer3D.h"
 #include "DGtal/io/DrawWithDisplay3DModifier.h"
 #include "DGtal/images/ImageSelector.h"
 #include "DGtal/images/imagesSetsUtils/SetFromImage.h"
 #include "DGtal/topology/DigitalSurface.h"
 #include "DGtal/topology/DigitalSetBoundary.h"
 #include "DGtal/graph/BreadthFirstVisitor.h"
-#include "DGtal/geometry/surfaces/COBANaivePlane.h"
+#include "DGtal/geometry/surfaces/COBANaivePlaneComputer.h"
 #include "DGtal/helpers/StdDefs.h"
 #include "ConfigExamples.h"
 
@@ -62,7 +62,7 @@ using namespace DGtal;
 //! [greedy-plane-segmentation-typedefs]
 using namespace Z3i;
 typedef DGtal::int64_t InternalInteger;
-typedef COBANaivePlane<Z3,InternalInteger> NaivePlaneComputer;
+typedef COBANaivePlaneComputer<Z3,InternalInteger> NaivePlaneComputer;
 // We choose the DigitalSetBoundary surface container in order to
 // segment connected or unconnected surfaces.
 typedef DigitalSetBoundary<KSpace,DigitalSet> MyDigitalSurfaceContainer;
@@ -94,7 +94,7 @@ int main( int argc, char** argv )
    string inputFilename =   examplesPath + "samples/Al.100.vol" ;
     trace.info() << "input file used " << inputFilename << std::endl;
   // parameter threshold
-    unsigned int threshold = 1;
+    unsigned int threshold = 0;
     trace.info() << "the value that defines the isosurface in the image (an integer between 0 and 255)= " << threshold<< std::endl;
    // parameter widthNum
    unsigned int widthNum = 1;
@@ -178,7 +178,7 @@ int main( int argc, char** argv )
   //! [greedy-plane-segmentation-segment]
 
   //! [greedy-plane-segmentation-visualization]
-  Viewer3D viewer;
+  Viewer3D<> viewer;
   viewer.show(); 
   for ( std::map<Vertex,SegmentedPlane*>::const_iterator 
           it = v2plane.begin(), itE = v2plane.end();
@@ -187,7 +187,7 @@ int main( int argc, char** argv )
       viewer << CustomColors3D( it->second->color, it->second->color );
       viewer << ks.unsigns( it->first );
     }
-  viewer << Display3D::updateDisplay;
+  viewer << Viewer3D<>::updateDisplay;
   //! [greedy-plane-segmentation-visualization]
 
   //! [greedy-plane-segmentation-freeMemory]

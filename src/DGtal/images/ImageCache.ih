@@ -56,21 +56,6 @@ DGtal::ImageCache<TImageContainer, TImageFactory, TReadPolicy, TWritePolicy>::se
 }
 
 template <typename TImageContainer, typename TImageFactory, typename TReadPolicy, typename TWritePolicy>
-DGtal::ImageCache<TImageContainer, TImageFactory, TReadPolicy, TWritePolicy>::ImageCache(Alias<ImageFactory> anImageFactory, int sizeCache):
-            myImageFactoryPtr(anImageFactory)
-{
-    myReadPolicy = new ReadPolicy(anImageFactory, sizeCache);
-    myWritePolicy = new WritePolicy(anImageFactory);
-}
-
-template <typename TImageContainer, typename TImageFactory, typename TReadPolicy, typename TWritePolicy>
-DGtal::ImageCache<TImageContainer, TImageFactory, TReadPolicy, TWritePolicy>::~ImageCache()
-{
-    delete myReadPolicy;
-    delete myWritePolicy;
-}
-
-template <typename TImageContainer, typename TImageFactory, typename TReadPolicy, typename TWritePolicy>
 inline
 bool
 DGtal::ImageCache<TImageContainer, TImageFactory, TReadPolicy, TWritePolicy>::read(const Point & aPoint, Value &aValue) const
@@ -83,6 +68,14 @@ DGtal::ImageCache<TImageContainer, TImageFactory, TReadPolicy, TWritePolicy>::re
     }
     
     return false;
+}
+
+template <typename TImageContainer, typename TImageFactory, typename TReadPolicy, typename TWritePolicy>
+inline
+TImageContainer *
+DGtal::ImageCache<TImageContainer, TImageFactory, TReadPolicy, TWritePolicy>::getPage(const Domain & aDomain) const
+{
+    return myReadPolicy->getPage(aDomain);
 }
 
 template <typename TImageContainer, typename TImageFactory, typename TReadPolicy, typename TWritePolicy>
@@ -102,13 +95,15 @@ DGtal::ImageCache<TImageContainer, TImageFactory, TReadPolicy, TWritePolicy>::wr
 
 template <typename TImageContainer, typename TImageFactory, typename TReadPolicy, typename TWritePolicy>
 inline
-void
+void 
 DGtal::ImageCache<TImageContainer, TImageFactory, TReadPolicy, TWritePolicy>::update(const Domain &aDomain)
 {
     ImageContainer *myImagePtr = myReadPolicy->getPageToDetach();
+    
     if (myImagePtr)
     {
       myWritePolicy->flushPage(myImagePtr);
+      
       myImageFactoryPtr->detachImage(myImagePtr);
     }
     
