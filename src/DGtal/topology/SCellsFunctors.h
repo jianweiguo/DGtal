@@ -617,6 +617,180 @@ namespace DGtal
   }; // end of class SCellToCode
 
 
+  template< typename TInput, typename TValue >
+  class FunctorByTwo
+  {
+  public:
+    typedef TInput Input;
+    typedef TValue Value;
+    FunctorByTwo(){}
+
+    Value operator()( const Input & in ) const
+    {
+      return Value( in * 2 );
+    }
+  };
+
+  template< typename Container >
+  class SCellTo2DSCell
+  {
+    template< typename Iterator, typename TFunctor >
+    class _Iterator : public Iterator
+    {
+      typedef TFunctor MYMEGAFUNCTOR;
+      typedef typename TFunctor::Value value_type;
+
+    public:
+      _Iterator( const Iterator & i, const MYMEGAFUNCTOR & f ) : it(i), myTurboFunctor(f) {}
+
+      _Iterator(const _Iterator& mit) : it(mit.it), myTurboFunctor(mit.myTurboFunctor) {}
+
+      value_type operator*()
+      {
+        std::cout << "Coucou operator *" << std::endl;
+
+        std::cout << "TRALALA " << myTurboFunctor( *it ) << std::endl;
+        return 0.0;//functor(*it);
+      }
+
+      const value_type& operator*() const
+      {
+        std::cout << "Coucou operator const *" << std::endl;
+        return myTurboFunctor(*it);
+      }
+
+      /*value_type* operator->()
+      {
+        std::cout << "Coucou operator ->*" << std::endl;
+        return &(*it);
+      }
+
+      const value_type* operator->() const
+      {
+        std::cout << "Coucou operator const ->" << std::endl;
+        return &(*it);
+      }*/
+
+      _Iterator& operator++( )
+      {
+        ++it;
+        return *this;
+      }
+
+      _Iterator operator++( int )
+      {
+        _Iterator tmp( *this );
+        operator++();
+        return *tmp;
+      }
+
+      bool operator==( const _Iterator& rhs )
+      {
+        return it == rhs.it;
+      }
+      bool operator!=( const _Iterator& rhs )
+      {
+        return it != rhs.it;
+      }
+
+      /*operator Iterator()
+      {
+        return it;
+      }*/
+
+    private:
+      Iterator it;
+      const MYMEGAFUNCTOR & myTurboFunctor;
+    };
+
+  public:
+    typedef FunctorByTwo< typename Container::value_type, int > MyTURBOLOLFunctor;
+    typedef _Iterator< typename Container::iterator, MyTURBOLOLFunctor > Iterator;
+    typedef _Iterator< typename Container::const_iterator, MyTURBOLOLFunctor > ConstIterator;
+    //typedef _Iterator< typename Container::ConstReverseIterator > ConstReverseIterator;
+    //typedef _Iterator< typename Container::ConstCirculator > ConstCirculator;
+    //typedef _Iterator< typename Container::ConstReverseCirculator > ConstReverseCirculator;
+
+
+
+
+    SCellTo2DSCell( const Container & v_container )
+      :container(v_container),myTURBOLOLfunctor(MyTURBOLOLFunctor())
+    {
+
+    }
+
+    /**
+     * Iterator service.
+     * @return begin iterator
+     */
+    /*Iterator begin()
+    {
+      typename Container::iterator it = container.begin();
+      return Iterator( it );
+    }*/
+
+    /**
+     * Iterator service.
+     * @return begin iterator
+     */
+    ConstIterator begin()
+    {
+      typename Container::const_iterator it = container.begin();
+      return ConstIterator( it, myTURBOLOLfunctor );
+    }
+
+
+    /**
+     * Iterator service.
+     * @return end iterator
+     */
+    /*Iterator end()
+    {
+      typename Container::iterator it = container.end();
+      return Iterator( it );
+    }*/
+
+    /**
+     * Iterator service.
+     * @return end iterator
+     */
+    ConstIterator end()
+    {
+      typename Container::const_iterator it = container.end();
+      return ConstIterator( it, myTURBOLOLfunctor );
+    }
+
+    /**
+     * Iterator service.
+     * @return rbegin iterator
+     */
+    //ConstReverseIterator rbegin() const;
+
+    /**
+     * Iterator service.
+     * @return rend iterator
+     */
+    //ConstReverseIterator rend() const;
+
+    /**
+     * Circulator service.
+     * @return a circulator
+     */
+    //ConstCirculator c() const;
+
+    /**
+     * Circulator service.
+     * @return a reverse circulator
+     */
+    //ConstReverseCirculator rc() const;
+
+
+  private:
+    const Container & container;
+    const MyTURBOLOLFunctor & myTURBOLOLfunctor;
+  };
+
 } // namespace DGtal
 
 
