@@ -46,6 +46,9 @@
 #include "DGtal/base/Common.h"
 #include "DGtal/kernel/SpaceND.h"
 #include "DGtal/base/BasicBoolFunctions.h"
+
+#include "DGtal/base/IteratorAdapter.h"
+#include "DGtal/base/ConstIteratorAdapter.h"
 //////////////////////////////////////////////////////////////////////////////
 
 namespace DGtal
@@ -634,7 +637,7 @@ namespace DGtal
   template< typename Container >
   class SCellTo2DSCell
   {
-    template< typename Iterator, typename TFunctor >
+    /*template< typename Iterator, typename TFunctor >
     class _Iterator : public Iterator
     {
       typedef TFunctor MYMEGAFUNCTOR;
@@ -659,17 +662,17 @@ namespace DGtal
         return myTurboFunctor(*it);
       }
 
-      /*value_type* operator->()
-      {
-        std::cout << "Coucou operator ->*" << std::endl;
-        return &(*it);
-      }
+      //value_type* operator->()
+      //{
+      //  std::cout << "Coucou operator ->*" << std::endl;
+      //  return &(*it);
+      //}
 
-      const value_type* operator->() const
-      {
-        std::cout << "Coucou operator const ->" << std::endl;
-        return &(*it);
-      }*/
+      //const value_type* operator->() const
+      //{
+      //  std::cout << "Coucou operator const ->" << std::endl;
+      //  return &(*it);
+      //}
 
       _Iterator& operator++( )
       {
@@ -693,20 +696,21 @@ namespace DGtal
         return it != rhs.it;
       }
 
-      /*operator Iterator()
-      {
-        return it;
-      }*/
+      //operator Iterator()
+      //{
+      //  return it;
+      //}
 
     private:
       Iterator it;
       const MYMEGAFUNCTOR & myTurboFunctor;
-    };
+    };*/
 
   public:
     typedef FunctorByTwo< typename Container::value_type, int > MyTURBOLOLFunctor;
-    typedef _Iterator< typename Container::iterator, MyTURBOLOLFunctor > Iterator;
-    typedef _Iterator< typename Container::const_iterator, MyTURBOLOLFunctor > ConstIterator;
+    typedef IteratorAdapter< typename Container::iterator, MyTURBOLOLFunctor > Iterator;
+    typedef ConstIteratorAdapter< typename Container::const_iterator, MyTURBOLOLFunctor > ConstIterator;
+
     //typedef _Iterator< typename Container::ConstReverseIterator > ConstReverseIterator;
     //typedef _Iterator< typename Container::ConstCirculator > ConstCirculator;
     //typedef _Iterator< typename Container::ConstReverseCirculator > ConstReverseCirculator;
