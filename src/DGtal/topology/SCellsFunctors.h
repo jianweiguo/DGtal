@@ -47,753 +47,717 @@
 #include "DGtal/kernel/SpaceND.h"
 #include "DGtal/base/BasicBoolFunctions.h"
 
+#include "DGtal/topology/KhalimskySpaceND.h"
 #include "DGtal/base/IteratorAdapter.h"
 #include "DGtal/base/ConstIteratorAdapter.h"
+#include "DGtal/kernel/BasicPointFunctors.h"
 //////////////////////////////////////////////////////////////////////////////
 
 namespace DGtal
 {
 
-  /////////////////////////////////////////////////////////////////////////////
-  // template class SCellToPoint
-  /**
+/////////////////////////////////////////////////////////////////////////////
+// template class SCellToPoint
+/**
    * Description of template class 'SCellToPoint' <p>
    * \brief Aim: transforms a scell into a point
-   * @tparam KSpace the Khalimsky space 
-   * @code 
+   * @tparam KSpace the Khalimsky space
+   * @code
   KSpace aKSpace;
-  typename KSpace::SCell aSCell; 
-  typename KSpace::Point aPoint; 
+  typename KSpace::SCell aSCell;
+  typename KSpace::Point aPoint;
   SCellToPoint<KSpace> f(aKSpace);
   ...
-  aPoint = f(aSCell); 
+  aPoint = f(aSCell);
    * @endcode
    * @see ConstIteratorAdapter KhalimskySpaceND PointVector
    */
-  template <typename KSpace>
-  class SCellToPoint
-  {
+template <typename KSpace>
+class SCellToPoint
+{
+public:
+  typedef typename KSpace::Point Output;
+  typedef typename KSpace::SCell Input;
 
-    typedef typename KSpace::Point Output;
-    typedef typename KSpace::SCell Input;
-
-    private: 
-     /**
+private:
+  /**
        * Aliasing pointer on the Khalimsky space.
       */
-    const KSpace* myK; 
-    
-    public:
+  const KSpace* myK;
 
-     /**
+public:
+
+  /**
        * Default constructor.
       */
-    SCellToPoint() : myK(NULL) { }
-     /**
+  SCellToPoint() : myK(NULL) { }
+  /**
        * Constructor.
        * @param aK a Khalimsky space
       */
-    SCellToPoint(const KSpace& aK) : myK(&aK) { }
+  SCellToPoint(const KSpace& aK) : myK(&aK) { }
 
-    /**
+  /**
      * Copy constructor.
      * @param other any SCellToPoint functor
      */
-    SCellToPoint(const SCellToPoint& other)
+  SCellToPoint(const SCellToPoint& other)
     : myK(other.myK) { }
 
-    /**
-     * Assignment. 
+  /**
+     * Assignment.
      *
      * @param other the object to copy.
      * @return a reference on 'this'.
      */
-    SCellToPoint& operator= ( const SCellToPoint & other ) 
+  SCellToPoint& operator= ( const SCellToPoint & other )
+  {
+    if (this != &other)
     {
-      if (this != &other)
-	{
-	  myK = other.myK;
-	}
-      return *this;
+      myK = other.myK;
     }
-    
-    /**
-     * Returns a point (with integer coordinates) 
+    return *this;
+  }
+
+  /**
+     * Returns a point (with integer coordinates)
      * from a scell (with khalimsky coordinates)
      * @param aSCell a scell
      * @return the corresponding point.
      */
-    Output operator()(const Input& aSCell) const
+  Output operator()(const Input& aSCell) const
+  {
+    ASSERT( myK );
+    Input s = aSCell;
+    while ( myK->sDim(s) > 0 )
     {
-      ASSERT( myK );
-      Input s = aSCell; 
-      while ( myK->sDim(s) > 0 )
-	{
-	  Input tmp( myK->sIndirectIncident( s, *myK->sDirs( s ) ) );
-	  ASSERT( myK->sDim(tmp) < myK->sDim(s) ); 
-	  s = tmp; 
-	}
-      return Output( myK->sCoords(s) );
+      Input tmp( myK->sIndirectIncident( s, *myK->sDirs( s ) ) );
+      ASSERT( myK->sDim(tmp) < myK->sDim(s) );
+      s = tmp;
     }
-      
-  }; // end of class SCellToPoint
+    return Output( myK->sCoords(s) );
+  }
 
-  /**
+}; // end of class SCellToPoint
+
+/**
    * SCellToMidPoint is now deprecated. Please use CanonicSCellEmbedder instead.
    */
-  namespace deprecated
-  {
-  /////////////////////////////////////////////////////////////////////////////
-  // template class SCellToMidPoint
-  /**
+namespace deprecated
+{
+/////////////////////////////////////////////////////////////////////////////
+// template class SCellToMidPoint
+/**
    * Description of template class 'SCellToMidPoint' <p>
    * \brief Aim: transforms a scell into a real point
    * (the coordinates are divided by 2)
-   * @tparam KSpace the Khalimsky space 
-   * @code 
+   * @tparam KSpace the Khalimsky space
+   * @code
   KSpace aKSpace;
-  typename KSpace::SCell aSCell; 
-  typename KSpace::Space::RealPoint aPoint; 
-  SCellToMidPoint<KSpace> f(aKSpace); 
+  typename KSpace::SCell aSCell;
+  typename KSpace::Space::RealPoint aPoint;
+  SCellToMidPoint<KSpace> f(aKSpace);
   ...
-  aPoint = f(aSCell); 
+  aPoint = f(aSCell);
    * @endcode
-   * @see ConstIteratorAdapter KhalimskySpaceND PointVector 
+   * @see ConstIteratorAdapter KhalimskySpaceND PointVector
    */
-  template <typename KSpace>
-  class SCellToMidPoint
-  {
-    
-    public: 
-      
-    typedef typename KSpace::Space::RealPoint Output;
-    typedef typename KSpace::SCell Input;
-    
-    private: 
-     /**
+template <typename KSpace>
+class SCellToMidPoint
+{
+
+public:
+
+  typedef typename KSpace::Space::RealPoint Output;
+  typedef typename KSpace::SCell Input;
+
+private:
+  /**
        *  Aliasing pointer on the Khalimsky space.
       */
-    const KSpace* myK;
-    
-    public:
-      
-     /**
+  const KSpace* myK;
+
+public:
+
+  /**
        * Default constructor.
       */
-    SCellToMidPoint() : myK(NULL) { }
-     /**
+  SCellToMidPoint() : myK(NULL) { }
+  /**
        *  Constructor.
        * @param aK a Khalimsky space
       */
-    SCellToMidPoint(const KSpace& aK) : myK(&aK) { }
+  SCellToMidPoint(const KSpace& aK) : myK(&aK) { }
 
-    /**
+  /**
      *  Copy constructor.
      * @param other any SCellToMidPoint functor
      */
-    SCellToMidPoint(const SCellToMidPoint& other)
+  SCellToMidPoint(const SCellToMidPoint& other)
     : myK(other.myK) { }
 
-    /**
-     * Assignment. 
+  /**
+     * Assignment.
      * @param other the object to copy.
      * @return a reference on 'this'.
      */
-    SCellToMidPoint & operator= ( const SCellToMidPoint & other ) 
+  SCellToMidPoint & operator= ( const SCellToMidPoint & other )
+  {
+    if (this != &other)
     {
-      if (this != &other)
-	{
-	  myK = other.myK;
-	}
-      return *this;
+      myK = other.myK;
     }
-    
-    /**
+    return *this;
+  }
+
+  /**
      * Return a real point (double coordinates) from a scell (khalimsky coordinates)
      * @param s a scell
      * @return the corresponding point.
      */
-    Output operator()(const Input& s) const
-    {
-      ASSERT( myK ); 
-      Output o( myK->sKCoords(s) );
-      o /= 2;
-      for( unsigned int i = 0; i < o.dimension; ++i )
-          o[i] -= 0.5;
-      return o;
-    } 
-      
-  }; // end of class SCellToMidPoint
-  } // end of namespace deprecated
-  /////////////////////////////////////////////////////////////////////////////
-  // template class SCellToArrow
-  /**
+  Output operator()(const Input& s) const
+  {
+    ASSERT( myK );
+    Output o( myK->sKCoords(s) );
+    o /= 2;
+    for( unsigned int i = 0; i < o.dimension; ++i )
+      o[i] -= 0.5;
+    return o;
+  }
+
+}; // end of class SCellToMidPoint
+} // end of namespace deprecated
+/////////////////////////////////////////////////////////////////////////////
+// template class SCellToArrow
+/**
    * Description of template class 'SCellToArrow' <p>
-   * \brief Aim: transforms a signed cell into an arrow, 
+   * \brief Aim: transforms a signed cell into an arrow,
    * ie. a pair point-vector
-   * @tparam KSpace the Khalimsky space 
+   * @tparam KSpace the Khalimsky space
    * @see SCellToPoint ConstIteratorAdapter KhalimskySpaceND PointVector
    */
-  template <typename KSpace>
-  class SCellToArrow
-  {
-    
-    public: 
-      
-    typedef typename KSpace::Point Point;
-    typedef typename KSpace::Vector Vector;
-    typedef std::pair<Point,Vector> Output;
-    typedef typename KSpace::SCell Input;
-    
-    private: 
-     /**
+template <typename KSpace>
+class SCellToArrow
+{
+
+public:
+
+  typedef typename KSpace::Point Point;
+  typedef typename KSpace::Vector Vector;
+  typedef std::pair<Point,Vector> Output;
+  typedef typename KSpace::SCell Input;
+
+private:
+  /**
        *  Aliasing pointer on the Khalimsky space.
       */
-    const KSpace* myK; 
-    
-    public:
-    
-     /**
+  const KSpace* myK;
+
+public:
+
+  /**
        * Default constructor.
       */
-    SCellToArrow() : myK(NULL) { }
-     /**
+  SCellToArrow() : myK(NULL) { }
+  /**
        *  Constructor.
        * @param aK a Khalimsky space
       */
-    SCellToArrow(const KSpace& aK) : myK(&aK) { }
+  SCellToArrow(const KSpace& aK) : myK(&aK) { }
 
-    /**
+  /**
      *  Copy constructor.
      * @param other any SCellToArrow modifier
      */
-    SCellToArrow(const SCellToArrow& other)
+  SCellToArrow(const SCellToArrow& other)
     : myK(other.myK) { }
 
-    /**
-     * Assignment. 
+  /**
+     * Assignment.
      * @param other the object to copy.
      * @return a reference on 'this'.
      */
-    SCellToArrow & operator= ( const SCellToArrow & other ) 
+  SCellToArrow & operator= ( const SCellToArrow & other )
+  {
+    if (this != &other)
     {
-      if (this != &other)
-	{
-	  myK = other.myK;
-	}
-      return *this;
+      myK = other.myK;
     }
-      
-    /**
+    return *this;
+  }
+
+  /**
      * Get an arrow, ie a pair point-vector with integer coordinates
      * from a scell in khalimsky coordinates
      * @param s a scell
      * @return the corresponding point.
      */
-    Output operator()(const Input& s) const
-    {
-      ASSERT( myK ); 
-      //starting point of the arrow
-      Input pointel( myK->sIndirectIncident( s, *myK->sDirs( s ) ) );
-      Point p( myK->sCoords( pointel ) );   //integer coordinates
-      //displacement vector
-      Vector v( myK->sKCoords( s ) - myK->sKCoords( pointel ) );
-      return Output(p,v);
-    }
-      
-  }; // end of class SCellToArrow
+  Output operator()(const Input& s) const
+  {
+    ASSERT( myK );
+    //starting point of the arrow
+    Input pointel( myK->sIndirectIncident( s, *myK->sDirs( s ) ) );
+    Point p( myK->sCoords( pointel ) );   //integer coordinates
+    //displacement vector
+    Vector v( myK->sKCoords( s ) - myK->sKCoords( pointel ) );
+    return Output(p,v);
+  }
 
-  /////////////////////////////////////////////////////////////////////////////
-  // template class SCellToInnerPoint
-  /**
+}; // end of class SCellToArrow
+
+/////////////////////////////////////////////////////////////////////////////
+// template class SCellToInnerPoint
+/**
    * Description of template class 'SCellToInnerPoint' <p>
    * \brief Aim: transforms a signed cell c into a point
    * corresponding to the signed cell of greater dimension
-   * that is indirectly incident to c. 
+   * that is indirectly incident to c.
    *
    * For instance, a linel is mapped into the indirect incident pixel center
-   * and a surfel is mapped into the indirect incident voxel center. 
+   * and a surfel is mapped into the indirect incident voxel center.
    *
-   * @tparam KSpace the Khalimsky space 
+   * @tparam KSpace the Khalimsky space
    * @see SCellToPoint SCellToOuterPoint ConstIteratorAdapter KhalimskySpaceND PointVector
    */
-  template <typename KSpace>
-  class SCellToInnerPoint
-  {
-    
-    public: 
-      
-    typedef typename KSpace::Point Output;
-    typedef typename KSpace::SCell Input;
-    
-    private: 
-     /**
+template <typename KSpace>
+class SCellToInnerPoint
+{
+
+public:
+
+  typedef typename KSpace::Point Output;
+  typedef typename KSpace::SCell Input;
+
+private:
+  /**
        *  Aliasing pointer on the Khalimsky space.
       */
-    const KSpace* myK; 
-    
-    public:
-      
-     /**
+  const KSpace* myK;
+
+public:
+
+  /**
        * Default constructor.
       */
-    SCellToInnerPoint() : myK(NULL) { }
-     /**
+  SCellToInnerPoint() : myK(NULL) { }
+  /**
        *  Constructor.
        * @param aK a Khalimsky space
       */
-    SCellToInnerPoint(const KSpace& aK) : myK(&aK) { }
+  SCellToInnerPoint(const KSpace& aK) : myK(&aK) { }
 
-    /**
+  /**
      *  Copy constructor.
      * @param other any SCellToInnerPoint functor
      */
-    SCellToInnerPoint(const SCellToInnerPoint& other)
+  SCellToInnerPoint(const SCellToInnerPoint& other)
     : myK(other.myK) { }
 
-    /**
-     * Assignment. 
+  /**
+     * Assignment.
      * @param other the object to copy.
      * @return a reference on 'this'.
      */
-    SCellToInnerPoint & operator= ( const SCellToInnerPoint & other ) 
+  SCellToInnerPoint & operator= ( const SCellToInnerPoint & other )
+  {
+    if (this != &other)
     {
-      if (this != &other)
-	{
-	  myK = other.myK;
-	}
-      return *this;
+      myK = other.myK;
     }
-      
-    /**
+    return *this;
+  }
+
+  /**
      * Return a point (integer coordinates) from a scell (khalimsky coordinates)
      * @param s a linel
      * @return the inner pixel center
      */
-    Output operator()(const Input& s) const
-    {
-      ASSERT( myK ); 
-      Input pixel( myK->sDirectIncident( s, *myK->sOrthDirs( s ) ) );
-      return Output( myK->sCoords( pixel ) ); //integer coordinates
-    }
-      
-  }; // end of class SCellToInnerPoint
+  Output operator()(const Input& s) const
+  {
+    ASSERT( myK );
+    Input pixel( myK->sDirectIncident( s, *myK->sOrthDirs( s ) ) );
+    return Output( myK->sCoords( pixel ) ); //integer coordinates
+  }
 
-  /////////////////////////////////////////////////////////////////////////////
-  // template class SCellToOuterPoint
-  /**
+}; // end of class SCellToInnerPoint
+
+/////////////////////////////////////////////////////////////////////////////
+// template class SCellToOuterPoint
+/**
    * Description of template class 'SCellToOuterPoint' <p>
    * \brief Aim: transforms a signed cell c into a point
    * corresponding to the signed cell of greater dimension
-   * that is directly incident to c. 
+   * that is directly incident to c.
    *
    * For instance, a linel is mapped into the direct incident pixel center
-   * and a surfel is mapped into the direct incident voxel center. 
+   * and a surfel is mapped into the direct incident voxel center.
    *
-   * @tparam KSpace the Khalimsky space 
+   * @tparam KSpace the Khalimsky space
    * @see SCellToPoint SCellToInnerPoint ConstIteratorAdapter KhalimskySpaceND PointVector
    */
-  template <typename KSpace>
-  class SCellToOuterPoint
-  {
-    public: 
-      
-    typedef typename KSpace::Point Output;
-    typedef typename KSpace::SCell Input;
-    
-    private: 
-     /**
+template <typename KSpace>
+class SCellToOuterPoint
+{
+public:
+
+  typedef typename KSpace::Point Output;
+  typedef typename KSpace::SCell Input;
+
+private:
+  /**
        *  Aliasing pointer on the Khalimsky space.
       */
-    const KSpace* myK; 
-    
-    public:
-      
-     /**
+  const KSpace* myK;
+
+public:
+
+  /**
        * Default constructor.
       */
-    SCellToOuterPoint() : myK(NULL) { }
-     /**
+  SCellToOuterPoint() : myK(NULL) { }
+  /**
        *  Constructor.
        * @param aK a Khalimsky space
       */
-    SCellToOuterPoint(const KSpace& aK) : myK(&aK) { }
+  SCellToOuterPoint(const KSpace& aK) : myK(&aK) { }
 
-    /**
+  /**
      *  Copy constructor.
      * @param other any SCellToOuterPoint modifier
      */
-    SCellToOuterPoint(const SCellToOuterPoint& other)
+  SCellToOuterPoint(const SCellToOuterPoint& other)
     : myK(other.myK) { }
 
-    /**
-     * Assignment. 
+  /**
+     * Assignment.
      * @param other the object to copy.
      * @return a reference on 'this'.
      */
-    SCellToOuterPoint & operator= ( const SCellToOuterPoint & other ) 
+  SCellToOuterPoint & operator= ( const SCellToOuterPoint & other )
+  {
+    if (this != &other)
     {
-      if (this != &other)
-	{
-	  myK = other.myK;
-	}
-      return *this;
+      myK = other.myK;
     }
-      
-    /**
+    return *this;
+  }
+
+  /**
      * Return a point (integer coordinates) from a scell (khalimsky coordinates)
      * @param s a linel
      * @return the outer pixel center
      */
-    Output operator()(const Input& s) const
-    {
-      ASSERT( myK ); 
-      Input pixel( myK->sIndirectIncident( s, *myK->sOrthDirs( s ) ) );
-      return Output( myK->sCoords( pixel ) ); //integer coordinates
-    }
-      
-  }; // end of class SCellToOuterPoint
+  Output operator()(const Input& s) const
+  {
+    ASSERT( myK );
+    Input pixel( myK->sIndirectIncident( s, *myK->sOrthDirs( s ) ) );
+    return Output( myK->sCoords( pixel ) ); //integer coordinates
+  }
 
-  /////////////////////////////////////////////////////////////////////////////
-  // template class SCellToIncidentPoints
-  /**
+}; // end of class SCellToOuterPoint
+
+/////////////////////////////////////////////////////////////////////////////
+// template class SCellToIncidentPoints
+/**
    * Description of template class 'SCellToIncidentPoints' <p>
    * \brief Aim: transforms a signed cell c into a pair of points
    * corresponding to the signed cells of greater dimension
-   * that are indirectly and directly incident to c. 
+   * that are indirectly and directly incident to c.
    *
    * For instance, a linel is mapped into the pair of incident pixel centers
-   * and a surfel is mapped into the pair of incident voxel centers. 
+   * and a surfel is mapped into the pair of incident voxel centers.
    *
-   * @tparam KSpace the Khalimsky space 
+   * @tparam KSpace the Khalimsky space
    * @see SCellToInnerPoint SCellToOuterPoint ConstIteratorAdapter KhalimskySpaceND PointVector
    */
-  template <typename KSpace>
-  class SCellToIncidentPoints
-  {
-    
-    public: 
-      
-    typedef typename KSpace::Point Point;
-    typedef std::pair<Point,Point> Output;
-    typedef typename KSpace::SCell Input;
-    
-    private: 
-     /**
+template <typename KSpace>
+class SCellToIncidentPoints
+{
+
+public:
+
+  typedef typename KSpace::Point Point;
+  typedef std::pair<Point,Point> Output;
+  typedef typename KSpace::SCell Input;
+
+private:
+  /**
        *  Aliasing pointer on the Khalimsky space.
       */
-    const KSpace* myK;   
-    
-    public:
-      
-     /**
+  const KSpace* myK;
+
+public:
+
+  /**
        * Default constructor.
       */
-    SCellToIncidentPoints() : myK(NULL) { }
-     /**
+  SCellToIncidentPoints() : myK(NULL) { }
+  /**
        *  Constructor.
        * @param aK a Khalimsky space
       */
-    SCellToIncidentPoints(const KSpace& aK) : myK(&aK) { }
+  SCellToIncidentPoints(const KSpace& aK) : myK(&aK) { }
 
-    /**
+  /**
      *  Copy constructor.
      * @param other any SCellToIncidentPoints functor
      */
-    SCellToIncidentPoints(const SCellToIncidentPoints& other)
+  SCellToIncidentPoints(const SCellToIncidentPoints& other)
     : myK(other.myK) { }
 
-    /**
-     * Assignment. 
+  /**
+     * Assignment.
      * @param other the object to copy.
      * @return a reference on 'this'.
      */
-    SCellToIncidentPoints & operator= ( const SCellToIncidentPoints & other ) 
+  SCellToIncidentPoints & operator= ( const SCellToIncidentPoints & other )
+  {
+    if (this != &other)
     {
-      if (this != &other)
-	{
-	  myK = other.myK;
-	}
-      return *this;
+      myK = other.myK;
     }
-      
-    /**
+    return *this;
+  }
+
+  /**
      * Get a pair of point (integer coordinates) from a scell (khalimsky coordinates)
      * @param s a linel
      * @return the pair of points
      */
-    Output operator()(const Input& s) const
-    {
-      ASSERT( myK ); 
-      //inner point
-      Input innerPixel( myK->sDirectIncident( s, *myK->sOrthDirs( s ) ) );
-      //outer point
-      Input outerPixel( myK->sIndirectIncident( s, *myK->sOrthDirs( s ) ) );
+  Output operator()(const Input& s) const
+  {
+    ASSERT( myK );
+    //inner point
+    Input innerPixel( myK->sDirectIncident( s, *myK->sOrthDirs( s ) ) );
+    //outer point
+    Input outerPixel( myK->sIndirectIncident( s, *myK->sOrthDirs( s ) ) );
 
-      return Output(myK->sCoords( innerPixel ),myK->sCoords( outerPixel ));
-    }
-      
-  }; // end of class SCellToIncidentPoints
-  
-  /////////////////////////////////////////////////////////////////////////////
-  // template class SCellToCode
-  /**
+    return Output(myK->sCoords( innerPixel ),myK->sCoords( outerPixel ));
+  }
+
+}; // end of class SCellToIncidentPoints
+
+/////////////////////////////////////////////////////////////////////////////
+// template class SCellToCode
+/**
    * Description of template class 'SCellToCode' <p>
-   * \brief Aim: transforms a 2d signed cell, basically a linel, 
-    * into a code (0,1,2 or 3), 
-   * @tparam KSpace the 2d Khalimsky space 
+   * \brief Aim: transforms a 2d signed cell, basically a linel,
+    * into a code (0,1,2 or 3),
+   * @tparam KSpace the 2d Khalimsky space
    * @see ConstIteratorAdapter KhalimskySpaceND
    */
-  template <typename KSpace>
-  class SCellToCode
-  {
-    
-    BOOST_STATIC_ASSERT( KSpace::dimension == 2 );
+template <typename KSpace>
+class SCellToCode
+{
 
-    public: 
-      
-    typedef typename KSpace::Point Point;
-    typedef typename KSpace::Vector Vector;
-    typedef char Output;
+  BOOST_STATIC_ASSERT( KSpace::dimension == 2 );
 
-    typedef typename KSpace::SCell Input;
-    
-    private: 
-     /**
+public:
+
+  typedef typename KSpace::Point Point;
+  typedef typename KSpace::Vector Vector;
+  typedef char Output;
+
+  typedef typename KSpace::SCell Input;
+
+private:
+  /**
        *  Aliasing pointer on the Khalimsky space.
       */
-    const KSpace* myK;      
-    
-    public:
-      
-     /**
+  const KSpace* myK;
+
+public:
+
+  /**
        * Default constructor.
       */
-    SCellToCode() : myK(NULL) { }
-     /**
+  SCellToCode() : myK(NULL) { }
+  /**
        *  Constructor.
        * @param aK a Khalimsky space
       */
-    SCellToCode(const KSpace& aK) : myK(&aK) { }
+  SCellToCode(const KSpace& aK) : myK(&aK) { }
 
-    /**
+  /**
      *  Copy constructor.
      * @param other any SCellToCode modifier
      */
-    SCellToCode(const SCellToCode& other)
+  SCellToCode(const SCellToCode& other)
     : myK(other.myK) { }
 
-    /**
-     * Assignment. 
+  /**
+     * Assignment.
      * @param other the object to copy.
      * @return a reference on 'this'.
      */
-    SCellToCode & operator= ( const SCellToCode & other ) 
+  SCellToCode & operator= ( const SCellToCode & other )
+  {
+    if (this != &other)
     {
-      if (this != &other)
-	{
-	  myK = other.myK;
-	}
-      return *this;
+      myK = other.myK;
     }
-      
-    /**
+    return *this;
+  }
+
+  /**
      * Return a code from a linel
      * @param s a linel
      * @return the corresponding code
      */
-    Output operator()(const Input& s) const
-    {
-      ASSERT( myK ); 
-      //starting point of the arrow
-      Input pointel( myK->sIndirectIncident( s, *myK->sDirs( s ) ) );
-      Point p( myK->sCoords( pointel ) );   //integer coordinates
-      //displacement vector
-      Vector v( myK->sKCoords( s ) - myK->sKCoords( pointel ) );
-      if (v == Vector(1,0)) return '0'; 
-      else if (v == Vector(0,1)) return '1';
-      else if (v == Vector(-1,0)) return '2';
-      else if (v == Vector(0,-1)) return '3';
-      else return 'e'; //e for error!
-    }
-      
-  }; // end of class SCellToCode
-
-
-  template< typename TInput, typename TValue >
-  class FunctorByTwo
+  Output operator()(const Input& s) const
   {
-  public:
-    typedef TInput Input;
-    typedef TValue Value;
-    FunctorByTwo(){}
+    ASSERT( myK );
+    //starting point of the arrow
+    Input pointel( myK->sIndirectIncident( s, *myK->sDirs( s ) ) );
+    Point p( myK->sCoords( pointel ) );   //integer coordinates
+    //displacement vector
+    Vector v( myK->sKCoords( s ) - myK->sKCoords( pointel ) );
+    if (v == Vector(1,0)) return '0';
+    else if (v == Vector(0,1)) return '1';
+    else if (v == Vector(-1,0)) return '2';
+    else if (v == Vector(0,-1)) return '3';
+    else return 'e'; //e for error!
+  }
 
-    Value operator()( const Input & in ) const
+}; // end of class SCellToCode
+
+/////////////////////////////////////////////////////////////////////////////
+// template class SCellProjector
+template < typename K = KhalimskySpaceND< 2, DGtal::int32_t > >
+struct SCellProjector
+{
+  typedef K KSpace;
+  typedef typename KSpace::Space::Dimension Dimension;
+  BOOST_STATIC_CONSTANT( Dimension, dimension = KSpace::dimension );
+  typedef typename KSpace::Integer Integer;
+  typedef typename KSpace::SCell SCell;
+
+  /**
+     * Default constructor
+     */
+  SCellProjector(const Integer & aDefaultInteger = NumberTraits<Integer>::zero())
+    : myDims(), myDefaultInteger(aDefaultInteger)
+  { //default projection
+    Dimension k = 0;
+    for ( ; k < dimension; ++k)
     {
-      return Value( in * 2 );
+      myDims[k] = k;
     }
-  };
+  }
 
-  template< typename Container >
-  class SCellTo2DSCell
+  /**
+     * Initialization of the array of relevant dimensions
+     * @param itb begin iterator on dimensions.
+     * @param ite end iterator on dimensions.
+     */
+  template<typename TIterator>
+  void init ( const TIterator & itb, const TIterator & ite )
   {
-    /*template< typename Iterator, typename TFunctor >
-    class _Iterator : public Iterator
+    BOOST_STATIC_ASSERT ((boost::is_same< Dimension,
+                          typename std::iterator_traits<TIterator>::value_type >::value));
+
+    TIterator it = itb;
+    Dimension k = 0;
+    for ( ; ( (k < dimension)&&(it != ite) ); ++it, ++k)
     {
-      typedef TFunctor MYMEGAFUNCTOR;
-      typedef typename TFunctor::Value value_type;
-
-    public:
-      _Iterator( const Iterator & i, const MYMEGAFUNCTOR & f ) : it(i), myTurboFunctor(f) {}
-
-      _Iterator(const _Iterator& mit) : it(mit.it), myTurboFunctor(mit.myTurboFunctor) {}
-
-      value_type operator*()
-      {
-        std::cout << "Coucou operator *" << std::endl;
-
-        std::cout << "TRALALA " << myTurboFunctor( *it ) << std::endl;
-        return 0.0;//functor(*it);
-      }
-
-      const value_type& operator*() const
-      {
-        std::cout << "Coucou operator const *" << std::endl;
-        return myTurboFunctor(*it);
-      }
-
-      //value_type* operator->()
-      //{
-      //  std::cout << "Coucou operator ->*" << std::endl;
-      //  return &(*it);
-      //}
-
-      //const value_type* operator->() const
-      //{
-      //  std::cout << "Coucou operator const ->" << std::endl;
-      //  return &(*it);
-      //}
-
-      _Iterator& operator++( )
-      {
-        ++it;
-        return *this;
-      }
-
-      _Iterator operator++( int )
-      {
-        _Iterator tmp( *this );
-        operator++();
-        return *tmp;
-      }
-
-      bool operator==( const _Iterator& rhs )
-      {
-        return it == rhs.it;
-      }
-      bool operator!=( const _Iterator& rhs )
-      {
-        return it != rhs.it;
-      }
-
-      //operator Iterator()
-      //{
-      //  return it;
-      //}
-
-    private:
-      Iterator it;
-      const MYMEGAFUNCTOR & myTurboFunctor;
-    };*/
-
-  public:
-    typedef FunctorByTwo< typename Container::value_type, int > MyTURBOLOLFunctor;
-    typedef IteratorAdapter< typename Container::iterator, MyTURBOLOLFunctor > Iterator;
-    typedef ConstIteratorAdapter< typename Container::const_iterator, MyTURBOLOLFunctor > ConstIterator;
-
-    //typedef _Iterator< typename Container::ConstReverseIterator > ConstReverseIterator;
-    //typedef _Iterator< typename Container::ConstCirculator > ConstCirculator;
-    //typedef _Iterator< typename Container::ConstReverseCirculator > ConstReverseCirculator;
-
-
-
-
-    SCellTo2DSCell( const Container & v_container )
-      :container(v_container),myTURBOLOLfunctor(MyTURBOLOLFunctor())
+      myDims[k] = *it;
+    }
+    for ( ; k < dimension; ++k)
     {
+      myDims[k] = dimension;
+    }
+  }
 
+  /**
+     *  Initialisation by removing a given dimension.
+     *  @param dimRemoved the removed dimension.
+     */
+  void initRemoveOneDim ( const Dimension & dimRemoved )
+  {
+    std::vector<Dimension> vectDims;
+    Dimension aCurrentPos = 0;
+    Dimension k=0;
+    for ( ; k < dimension; ++k)
+    {
+      if(k!=dimRemoved){
+        vectDims.push_back(aCurrentPos);
+      }
+      aCurrentPos++;
+    }
+    init(vectDims.begin(), vectDims.end());
+  }
+
+  /**
+     *  Initialisation by adding a given dimension.
+     *  @param newDim the new dimension.
+     */
+  void initAddOneDim ( const Dimension & newDim )
+  {
+    std::vector<Dimension> vectDims;
+    Dimension maxIndex = dimension;
+    Dimension aCurrentPos = 0;
+    Dimension k=0;
+    for ( ; k < dimension; ++k)
+    {
+      if(k==newDim){
+        vectDims.push_back(maxIndex);
+      }else{
+        vectDims.push_back(aCurrentPos);
+        aCurrentPos++;
+      }
+    }
+    init(vectDims.begin(), vectDims.end());
+  }
+
+  /**
+     *  Main operator
+     * @param aPoint any point.
+     * @return the projected point.
+     */
+  template<typename TInputSCell>
+  SCell operator()( const TInputSCell & aSCell ) const
+  {
+    BOOST_STATIC_ASSERT ((boost::is_same< typename TInputSCell::Integer, Integer >::value));
+    SCell res;
+
+#ifdef CPP11_ARRAY
+    typename std::array<Dimension,dimension>::const_iterator it = myDims.begin();
+    typename std::array<Dimension,dimension>::const_iterator itEnd = myDims.end();
+#else
+    typename boost::array<Dimension,dimension>::const_iterator it = myDims.begin();
+    typename boost::array<Dimension,dimension>::const_iterator itEnd = myDims.end();
+#endif
+
+    Dimension k = 0;
+    for ( ; it != itEnd; ++it, ++k)
+    {
+      Dimension l = *it;
+      if (l < TInputSCell::Point::dimension)
+        res.myCoordinates[k] = aSCell.myCoordinates[l];
+      else
+        res.myCoordinates[k] = myDefaultInteger;
     }
 
-    /**
-     * Iterator service.
-     * @return begin iterator
+    return res;
+  }
+
+private:
+  /**
+     * Array storing the coordinates that are copied from
+     * the input point to its projection (order matters)
      */
-    /*Iterator begin()
-    {
-      typename Container::iterator it = container.begin();
-      return Iterator( it );
-    }*/
-
-    /**
-     * Iterator service.
-     * @return begin iterator
+#ifdef CPP11_ARRAY
+  std::array<Dimension, dimension> myDims;
+#else
+  boost::array<Dimension, dimension> myDims;
+#endif
+  /**
+     * Default integer set to coordinates of the projected point
+     * not in the input point
      */
-    ConstIterator begin()
-    {
-      typename Container::const_iterator it = container.begin();
-      return ConstIterator( it, myTURBOLOLfunctor );
-    }
+  Integer myDefaultInteger;
 
-
-    /**
-     * Iterator service.
-     * @return end iterator
-     */
-    /*Iterator end()
-    {
-      typename Container::iterator it = container.end();
-      return Iterator( it );
-    }*/
-
-    /**
-     * Iterator service.
-     * @return end iterator
-     */
-    ConstIterator end()
-    {
-      typename Container::const_iterator it = container.end();
-      return ConstIterator( it, myTURBOLOLfunctor );
-    }
-
-    /**
-     * Iterator service.
-     * @return rbegin iterator
-     */
-    //ConstReverseIterator rbegin() const;
-
-    /**
-     * Iterator service.
-     * @return rend iterator
-     */
-    //ConstReverseIterator rend() const;
-
-    /**
-     * Circulator service.
-     * @return a circulator
-     */
-    //ConstCirculator c() const;
-
-    /**
-     * Circulator service.
-     * @return a reverse circulator
-     */
-    //ConstReverseCirculator rc() const;
-
-
-  private:
-    const Container & container;
-    const MyTURBOLOLFunctor & myTURBOLOLfunctor;
-  };
+}; // end of class SCellProjector
 
 } // namespace DGtal
 

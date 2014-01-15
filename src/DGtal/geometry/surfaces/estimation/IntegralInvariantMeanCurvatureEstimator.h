@@ -358,6 +358,8 @@ public:
   */
   void init ( const double _h, const double re );
 
+  void light_init( const double _h, const double re );
+
   /**
   * -- Mean curvature --
   * Compute the integral invariant mean curvature at surfel *it of a shape.

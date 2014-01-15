@@ -194,6 +194,66 @@ DGtal::IntegralInvariantMeanCurvatureEstimator<TKSpace, TShapeFunctor, 3>::init 
 
 
 
+template <typename TKSpace, typename TShapeFunctor>
+inline
+void
+DGtal::IntegralInvariantMeanCurvatureEstimator<TKSpace, TShapeFunctor, 2>::light_init ( const double _h, const double re )
+{
+    h = _h;
+    radius = re;
+
+    meanFunctor.init( h, radius );
+
+    RealPoint rOrigin = RealPoint ( 0.0, 0.0 );
+    Domain::Point pOrigin = Domain::Point( 0, 0 );
+    kernel = new KernelSupport( rOrigin, radius );
+    digKernel = new DigitalShapeKernel();
+    digKernel->attach( *kernel );
+    digKernel->init( kernel->getLowerBound(), kernel->getUpperBound(), h );
+
+    /*kernels = std::vector< PairIterators > ( 9 );
+    kernelsSet = std::vector< DigitalSet* >( 9 );
+
+    /// Computation of shifting masks
+    for( int y = -1; y <= 1; ++y )
+    {
+        for( int x = -1; x <= 1; ++x )
+        {
+            unsigned int offset = ( x + 1 ) + (( y + 1 ) * 3 );
+
+            if( offset == 4 ) // Full kernel, already done
+            {
+                continue;
+            }
+            else
+            {
+                RealPoint shiftPoint = rOrigin + RealPoint( x * h , y * h );
+                KernelSupport * kernelShifted = new KernelSupport( shiftPoint, radius );
+
+                EuclideanMinus * current = new EuclideanMinus( *kernel, *kernelShifted );
+                DigitalShape digCurrent;
+                digCurrent.attach( *current );
+                digCurrent.init( kernel->getLowerBound(), kernel->getUpperBound(), h );
+
+                kernelsSet[ offset ] = new DigitalSet( digCurrent.getDomain() );
+                Shapes< Domain>::digitalShaper ( *(kernelsSet[ offset ]), digCurrent );
+
+                kernels[ offset ].first = kernelsSet[ offset ]->begin();
+                kernels[ offset ].second = kernelsSet[ offset ]->end();
+
+                delete current;
+                delete kernelShifted;
+            }
+        }
+    }
+    /// End of computation of masks
+    */
+
+    myConvolver.init( pOrigin, digKernel, kernels );
+}
+
+
+
 
 
 
