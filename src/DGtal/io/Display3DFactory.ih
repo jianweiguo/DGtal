@@ -889,7 +889,7 @@ void DGtal::Display3DFactory<Space,KSpace>::draw( Display3D<Space, KSpace> & dis
         display.setFillColor(DGtal::Color(20, 200, 200, 255));
       }
     display.addSurfelPrism(DGtal::Z3i::RealPoint(rp[0]+(xodd? 0:0.5 ), rp[1]+(yodd? 0:0.5 ), rp[2]+(zodd? 0:0.5 )),
-			   ! xodd, !yodd, !zodd, factorVolSurfel,1.0, false, false);
+         ! xodd, !yodd, !zodd, factorVolSurfel,1.1, false, false);
     break;
   case 3:
     if(mode!="" && mode!="IllustrationCustomColor")
