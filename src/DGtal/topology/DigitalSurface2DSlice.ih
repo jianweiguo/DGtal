@@ -162,6 +162,24 @@ rcstart() const
 //-----------------------------------------------------------------------------
 template <typename TDigitalSurfaceTracker>
 inline
+typename DGtal::DigitalSurface2DSlice<TDigitalSurfaceTracker>::Iterator
+DGtal::DigitalSurface2DSlice<TDigitalSurfaceTracker>::
+begin()
+{
+  return mySurfels.begin();
+}
+//-----------------------------------------------------------------------------
+template <typename TDigitalSurfaceTracker>
+inline
+typename DGtal::DigitalSurface2DSlice<TDigitalSurfaceTracker>::Iterator
+DGtal::DigitalSurface2DSlice<TDigitalSurfaceTracker>::
+end()
+{
+  return mySurfels.end();
+}
+//-----------------------------------------------------------------------------
+template <typename TDigitalSurfaceTracker>
+inline
 typename DGtal::DigitalSurface2DSlice<TDigitalSurfaceTracker>::ConstIterator
 DGtal::DigitalSurface2DSlice<TDigitalSurfaceTracker>::
 begin() const

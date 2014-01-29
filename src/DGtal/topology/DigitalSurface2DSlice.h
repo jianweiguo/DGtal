@@ -103,6 +103,7 @@ namespace DGtal
     typedef DigitalSurface<DigitalSurfaceContainer> TheDigitalSurface;
 
     typedef std::deque<Surfel> Storage;
+    typedef typename Storage::iterator Iterator;
     typedef typename Storage::const_iterator ConstIterator;
     typedef typename Storage::const_reverse_iterator ConstReverseIterator;
     typedef Circulator<ConstIterator> ConstCirculator;
@@ -190,6 +191,17 @@ namespace DGtal
     // ------------------------- iterator services ----------------------------
   public:
     
+    /**
+     * Iterator service.
+     * @return begin iterator
+     */
+    Iterator begin();
+
+    /**
+     * Iterator service.
+     * @return end iterator
+     */
+    Iterator end();
     /**
      * Iterator service.
      * @return begin iterator
