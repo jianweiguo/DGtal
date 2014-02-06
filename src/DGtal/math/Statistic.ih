@@ -169,6 +169,23 @@ DGtal::Statistic<TQuantity>::end() const
   return myValues.end();
 }
 
+//-----------------------------------------------------------------------------
+template <typename TQuantity>
+inline
+typename DGtal::Statistic<TQuantity>::Iterator
+DGtal::Statistic<TQuantity>::begin()
+{
+  return myValues.begin();
+}
+//-----------------------------------------------------------------------------
+template <typename TQuantity>
+inline
+typename DGtal::Statistic<TQuantity>::Iterator
+DGtal::Statistic<TQuantity>::end()
+{
+  return myValues.end();
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////////////

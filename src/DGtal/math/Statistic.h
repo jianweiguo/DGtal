@@ -75,6 +75,7 @@ namespace DGtal
     BOOST_CONCEPT_ASSERT(( CCommutativeRing<Quantity> ) );
     typedef std::vector< Quantity > Container;
     typedef typename Container::const_iterator ConstIterator;
+    typedef typename Container::iterator Iterator;
     
     // ----------------------- Standard services ------------------------------
   public:
@@ -118,6 +119,17 @@ namespace DGtal
      * @return a new object that is the union of these statistics.
      */
     Statistic operator+( const Statistic & other ) const;
+
+    /**
+       @return an iterator on the first stored value (if storeSample was set).
+    */
+    Iterator begin();
+
+    /**
+       @return an iterator after the last stored value (if storeSample was set).
+    */
+    Iterator end();
+
 
     /**
        @return an iterator on the first stored value (if storeSample was set).
