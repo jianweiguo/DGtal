@@ -47,6 +47,9 @@
 #include "DGtal/io/colormaps/GradientColorMap.h"
 #include <boost/math/special_functions/fpclassify.hpp>
 
+#include "DGtal/geometry/surfaces/FunctorOnCells.h"
+#include "DGtal/geometry/surfaces/estimation/IntegralInvariantMeanCurvatureEstimator.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
@@ -147,23 +150,28 @@ int main( int argc, char** argv )
   viewer.show();
   viewer << SetMode3D( domain.className(), "BoundingBox" ) << domain;
 
+  std::vector<double> curvatures;
+  std::back_insert_iterator< std::vector< double > > out( curvatures );
+  typedef PointFunctorFromPointPredicateAndDomain< DigitalShape, Z3i::Domain, unsigned int > MyPointFunctor;
+  typedef FunctorOnCells< MyPointFunctor, KSpace > MySpelFunctor;
+  MyPointFunctor pointFunctor( dshape, domain, 1, 0 );
+  MySpelFunctor functor( pointFunctor, K );
+  typedef IntegralInvariantMeanCurvatureEstimator< KSpace, MySpelFunctor > Estimator;
+  Estimator estimator( K, functor );
+  estimator.init( step, 4.0 );
+  estimator.eval( theSetOfSurfels.begin(), theSetOfSurfels.end(), out );
 
 
 
   //-----------------------------------------------------------------------
   // Looking for the min and max values
 
-  double minCurv = 1;
-  double maxCurv = 0;
+  double minCurv = 9999999999;
+  double maxCurv = -99999999;
   CanonicSCellEmbedder< KSpace > midpoint( K );
-  for ( std::set< SCell >::iterator it = theSetOfSurfels.begin(), it_end = theSetOfSurfels.end();
-        it != it_end; ++it)
+  for ( Dimension ii = 0; ii < curvatures.size(); ++ii )
   {
-
-    RealPoint A = midpoint( *it ) * step;
-    A = ishape.nearestPoint (A,0.01,200,0.1*step);
-    double a = ishape.meanCurvature( A );
-//    double a=ishape.gaussianCurvature(A);
+    double a = curvatures[ii];
     if ( boost::math::isnan( a ))
     {
       a = 0;
@@ -197,6 +205,7 @@ int main( int argc, char** argv )
   //drawing
   unsigned int nbSurfels = 0;
 
+  Dimension ii = 0;
   for ( std::set<SCell>::iterator it = theSetOfSurfels.begin(),
         it_end = theSetOfSurfels.end();
         it != it_end; ++it, ++nbSurfels )
@@ -206,7 +215,7 @@ int main( int argc, char** argv )
     RealPoint A = midpoint( *it ) * step;
     A = ishape.nearestPoint (A,0.01,200,0.1*step);
 //    double a=ishape.gaussianCurvature(A);
-    double a = ishape.meanCurvature( A );
+    double a = curvatures[ii];
     if ( boost::math::isnan( a ))
     {
       a = 0;
@@ -214,6 +223,7 @@ int main( int argc, char** argv )
 
     viewer << CustomColors3D( Color::Black, cmap_grad( a ));
     viewer << *it;
+    ii++;
   }
 
   viewer << Viewer3D<>::updateDisplay;
