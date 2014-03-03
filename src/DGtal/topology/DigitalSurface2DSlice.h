@@ -45,6 +45,7 @@
 #include "DGtal/base/Common.h"
 #include "DGtal/base/Circulator.h"
 #include "DGtal/topology/CDigitalSurfaceTracker.h"
+#include "DGtal/topology/DigitalSurface.h"
 //////////////////////////////////////////////////////////////////////////////
 
 namespace DGtal
