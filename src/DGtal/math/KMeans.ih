@@ -1,0 +1,190 @@
+/**
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation, either version 3 of the
+ *  License, or  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ **/
+
+ /**
+ * @file IntegralInvariantMeanCurvatureEstimator.ih
+ * @author Jeremy Levallois (\c jeremy.levallois@liris.cnrs.fr )
+ * Laboratoire d'InfoRmatique en Image et Systèmes d'information - LIRIS (CNRS, UMR 5205), INSA-Lyon, France
+ * LAboratoire de MAthématiques - LAMA (CNRS, UMR 5127), Université de Savoie, France
+ *
+ * @date 2014/03/03
+ *
+ * Implementation of inline methods defined in KMeans.h
+ *
+ * This file is part of the DGtal library.
+ */
+
+//////////////////////////////////////////////////////////////////////////////
+#include <cstdlib>
+//////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// IMPLEMENTATION of inline methods.
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// ----------------------- Standard services ------------------------------
+
+template< typename Quantity, typename DistQuantityFunctor >
+inline
+void
+DGtal::KMeans::computeKMeans( const std::vector< Quantity > &v_inputQuantities,
+  const DGtal::Dimension nbBins,
+  const DistQuantityFunctor &distFunctor,
+  std::vector< DGtal::Dimension > &v_registration,
+  std::vector< Quantity > &v_centroid )
+{
+  using DGtal::trace;
+
+#ifdef VERBOSE
+  trace.beginBlock("KMeans: initialisation...");
+#endif
+
+  std::vector< Quantity > v_quantities = v_inputQuantities;
+  const DGtal::Dimension size_inputQuantities = v_inputQuantities.size();
+  DGtal::Dimension size_quantities = size_inputQuantities;
+  v_centroid.resize( nbBins ); //Cluster v_centroids
+  v_registration.resize( size_inputQuantities ); //For each point, the cluster Id
+
+  //We create a first set of v_centroid
+  for( DGtal::Dimension ii = 0; ii < nbBins; ++ii )
+  {
+    DGtal::Dimension jj = std::rand() % size_quantities;
+    bool alreadySet = false;
+    do
+    {
+      alreadySet = false;
+      for( DGtal::Dimension kk = 0; kk < ii; ++kk )
+      {
+        if( v_centroid[kk] == v_quantities[jj] )
+        {
+          alreadySet = true;
+          break;
+        }
+      }
+      if( alreadySet )
+      {
+        jj = std::rand() % size_quantities;
+      }
+    }
+    while( alreadySet );
+
+    v_centroid[ii] = v_quantities[jj];
+    v_quantities[jj]  = v_quantities[size_quantities - 1];
+    v_quantities.pop_back();
+    --size_quantities;
+  }
+  v_quantities.clear();
+
+#ifdef VERBOSE
+  trace.endBlock();
+  trace.beginBlock("KMeans: first assignment...");
+#endif
+
+  for( DGtal::Dimension ii = 0; ii < size_inputQuantities; ++ii )
+  {
+    v_registration[ii] = 0;
+    for( DGtal::Dimension cc =  1 ; cc < nbBins; ++cc )
+    {
+      if( distFunctor( v_inputQuantities[ii], v_centroid[cc] ) < distFunctor( v_inputQuantities[ii], v_centroid[v_registration[ii]] ))
+      {
+        v_registration[ii] = cc;
+      }
+    }
+  }
+
+#ifdef VERBOSE
+  trace.endBlock();
+  trace.beginBlock("KMeans: first v_centroids computation...");
+#endif
+
+  for( DGtal::Dimension ii = 0; ii < nbBins; ++ii )
+  {
+    Quantity meanQuantity = v_centroid[ii];
+    DGtal::Dimension count = 1;
+    for( DGtal::Dimension jj = 0; jj < size_inputQuantities; ++jj )
+    {
+      if( v_registration[jj] == ii )
+      {
+        meanQuantity += v_inputQuantities[jj];
+        ++count;
+      }
+    }
+    v_centroid[ii] = meanQuantity/(double)count;
+  }
+
+#ifdef VERBOSE
+  trace.endBlock();
+  trace.beginBlock("KMeans: main loop...");
+#endif
+
+  bool b_change = true;
+  while( b_change )
+  {
+    b_change = false;
+    DGtal::Dimension id;
+    //Reassignment
+    for( DGtal::Dimension ii = 0; ii < size_inputQuantities; ++ii )
+    {
+      id = v_registration[ii];
+      //	  std::cout << "Si="<<S[i].transpose()<<"  v_registration: "<<id
+      //		    << "  min="<<v_centroid[id].transpose()
+      //		    << " d="<<distFunctor.distance(S[i], v_centroid[id])<<std::endl;
+      for( DGtal::Dimension cc = 0 ; cc < nbBins; ++cc )
+      {
+        //  std::cout << " dist "<<S[i].transpose()<< " -- "<<v_centroid[c].transpose()
+        //<< "   d = "<< distFunctor.distance(S[i], v_centroid[c])<<std::endl;
+        if ( distFunctor( v_inputQuantities[ii], v_centroid[cc]) < distFunctor( v_inputQuantities[ii], v_centroid[id] ))
+        {
+          id = cc;
+        }
+      }
+      //	  std::cout << "   id="<<id<<std::endl;
+      if( id != v_registration[ii] )
+      {
+        //update detected
+        v_registration[ii] = id;
+        b_change = true;
+      }
+
+    }
+
+    //v_centroid relaxation
+    if( b_change )
+    {
+      for( DGtal::Dimension ii = 0 ; ii < nbBins; ++ii )
+      {
+        Quantity meanQuantity = v_centroid[ii];
+        DGtal::Dimension count = 1;
+        for( DGtal::Dimension jj = 0; jj < size_inputQuantities; ++jj )
+        {
+          if( v_registration[jj] == ii )
+          {
+            meanQuantity += v_inputQuantities[jj];
+            ++count;
+          }
+        }
+        v_centroid[ii] = meanQuantity/(double)count;
+      }
+    }
+
+    //    /  for(Dimension i=0; i <nbBins ; ++i)
+    //	std::cout << v_centroid[i].transpose()<<std::endl;
+  }
+#ifdef VERBOSE
+  trace.endBlock();
+#endif
+}
