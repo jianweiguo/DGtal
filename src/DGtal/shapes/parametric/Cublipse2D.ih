@@ -1,0 +1,356 @@
+/**
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation, either version 3 of the
+ *  License, or  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ **/
+
+/**
+ * @file Cublipse2D.ih
+ * @author Jérémy Levallois (\c jeremy.levallois@liris.cnrs.fr )
+ * Laboratoire d'InfoRmatique en Image et Systèmes d'information - LIRIS (CNRS, UMR 5205), INSA-Lyon, France
+ * LAboratoire de MAthématiques - LAMA (CNRS, UMR 5127), Université de Savoie, France
+ *
+ * @date 2013/12/05
+ *
+ * Implementation of inline methods defined in Cublipse2D.h
+ *
+ * This file is part of the DGtal library.
+ */
+
+
+//////////////////////////////////////////////////////////////////////////////
+#include <cstdlib>
+//////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// IMPLEMENTATION of inline methods.
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// ----------------------- Standard services ------------------------------
+
+/**
+ * Destructor.
+ */
+template <typename T>
+inline
+DGtal::Cublipse2D<T>::~Cublipse2D()
+{
+}
+
+template <typename T>
+inline
+DGtal::Cublipse2D<T>::Cublipse2D(const double x0, const double y0,
+             const double a0, const double a1, const double theta)
+  : myCenter(x0,y0), myAxis1(a0),myAxis2(a1),myTheta(theta)
+{}
+
+
+template <typename T>
+inline
+DGtal::Cublipse2D<T>::Cublipse2D(const RealPoint2D &aPoint,
+             const double a0, const double a1, const double theta)
+  : myCenter(aPoint), myAxis1(a0),myAxis2(a1),myTheta(theta)
+{}
+
+template <typename T>
+inline
+DGtal::Cublipse2D<T>::Cublipse2D(const Point &aPoint,
+             const double a0, const double a1, const double theta) 
+  : myAxis1(a0),myAxis2(a1),myTheta(theta)
+{
+  myCenter = aPoint;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// ------------- Implementation of 'StarShaped' services ------------------
+
+/**
+ * @param p any point in the plane.
+ *
+ * @return the angle parameter between 0 and 2*Pi corresponding to
+ * this point for the shape.
+ */
+template <typename T>
+inline
+double
+DGtal::Cublipse2D<T>::parameter( const RealPoint2D & pp ) const
+{
+  RealPoint2D v2d( pp );
+  v2d -= myCenter;
+  
+  if( pp[0] < myCenter[0] )
+  {
+    double angle;
+
+    if ( v2d[0] == 0.0 )
+    {
+      if ( v2d[1] >0 )
+        angle = M_PI/2.0;
+      else
+        angle = 1.5*M_PI;
+    }
+    else if (  ( v2d[0] > 0.0 ) && (   v2d[1] >= 0.0 ) )
+      angle = atan(v2d[1]/v2d[0]);
+    else if (  ( v2d[0] > 0.0 ) && (   v2d[1] <= 0.0 ) )
+      angle = 2*M_PI + atan(v2d[1]/v2d[0]);
+    else if (  ( v2d[0] < 0.0 ) && (   v2d[1] >= 0.0 ) )
+      angle = atan(v2d[1]/v2d[0]) + M_PI;
+    else // (  ( v2d[0] < 0.0 ) && (   v2d[1] <= 0.0 ) )
+      angle = atan(v2d[1]/v2d[0]) + M_PI;
+
+    return angle;
+  }
+  else
+  {
+    if( pp[1] >= myCenter[1] )
+    {
+      double angle;
+      RealPoint2D c( myAxis2 * ( angle / d_pi_2 ), myAxis2 * ( 1 - ( angle / d_pi_2 )));
+      c += myCenter;
+      return c;
+    }
+    else
+    {
+      RealPoint2D c( myAxis2 * ( 1 - ( angle - d_3pi_2 ) / d_pi_2 ), - myAxis2 * (( angle - d_3pi_2 ) / d_pi_2 ));
+      c += myCenter;
+      return c;
+    }
+
+    RealPoint2D p( pp );
+    p -= myCenter;
+
+    double t = atan2( p[ 1 ], p[ 0 ] );
+    return ( t < 0.0 ) ? ( t + 2.0 * M_PI ) : t;
+  }
+}
+
+/**
+ * @param t any angle between 0 and 2*Pi.
+ *
+ * @return the vector (x(t),y(t)) which is the position on the
+ * shape boundary.
+ */
+template <typename T>
+inline
+typename DGtal::Cublipse2D<T>::RealPoint2D
+DGtal::Cublipse2D<T>::x( double t ) const
+{
+  double d_pi_2 = M_PI / 2.0;
+  double d_3pi_2 = ( 3.0 * M_PI ) / 2.0;
+  double angle = t;
+  while ( angle < 0.0 )
+    angle += 2.0*M_PI;
+  while ( angle >= 2.0*M_PI )
+    angle -= 2.0*M_PI;
+
+  if( angle > d_pi_2 && angle < d_3pi_2 )
+  {
+  double a2 = myAxis1*myAxis1;
+  double b2 = myAxis2*myAxis2;
+  double costth = cos( angle - myTheta );
+  //  double sintth = sin( t - myTheta );
+  double cost = cos( angle );
+  double sint = sin( angle );
+  double rho = myAxis2 / sqrt( 1.0 - ((a2-b2)/a2)*costth*costth);
+    //myAxis2*myAxis1 / sqrt( a2 - (a2-b2)*costth*costth);
+  RealPoint2D v( rho*cost, 
+     rho*sint );
+  v += myCenter;
+  return v;
+  }
+  else
+  {
+    if( angle <= d_pi_2 )
+    {
+      RealPoint2D c( myAxis2 * ( angle / d_pi_2 ), myAxis2 * ( 1 - ( angle / d_pi_2 )));
+      c += myCenter;
+      return c;
+    }
+    else
+    {
+      RealPoint2D c( myAxis2 * ( 1 - ( angle - d_3pi_2 ) / d_pi_2 ), - myAxis2 * (( angle - d_3pi_2 ) / d_pi_2 ));
+      c += myCenter;
+      return c;
+    }
+    /*double angle = t - myTheta;// + M_PI/2.0;
+    while ( angle < 0.0 )
+      angle += 2.0*M_PI;
+
+
+    // seek the vertices between the point, then compute the vector from one vertex to the next one.
+
+    unsigned int intervale_lower = static_cast<unsigned int>( floor( ( angle )* 4 / (2.0 * M_PI ) ) );
+    unsigned int intervale_upper = intervale_lower == ( 3 ) ? 0 : intervale_lower+1;
+    double dist = myAxis2*cos ( M_PI / 4 );
+    RealPoint2D s1 ( myAxis2*cos(myTheta + intervale_lower*2.0*M_PI/4),
+         myAxis2*sin(myTheta + intervale_lower*2.0*M_PI/4) );
+    RealPoint2D s2 ( myAxis2*cos(myTheta + intervale_upper*2.0*M_PI/4),
+         myAxis2*sin(myTheta + intervale_upper*2.0*M_PI/4) );
+    RealPoint2D s3( s2[0] - s1[0], s2[1] - s1[1]);
+
+    double line_angle = atan2f( (float)s3[ 1 ], (float)s3[ 0 ]);
+
+    double rho = dist/(cos (t - line_angle - 0.5*M_PI));
+
+    RealPoint2D c( -rho*cos(t), -rho*sin(t) );
+
+    c += myCenter;
+
+    return c;*/
+  }
+}
+
+/**
+ * @param t any angle between 0 and 2*Pi.
+ *
+ * @return the vector (x'(t),y'(t)) which is the tangent to the
+ * shape boundary.
+ */
+template <typename T>
+inline
+typename DGtal::Cublipse2D<T>::RealVector2D
+DGtal::Cublipse2D<T>::xp( const double t ) const
+{
+  if( t > M_PI/2.0 && t < (3*M_PI)/2.0 )
+  {
+  double a2 = myAxis1*myAxis1;
+  double b2 = myAxis2*myAxis2;
+  double costth = cos( t - myTheta );
+  double sintth = sin( t - myTheta );
+  double cost = cos( t );
+  double sint = sin( t );
+  double rho = myAxis2 / sqrt( 1.0 - ((a2-b2)/a2)*costth*costth);
+  double a = myAxis1; 
+  double b = myAxis2;
+  double rhod= a*b*(b2-a2)*sintth*costth
+    / std::pow( a2*sintth*sintth + b2*costth*costth, 1.5 );
+  RealPoint2D v( rhod*cost - rho*sint, rhod*sint + rho*cost );
+  
+  return v;
+  }
+  else
+  {
+    // seek the vertices between the point, then compute the vector from one vertex to the next one.
+    // TODO check if angle equals that of a vertex ?
+    double angle = t - myTheta;// + M_PI/2.0;
+    while ( angle < 0.0 )
+      angle += 2.0*M_PI;
+
+    unsigned int intervalle_lower = static_cast<unsigned int>( floor( angle * 4 / (2.0 * M_PI ) ) );
+    unsigned int intervalle_upper = intervalle_lower == ( 4 -1 ) ? 0 : intervalle_lower+1;
+    //float dist = myRadius*sin ( M_PI / myK );
+    RealPoint2D s1 ( myAxis2*cos(myTheta + intervalle_lower*2.0*M_PI/4),
+         myAxis2*sin(myTheta + intervalle_lower*2.0*M_PI/4) );
+    RealPoint2D s2 ( myAxis2*cos(myTheta + intervalle_upper*2.0*M_PI/4),
+         myAxis2*sin(myTheta + intervalle_upper*2.0*M_PI/4) );
+    s2 -= s1;
+
+    //normalize
+    double norm = s2.norm();
+    s2[0] /= norm;
+    s2[1] /= norm;
+
+    return s2;
+  }
+}
+
+/**
+ * @param t any angle between 0 and 2*Pi.
+ *
+ * @return the vector (x''(t),y''(t)).
+ */
+template <typename T>
+inline
+typename DGtal::Cublipse2D<T>::RealVector2D
+DGtal::Cublipse2D<T>::xpp( const double t ) const
+{
+  if( t > M_PI/2.0 && t < (3*M_PI)/2.0 )
+  {
+  double a2 = myAxis1*myAxis1;
+  double b2 = myAxis2*myAxis2;
+  double costth = cos( t - myTheta );
+  double sintth = sin( t - myTheta );
+  double cost = cos( t );
+  double sint = sin( t );
+  double rho = myAxis2 / sqrt( 1.0 - ((a2-b2)/a2)*costth*costth);
+
+  double a = myAxis1; 
+  double b = myAxis2;
+  double rhod = a*b*(b2-a2)*sintth*costth
+    / std::pow( a2*sintth*sintth + b2*costth*costth, 1.5 );
+  double rhodd = a*b*(b2-a2)
+    / std::pow( a2*sintth*sintth + b2*costth*costth, 2.5 )
+    * ( (costth*costth - sintth*sintth) * (a2*sintth*sintth + b2*costth*costth)
+  + 3.0*(b2-a2)*sintth*sintth*costth*costth );
+  
+  RealPoint2D v( rhodd*cost - 2.0*rhod*sint - rho*cost, 
+     rhodd*sint + 2.0*rhod*cost - rho*sint );
+  return v;
+  }
+  else
+  {
+    RealVector2D c(0,0);
+    return c;
+  }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Interface - public :
+
+/**
+ * Writes/Displays the object on an output stream.
+ * @param out the output stream where the object is written.
+ */
+template <typename T>
+inline
+void
+DGtal::Cublipse2D<T>::selfDisplay ( std::ostream & out ) const
+{
+  out << "[Cublipse2D] center= "<<myCenter<<" big axis="<<myAxis1
+      <<" small axis="<<myAxis2<<" phase="<<myTheta;
+}
+
+/**
+ * Checks the validity/consistency of the object.
+ * @return 'true' if the object is valid, 'false' otherwise.
+ */
+template <typename T>
+inline
+bool
+DGtal::Cublipse2D<T>::isValid() const
+{
+    return true;
+}
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Implementation of inline functions                                        //
+
+template <typename T>
+inline
+std::ostream&
+DGtal::operator<< ( std::ostream & out, 
+      const Cublipse2D<T> & object )
+{
+  object.selfDisplay( out );
+  return out;
+}
+
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+
+
+

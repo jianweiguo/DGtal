@@ -51,6 +51,7 @@
 #include "DGtal/shapes/parametric/NGon2D.h"
 #include "DGtal/shapes/parametric/AccFlower2D.h"
 #include "DGtal/shapes/parametric/Ellipse2D.h"
+#include "DGtal/shapes/parametric/Cublipse2D.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
