@@ -112,6 +112,11 @@ namespace DGtal
   // ------------- Implementation of 'StarShaped' services ------------------
   public:
 
+    RealPoint interiorPoint() const
+    {
+      return center();
+    }
+
     /**
      * @return the lower bound of the shape bounding box.
      *

@@ -113,20 +113,28 @@ DGtal::Cublipse2D<T>::parameter( const RealPoint2D & pp ) const
   }
   else
   {
-    if( pp[1] >= myCenter[1] )
+    //if( pp[1] >= myCenter[1] )
     {
       RealPoint2D a( v2d[0], v2d[1] );
-      RealPoint2D b( myAxis2, 0 );
-      double angle = acos(( a[0] * b[0] + a[1] * b[1] ) / sqrt(( a[0]*a[0] + a[1]*a[1] )*( b[0]*b[0] + b[1]*b[1] )));
-      return angle;
+      RealPoint2D b( myAxis2, myCenter[1] );
+      double angle = acos(( a.dot(b) ) / ( a.norm() * b.norm() ));
+      // double angle = acos(( a[0] * b[0] + a[1] * b[1] ) / sqrt(( a[0]*a[0] + a[1]*a[1] )*( b[0]*b[0] + b[1]*b[1] )));
+      if( pp[1] >= myCenter[1] )
+      {
+        return angle;
+      }
+      else
+      {
+        return (2.0*M_PI) - angle;
+      }
     }
-    else
+    /*else
     {
       RealPoint2D a( myAxis2, 0 );
       RealPoint2D b( v2d[0], v2d[1] );
       double angle = acos(( a[0] * b[0] + a[1] * b[1] ) / sqrt(( a[0]*a[0] + a[1]*a[1] )*( b[0]*b[0] + b[1]*b[1] )));
       return ( 2*M_PI ) - angle;
-    }
+    }*/
   }
 }
 
@@ -168,13 +176,13 @@ DGtal::Cublipse2D<T>::x( double t ) const
   {
     if( angle <= d_pi_2 )
     {
-      RealPoint2D c( myAxis2 * ( angle / d_pi_2 ), myAxis2 * ( 1 - ( angle / d_pi_2 )));
+      RealPoint2D c( myAxis2 * ( 1 - ( angle / d_pi_2 )), myAxis2 * ( angle / d_pi_2 ));
       c += myCenter;
       return c;
     }
     else
     {
-      RealPoint2D c( myAxis2 * ( 1 - ( angle - d_3pi_2 ) / d_pi_2 ), - myAxis2 * (( angle - d_3pi_2 ) / d_pi_2 ));
+      RealPoint2D c( myAxis2 * (( angle - d_3pi_2 ) / d_pi_2 ), - myAxis2 * ( 1 - ( angle - d_3pi_2 ) / d_pi_2 ) );
       c += myCenter;
       return c;
     }
