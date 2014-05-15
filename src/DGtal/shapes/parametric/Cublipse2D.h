@@ -112,7 +112,7 @@ namespace DGtal
   // ------------- Implementation of 'StarShaped' services ------------------
   public:
 
-    RealPoint interiorPoint() const
+    RealPoint2D interiorPoint() const
     {
       return center();
     }
