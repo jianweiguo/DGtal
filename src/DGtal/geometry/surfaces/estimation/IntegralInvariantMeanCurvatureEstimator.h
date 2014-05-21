@@ -95,18 +95,22 @@ public:
 
   MeanCurvatureFunctor2(){}
 
-  void init( const double & h, const double & r )
+  void init( const double & h, const double & r, const unsigned int sizeFullKernel )
   {
     d1_r2 = 1.0 / ( r * r );
     dPI_2 = M_PI / 2.0;
     d3_r = 3.0 / r;
     dh2 = h * h;
+    myR = r;
+    mySizeFullKernel = sizeFullKernel;
   }
 
   Quantity operator()(const Quantity & aInput) const
   {
-    Quantity cp_quantity = aInput;
-    cp_quantity *= dh2;
+    Quantity cp_quantity = aInput / mySizeFullKernel;
+    // std::cout << "ratio " << cp_quantity << std::endl;
+
+    cp_quantity *= ( M_PI * myR * myR );// ( mySizeFullKernel * dh2 );
 
     return d3_r * ( dPI_2 - d1_r2 * cp_quantity );
   }
@@ -116,6 +120,8 @@ private:
   Quantity d3_r;
   Quantity dPI_2;
   Quantity d1_r2;
+  unsigned int mySizeFullKernel;
+  double myR;
 
 };
 
@@ -419,6 +425,8 @@ private:
   double h; ///< precision of the grid
 
   double radius; ///< Euclidean radius of the kernel
+
+  unsigned int sizeFullKernel;
 
   ValuesFunctor meanFunctor; ///< Functor to transform covarianceMatrix to Quantity
 

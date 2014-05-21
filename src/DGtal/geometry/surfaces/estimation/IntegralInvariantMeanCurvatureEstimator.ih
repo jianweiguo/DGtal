@@ -83,8 +83,6 @@ DGtal::IntegralInvariantMeanCurvatureEstimator<TKSpace, TShapeFunctor, 2>::init 
     h = _h;
     radius = re;
 
-    meanFunctor.init( h, radius );
-
     RealPoint rOrigin = RealPoint ( 0.0, 0.0 );
     Domain::Point pOrigin = Domain::Point( 0, 0 );
     kernel = new KernelSupport( rOrigin, radius );
@@ -95,6 +93,8 @@ DGtal::IntegralInvariantMeanCurvatureEstimator<TKSpace, TShapeFunctor, 2>::init 
     kernels = std::vector< PairIterators > ( 9 );
     kernelsSet = std::vector< DigitalSet* >( 9 );
 
+    sizeFullKernel = 0;
+
     /// Computation of shifting masks
     for( int y = -1; y <= 1; ++y )
     {
@@ -104,6 +104,14 @@ DGtal::IntegralInvariantMeanCurvatureEstimator<TKSpace, TShapeFunctor, 2>::init 
 
             if( offset == 4 ) // Full kernel, already done
             {
+                Domain domain = digKernel->getDomain();
+                for( typename Domain::ConstIterator itm = domain.begin(), itend = domain.end(); itm != itend; ++itm )
+                {
+                    if( digKernel->operator()( *itm ))
+                    {
+                        ++sizeFullKernel;
+                    }
+                }
                 continue;
             }
             else
@@ -128,6 +136,8 @@ DGtal::IntegralInvariantMeanCurvatureEstimator<TKSpace, TShapeFunctor, 2>::init 
         }
     }
     /// End of computation of masks
+
+    meanFunctor.init( h, radius, sizeFullKernel );
 
     myConvolver.init( pOrigin, digKernel, kernels );
 }
