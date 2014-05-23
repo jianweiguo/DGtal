@@ -112,7 +112,7 @@ public:
 
     cp_quantity *= ( M_PI * myR * myR );// ( mySizeFullKernel * dh2 );
 
-    return d3_r * ( dPI_2 - d1_r2 * cp_quantity );
+    return cp_quantity; //d3_r * ( dPI_2 - d1_r2 * cp_quantity );
   }
 
 private:
