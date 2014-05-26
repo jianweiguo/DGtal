@@ -617,7 +617,7 @@ void
 DGtal::DigitalSurfaceConvolver< Functor, KernelFunctor, KSpace, DigitalKernel, 2 >::eval
 ( const SurfelIterator & itbegin,
   const SurfelIterator & itend,
-  OutputIterator & result ) const
+  OutputIterator result ) const
 {
   ASSERT ( isInitFullMasks == true || isInitKernelAndMasks == true );
 
@@ -651,7 +651,7 @@ DGtal::DigitalSurfaceConvolver< Functor, KernelFunctor, KSpace, DigitalKernel, 2
         }
 
       double lambda = 0.5;
-      result = ( innerSum * lambda + outerSum * ( 1.0 - lambda ));
+      *result = ( innerSum * lambda + outerSum * ( 1.0 - lambda ));
       ++result;
 
       ++total;
@@ -670,7 +670,7 @@ void
 DGtal::DigitalSurfaceConvolver< Functor, KernelFunctor, KSpace, DigitalKernel, 2 >::eval
 ( const SurfelIterator & itbegin,
   const SurfelIterator & itend,
-  OutputIterator & result,
+  OutputIterator result,
   EvalFunctor functor ) const
 {
   ASSERT ( isInitFullMasks == true || isInitKernelAndMasks == true );
@@ -707,7 +707,7 @@ DGtal::DigitalSurfaceConvolver< Functor, KernelFunctor, KSpace, DigitalKernel, 2
 
       double lambda = 0.5;
       resultQuantity = innerSum * lambda + outerSum * ( 1.0 - lambda );
-      result = functor( resultQuantity );
+      *result = functor( resultQuantity );
       ++result;
 
       ++total;

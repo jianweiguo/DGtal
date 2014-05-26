@@ -260,7 +260,7 @@ inline
 void
 DGtal::IntegralInvariantMeanCurvatureEstimator<TKSpace, TShapeFunctor, 2>::eval ( const SurfelIterator & itb,
                                                                                   const SurfelIterator & ite,
-                                                                                  OutputIterator & result ) const
+                                                                                  OutputIterator result ) const
 {
     myConvolver.eval( itb, ite, result, meanFunctor );
 }

@@ -565,7 +565,7 @@ public:
   template< typename SurfelIterator, typename OutputIterator >
   void eval ( const SurfelIterator & itbegin,
               const SurfelIterator & itend,
-              OutputIterator & result ) const;
+              OutputIterator result ) const;
 
   /**
   * Convolve the kernel at all positions of the range [itBegin, itEnd[ and applies the functor \a functor on results outputed sequentially with \a result iterator.
@@ -582,7 +582,7 @@ public:
   template< typename SurfelIterator, typename OutputIterator, typename EvalFunctor >
   void eval ( const SurfelIterator & itbegin,
               const SurfelIterator & itend,
-              OutputIterator & result,
+              OutputIterator result,
               EvalFunctor functor ) const;
 
 

@@ -393,7 +393,7 @@ public:
   template< typename SurfelIterator, typename OutputIterator >
   void eval ( const SurfelIterator & itb,
               const SurfelIterator & ite,
-              OutputIterator & result ) const;
+              OutputIterator result ) const;
 
   /**
   * Writes/Displays the object on an output stream.
