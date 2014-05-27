@@ -108,11 +108,12 @@ public:
   Quantity operator()(const Quantity & aInput) const
   {
     Quantity cp_quantity = aInput / mySizeFullKernel;
-    // std::cout << "ratio " << cp_quantity << std::endl;
+    std::cout << "ratio " << cp_quantity << std::endl;
 
     cp_quantity *= ( M_PI * myR * myR );// ( mySizeFullKernel * dh2 );
-
-    return cp_quantity; //d3_r * ( dPI_2 - d1_r2 * cp_quantity );
+    std::cout << "radius " << cp_quantity << std::endl;
+    std::cout << "k " << d3_r * ( dPI_2 - d1_r2 * cp_quantity ) << std::endl;
+    return d3_r * ( dPI_2 - d1_r2 * cp_quantity );
   }
 
 private:

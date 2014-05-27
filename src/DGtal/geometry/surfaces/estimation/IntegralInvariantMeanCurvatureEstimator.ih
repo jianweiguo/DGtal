@@ -88,7 +88,7 @@ DGtal::IntegralInvariantMeanCurvatureEstimator<TKSpace, TShapeFunctor, 2>::init 
     kernel = new KernelSupport( rOrigin, radius );
     digKernel = new DigitalShapeKernel();
     digKernel->attach( *kernel );
-    digKernel->init( kernel->getLowerBound(), kernel->getUpperBound(), h );
+    digKernel->init( kernel->getLowerBound() - Z2i::RealPoint(1.0,1.0), kernel->getUpperBound() + Z2i::RealPoint(1.0,1.0), h );
 
     kernels = std::vector< PairIterators > ( 9 );
     kernelsSet = std::vector< DigitalSet* >( 9 );
@@ -127,6 +127,7 @@ DGtal::IntegralInvariantMeanCurvatureEstimator<TKSpace, TShapeFunctor, 2>::init 
                 kernelsSet[ offset ] = new DigitalSet( digCurrent.getDomain() );
                 Shapes< Domain>::digitalShaper ( *(kernelsSet[ offset ]), digCurrent );
 
+                std::cout << "--- size : " << kernelsSet[ offset ]->size() << std::endl;
                 kernels[ offset ].first = kernelsSet[ offset ]->begin();
                 kernels[ offset ].second = kernelsSet[ offset ]->end();
 
@@ -137,6 +138,7 @@ DGtal::IntegralInvariantMeanCurvatureEstimator<TKSpace, TShapeFunctor, 2>::init 
     }
     /// End of computation of masks
 
+    std::cout << "size : " << sizeFullKernel << std::endl;
     meanFunctor.init( h, radius, sizeFullKernel );
 
     myConvolver.init( pOrigin, digKernel, kernels );
