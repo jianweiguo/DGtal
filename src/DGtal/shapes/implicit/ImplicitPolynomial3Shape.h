@@ -195,6 +195,25 @@ namespace DGtal
 
 
 
+    /**
+     * @return the lower bound of the shape bounding box.
+     *
+     */
+    inline 
+    RealPoint getLowerBound() const;
+
+    inline 
+    void setLowerBound( const RealPoint p );
+    
+    /**
+     * @return the upper bound of the shape bounding box.
+     *
+     */
+    inline 
+    RealPoint getUpperBound() const;
+
+    inline 
+    void setUpperBound( const RealPoint p );
     // ----------------------- Interface --------------------------------------
   public:
 
@@ -238,6 +257,9 @@ namespace DGtal
     // Precomputed Polynoms useful for curvature computations
     Polynomial3 myUpPolynome;
     Polynomial3 myLowPolynome;
+
+    RealPoint lowerBound;
+    RealPoint upperBound;
 
 
     // ------------------------- Hidden services ------------------------------

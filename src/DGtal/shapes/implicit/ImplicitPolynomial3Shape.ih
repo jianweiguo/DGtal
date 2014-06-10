@@ -293,6 +293,39 @@ DGtal::ImplicitPolynomial3Shape<TSpace>::nearestPoint( const RealPoint &aPoint, 
 	return X;
 }
 
+
+template <typename TSpace>
+inline
+void 
+DGtal::ImplicitPolynomial3Shape<TSpace>::setLowerBound( const RealPoint p )
+{
+  lowerBound = p;
+}
+
+template <typename TSpace>
+inline
+typename DGtal::ImplicitPolynomial3Shape<TSpace>::RealPoint 
+DGtal::ImplicitPolynomial3Shape<TSpace>::getLowerBound() const
+{
+  return lowerBound;
+}
+
+template <typename TSpace>
+inline
+void
+DGtal::ImplicitPolynomial3Shape<TSpace>::setUpperBound( const RealPoint p )
+{
+  upperBound = p;
+}
+  
+template <typename TSpace>
+inline
+typename DGtal::ImplicitPolynomial3Shape<TSpace>::RealPoint 
+DGtal::ImplicitPolynomial3Shape<TSpace>::getUpperBound() const
+{
+  return upperBound;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Interface - public :
 
