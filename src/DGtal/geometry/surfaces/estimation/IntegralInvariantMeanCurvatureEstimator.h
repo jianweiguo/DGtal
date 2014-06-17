@@ -25,6 +25,10 @@
  * @date 2012/04/19
  *
  * Header file for module IntegralInvariantMeanCurvatureEstimator.ih
+ * 
+ * @warning This class is deprecated. Please use instead IntegralInvariantVolumeEstimator
+ * 
+ * @cite Coeurjo-CVIU-2014
  *
  * This file is part of the DGtal library.
  */
@@ -56,6 +60,9 @@
 
 
 namespace DGtal
+{
+
+namespace deprecated
 {
 
 template< typename Quantity >
@@ -95,24 +102,19 @@ public:
 
   MeanCurvatureFunctor2(){}
 
-  void init( const double & h, const double & r, const unsigned int sizeFullKernel )
+  void init( const double & h, const double & r )
   {
     d1_r2 = 1.0 / ( r * r );
     dPI_2 = M_PI / 2.0;
     d3_r = 3.0 / r;
     dh2 = h * h;
-    myR = r;
-    mySizeFullKernel = sizeFullKernel;
   }
 
   Quantity operator()(const Quantity & aInput) const
   {
-    Quantity cp_quantity = aInput / mySizeFullKernel;
-    std::cout << "ratio " << cp_quantity << std::endl;
+    Quantity cp_quantity = aInput;
+    cp_quantity *= dh2;
 
-    cp_quantity *= ( M_PI * myR * myR );// ( mySizeFullKernel * dh2 );
-    std::cout << "radius " << cp_quantity << std::endl;
-    std::cout << "k " << d3_r * ( dPI_2 - d1_r2 * cp_quantity ) << std::endl;
     return d3_r * ( dPI_2 - d1_r2 * cp_quantity );
   }
 
@@ -121,8 +123,6 @@ private:
   Quantity d3_r;
   Quantity dPI_2;
   Quantity d1_r2;
-  unsigned int mySizeFullKernel;
-  double myR;
 
 };
 
@@ -143,7 +143,7 @@ private:
 * and the convolution kernel radius.
 * Experimental results showed a multigrid convergence.
 *
-* Some optimization is available when we set a range of 0-adjacent surfels to the estimator.
+* Optimization is available when we set a range of 0-adjacent surfels to the estimator.
 *
 * @tparam TKSpace space in which the shape is defined.
 * @tparam TShapeFunctor TFunctor a model of a functor for the shape ( f(x) ).
@@ -394,7 +394,7 @@ public:
   template< typename SurfelIterator, typename OutputIterator >
   void eval ( const SurfelIterator & itb,
               const SurfelIterator & ite,
-              OutputIterator result ) const;
+              OutputIterator & result ) const;
 
   /**
   * Writes/Displays the object on an output stream.
@@ -426,8 +426,6 @@ private:
   double h; ///< precision of the grid
 
   double radius; ///< Euclidean radius of the kernel
-
-  unsigned int sizeFullKernel;
 
   ValuesFunctor meanFunctor; ///< Functor to transform covarianceMatrix to Quantity
 
@@ -599,11 +597,7 @@ private:
 }; // end of specialization for dimension = 3
 
 
-
-
-
-
-
+} // namespace deprecated
 
 
 /**
@@ -614,15 +608,15 @@ private:
 */
 template <typename TKS, typename TSF, Dimension dimension>
 std::ostream&
-operator<< ( std::ostream & out, const IntegralInvariantMeanCurvatureEstimator<TKS, TSF, dimension> & object );
+operator<< ( std::ostream & out, const DGtal::deprecated::IntegralInvariantMeanCurvatureEstimator<TKS, TSF, dimension> & object );
 
 template <typename TKS, typename TSF>
 std::ostream&
-operator<< ( std::ostream & out, const IntegralInvariantMeanCurvatureEstimator<TKS, TSF, 2> & object );
+operator<< ( std::ostream & out, const DGtal::deprecated::IntegralInvariantMeanCurvatureEstimator<TKS, TSF, 2> & object );
 
 template <typename TKS, typename TSF>
 std::ostream&
-operator<< ( std::ostream & out, const IntegralInvariantMeanCurvatureEstimator<TKS, TSF, 3> & object );
+operator<< ( std::ostream & out, const DGtal::deprecated::IntegralInvariantMeanCurvatureEstimator<TKS, TSF, 3> & object );
 
 } // namespace DGtal
 
