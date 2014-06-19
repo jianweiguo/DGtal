@@ -689,8 +689,8 @@ namespace DGtal
       typedef typename RealVector::Component Component;
       typedef SimpleMatrix<Component,Space::dimension,Space::dimension> Matrix;
       typedef Matrix Argument;
-      typedef Component Quantity;
-      typedef PrincipalCurvatures3D Value;
+      typedef PrincipalCurvatures3D Quantity;
+      typedef Quantity Value;
 
       BOOST_STATIC_ASSERT(( Space::dimension == 3 ));
 
@@ -728,9 +728,9 @@ namespace DGtal
       }
 
     private:
-      Quantity dh5;
-      Quantity d6_PIr6;
-      Quantity d8_5r;
+      double dh5;
+      double d6_PIr6;
+      double d8_5r;
 
       /// A data member only used for temporary calculations.
       mutable Matrix eigenVectors;
