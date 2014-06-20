@@ -669,15 +669,6 @@ namespace DGtal
     *
     * @see IntegralInvariantCovarianceEstimator
     */
-    struct PrincipalCurvatures3D
-    {
-      double k1;
-      double k2;
-
-      PrincipalCurvatures3D():k1(-99999),k2(-99999){}
-      PrincipalCurvatures3D(double a, double b):k1(a),k2(b){}
-    };
-
     template  <typename TSpace>
     struct IIPrincipalCurvatures3DFunctor
     {
@@ -689,8 +680,8 @@ namespace DGtal
       typedef typename RealVector::Component Component;
       typedef SimpleMatrix<Component,Space::dimension,Space::dimension> Matrix;
       typedef Matrix Argument;
-      typedef Component Quantity;
-      typedef PrincipalCurvatures3D Value;
+      typedef std::pair<Component, Component> Quantity;
+      typedef Quantity Value;
 
       BOOST_STATIC_ASSERT(( Space::dimension == 3 ));
 
@@ -708,7 +699,7 @@ namespace DGtal
         EigenDecomposition<Space::dimension, Component>
           ::getEigenDecomposition( cp_arg, eigenVectors, eigenValues );
 
-        return PrincipalCurvatures3D( d6_PIr6 * ( eigenValues[ 1 ] - ( 3.0 * eigenValues[ 2 ] )) + d8_5r, d6_PIr6 * ( eigenValues[ 2 ] - ( 3.0 * eigenValues[ 1 ] )) + d8_5r );
+        return Value( d6_PIr6 * ( eigenValues[ 1 ] - ( 3.0 * eigenValues[ 2 ] )) + d8_5r, d6_PIr6 * ( eigenValues[ 2 ] - ( 3.0 * eigenValues[ 1 ] )) + d8_5r );
       }
 
       /**
@@ -728,9 +719,9 @@ namespace DGtal
       }
 
     private:
-      Quantity dh5;
-      Quantity d6_PIr6;
-      Quantity d8_5r;
+      double dh5;
+      double d6_PIr6;
+      double d8_5r;
 
       /// A data member only used for temporary calculations.
       mutable Matrix eigenVectors;
