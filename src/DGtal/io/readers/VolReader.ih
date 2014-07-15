@@ -148,10 +148,6 @@ DGtal::VolReader<T, TFunctor>::importVol( const std::string & filename,
   int sx = 0, sy= 0, sz= 0;
   int cx = 0, cy= 0, cz= 0;
 
-  int hasCenter = getHeaderValueAsInt( "Center-X", &cx, header );
-  getHeaderValueAsInt( "Center-Y", &cy, header );
-  getHeaderValueAsInt( "Center-Z", &cz, header );
-
   getHeaderValueAsInt( "X", &sx, header );
   getHeaderValueAsInt( "Y", &sy, header );
   getHeaderValueAsInt( "Z", &sz, header );
@@ -196,16 +192,18 @@ DGtal::VolReader<T, TFunctor>::importVol( const std::string & filename,
   }
 
   //Raw Data
-  long count = 0;
 
-  if(hasCenter==0)
+  if( getHeaderValueAsInt( "Center-X", &cx, header ) == 0 )
   {
-    firstPoint[0] = cx - (sx)/2;
-    firstPoint[1] = cy - (sy)/2;
-    firstPoint[2] = cz - (sz)/2;
-    lastPoint[0] = cx + (sx - 1)/2;
-    lastPoint[1] = cy + (sy - 1)/2;
-    lastPoint[2] = cz + (sz - 1)/2;
+    getHeaderValueAsInt( "Center-Y", &cy, header );
+    getHeaderValueAsInt( "Center-Z", &cz, header );
+
+    firstPoint[0] = cx - (sx - 1)/2;
+    firstPoint[1] = cy - (sy - 1)/2;
+    firstPoint[2] = cz - (sz - 1)/2;
+    lastPoint[0] = cx + sx/2;
+    lastPoint[1] = cy + sy/2;
+    lastPoint[2] = cz + sz/2;
   }
   else
   {
@@ -221,7 +219,7 @@ DGtal::VolReader<T, TFunctor>::importVol( const std::string & filename,
   {
     T image( domain );
 
-    count = 0;
+    long count = 0;
     unsigned char val;
     typename T::Domain::ConstIterator it = domain.begin();
     long int total = sx * sy * sz;
