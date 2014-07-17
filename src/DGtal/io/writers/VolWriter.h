@@ -70,7 +70,6 @@ namespace DGtal
     // ----------------------- Standard services ------------------------------
     typedef TImage Image;
     typedef typename TImage::Value Value;
-    typedef typename TImage::Domain::Point Point;
     typedef TFunctor Functor;
     
     BOOST_CONCEPT_ASSERT((  CUnaryFunctor<TFunctor, Value, unsigned char> )) ;    
@@ -86,9 +85,6 @@ namespace DGtal
      */
     static bool exportVol(const std::string & filename, const Image &aImage, 
 			  const Functor & aFunctor = Functor()) throw(DGtal::IOException);
-
-    static bool exportVol(const std::string & filename, const Image &aImage, const Point &aCenter,
-        const Functor & aFunctor = Functor()) throw(DGtal::IOException);
   };
 }//namespace
 
