@@ -14,6 +14,14 @@
     - DefaultFunctor has been renamed functors::Identity.
     - xxxFunctor have been renamed to xxx.
     
+- *DEC Package*
+ - DGtal 0.8 contains the first release of the Discrete Exterior
+   Calculus Package. DEC provides an easy and efficient way to
+   describe linear operator over various structure. Basic operators,
+   such as Hodge duality operator or exterior derivative, can be
+   combined to create classical vector analysis operator such as
+   gradient, curl and divergence. (Pierre Gueth,
+   [#877](https://github.com/DGtal-team/DGtal/pull/877))
 
 - *Geometry Package*
  - Add digital nD Voronoi Covariance Measure support, as well as
@@ -107,6 +115,17 @@
   - When exporting an 3D visualization to OBJ, a new option will
     rescale the geometry to fit in [-1/2,1/2]^3. (David Coeurjolly,
     [#820](https://github.com/DGtal-team/DGtal/pull/820))
+  - New raw import/export for 32 bits images (Bertrand Kerautret,
+	[#877](https://github.com/DGtal-team/DGtal/pull/876))
+
+- *Kernel Package*
+
+  - New functor DomainSubSampler allowing to apply different
+    samplings with larger or smaller size on N dimensional domain. New tests
+    and examples are given for 2D and 3D images (Bertrand Kerautret,
+    [825](https://github.com/DGtal-team/DGtal/pull/825) and
+    [882](https://github.com/DGtal-team/DGtal/pull/882)).
+
 
 - *Shapes Package*
   - Shape concepts have been moved to concepts:: namespace (David
@@ -115,6 +134,7 @@
 - *Topology Package*
   - Surfaces::findABell accepts now arbitrary pair of points (Jacques-Olivier Lachaud, David Coeurjolly,
     [#851](https://github.com/DGtal-team/DGtal/pull/851))
+
 
 
 ## Bug Fixes
@@ -155,13 +175,14 @@
     IntervalForegroundPredicate) which require CConstImage instead of
     CImage (David Coeurjolly,
     [#843](https://github.com/DGtal-team/DGtal/pull/843))
-    
+
 - *IO*
   - Bug fix for reading PGM(P2) 3D. (Kacper Pluta,
    [#853](https://github.com/DGtal-team/DGtal/pull/853))
   - Renaming BasicColorToScalarFunctors namespace to functors:: (David
     Coeurjolly,  [#857](https://github.com/DGtal-team/DGtal/pull/857))
-    
+  - Fix OpenGL warnings by redefining openGL primitive (glSphere) (Bertrand Kerautret [#981] https://github.com/DGtal-team/DGtal/pull/891)
+
 === DGtal 0.7 ===
 
 *General*
