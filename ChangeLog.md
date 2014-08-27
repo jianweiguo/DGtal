@@ -50,8 +50,8 @@
   integers during the computations. (Tristan Roussillon,
   [#755](https://github.com/DGtal-team/DGtal/pull/755))
 
-  - Logarithmic construction of an arithmetical DSS of minimal
-    parameters from a bounding DSL and two end points (ctor of
+ - Logarithmic construction of an arithmetical DSS of minimal
+   parameters from a bounding DSL and two end points (ctor of
     ArithmeticalDSS) (Tristan Roussillon,
     [#819](https://github.com/DGtal-team/DGtal/pull/819))
 
