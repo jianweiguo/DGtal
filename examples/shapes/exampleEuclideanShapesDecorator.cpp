@@ -68,8 +68,8 @@ int main( int argc, char** argv )
     //! [EuclideanShapesDecoratorUsage]
     typedef ImplicitBall< Z2i::Space > MyEuclideanShapeA;
     typedef ImplicitBall< Z2i::Space > MyEuclideanShapeB;
-    MyEuclideanShapeA shapeA( Z2i::RealPoint( 0.0, 0.0 ), 14 );
-    MyEuclideanShapeB shapeB( Z2i::RealPoint( 1.0, 0.0 ), 14 );
+    MyEuclideanShapeA shapeA( Z2i::RealPoint( 0.0, 0.0 ), 5 );
+    MyEuclideanShapeB shapeB( Z2i::RealPoint( 10.0, 0.0 ), 1 );
 
     typedef EuclideanShapesMinus< MyEuclideanShapeA, MyEuclideanShapeB > Minus;
     Minus s_minus ( shapeA, shapeB );
@@ -112,11 +112,11 @@ int main( int argc, char** argv )
     board << CustomStyle( aSetA.className(), new CustomFillColor( dgreen ));
     board << aSetA;
 
-    board << CustomStyle( aSetB.className(), new CustomFillColor( dred ));
-    board << aSetB;
+    // board << CustomStyle( aSetB.className(), new CustomFillColor( dred ));
+    // board << aSetB;
 
-    board << CustomStyle( aSet.className(), new CustomFillColor( dorange ));
-    board << aSet;
+    // board << CustomStyle( aSet.className(), new CustomFillColor( dorange ));
+    // board << aSet;
 
     board.saveSVG ( "example-EuclideanShapesDecorator.svg" );
 

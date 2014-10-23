@@ -930,6 +930,7 @@ DGtal::Viewer3D<Space, KSpace>::postSelection ( const QPoint& point )
   bool found;
   this->myPosSelector= point;
   mySelectedPoint = camera()->pointUnderPixel ( point, found );
+  DGtal::trace.info() << "Point: " << mySelectedPoint[0] << "," << mySelectedPoint[1] << "," << mySelectedPoint[2] << endl;
   if ( found )
     {
       DGtal::trace.info() << "Element of liste= " << selectedName() << "selected" << endl;
