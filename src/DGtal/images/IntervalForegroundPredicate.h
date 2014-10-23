@@ -46,8 +46,9 @@
 #include "DGtal/base/ConstAlias.h"
 //////////////////////////////////////////////////////////////////////////////
 
-namespace DGtal
-{
+// @since 0.8 In DGtal::functors
+namespace DGtal {
+  namespace functors {
 
   /**
    * Description of template class 'IntervalForegroundPredicate' <p>
@@ -55,7 +56,7 @@ namespace DGtal
    * image values  between two constant values (the first one being
    * excluded).
    *
-   * This class is a model of CPointPredicate.
+   * This class is a model of concepts::CPointPredicate.
    *
    * @tparam Image an model of CImageContainer concept. 
    */
@@ -63,7 +64,7 @@ namespace DGtal
   class IntervalForegroundPredicate
   {
   public:
-    BOOST_CONCEPT_ASSERT(( CConstImage<Image> ));
+    BOOST_CONCEPT_ASSERT(( concepts::CConstImage<Image> ));
     
     typedef typename Image::Value Value;
     typedef typename Image::Point Point; 
@@ -107,9 +108,9 @@ namespace DGtal
     
   };
 
+} // namespace functors
+} // namespace DGtal
 
-
-}
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 

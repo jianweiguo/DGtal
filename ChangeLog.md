@@ -1,3 +1,19 @@
+# DGtal 0.9
+
+## New Features / Critical Changes
+
+## Changes
+
+## Bug Fixes
+
+- *Configuration*
+ - Fix issue #925, detection of Eigen3 (3.1 minimum) and also issue
+   #924, DGtal configuration file when using Eigen3.
+   (Jacques-Olivier Lachaud, [#926](https://github.com/DGtal-team/DGtal/pull/926))
+
+
+
+
 # DGtal 0.8
 
 
@@ -13,6 +29,11 @@
     - BasicFunctor functors have been moved to functors:: namespace.
     - DefaultFunctor has been renamed functors::Identity.
     - xxxFunctor have been renamed to xxx.
+
+ - Moving graph, topology, geometry/estimation concepts into
+   namespace concepts::, also moving some functors into namespace
+   functors:: (Jacques-Olivier Lachaud,
+   [#912](https://github.com/DGtal-team/DGtal/pull/912)).
     
 - *DEC Package*
  - DGtal 0.8 contains the first release of the Discrete Exterior
@@ -52,8 +73,19 @@
 
  - Logarithmic construction of an arithmetical DSS of minimal
    parameters from a bounding DSL and two end points (ctor of
+   ArithmeticalDSS) (Tristan Roussillon,
+   [#819](https://github.com/DGtal-team/DGtal/pull/819))
+
+ - Proof-of-concept that path-based norms can be implemented in a
+   separable approach using logarithmic cost predicates
+   (experimental::ChamferNorm2D). (David Coeurjolly,
+   [#898](https://github.com/DGtal-team/DGtal/pull/898))
+
+ - Logarithmic construction of an arithmetical DSS of minimal
+   parameters from a bounding DSS (of known leaning points)
+   and two end points (ctor of
     ArithmeticalDSS) (Tristan Roussillon,
-    [#819](https://github.com/DGtal-team/DGtal/pull/819))
+    [#914](https://github.com/DGtal-team/DGtal/pull/914))
 
  - Feature extraction algorithm from Tensor Voting.(Jérémy Levallois,
    David Coeurjolly,
@@ -62,6 +94,7 @@
  - Ray shooting intersection predicates (ray-triangle, ray-quad,
    ray-surfel) added in geometry/tools (David Coeurjolly,
    [#904](https://github.com/DGtal-team/DGtal/pull/904))
+       
 
 - *IO Package*
   - Now VolReader/VolWriter and LongvolReader/LongvolWriter support the 
@@ -100,6 +133,10 @@
  - Add comparison operators in variants of CountedPtr. Improve
    coverage of these classes and fix compilation problem
    (Jacques-Olivier Lachaud)
+ - Update doc of CountedPtr, CountedPtrOrPtr and
+   CountedConstPtrOrConstPtr. Add asserts. Add tests. Fix issue 773
+   (https://github.com/DGtal-team/DGtal/issues/773). (Jacques-Olivier
+   Lachaud, [#894](https://github.com/DGtal-team/DGtal/pull/894)).
  - XXXOutputRangeYYY classes are now called
    XXXRangeWithWritableIteratorYYY (Tristan Roussillon,
    [#850](https://github.com/DGtal-team/DGtal/pull/850)).
@@ -111,6 +148,10 @@
   [#803](https://github.com/DGtal-team/DGtal/pull/803))
  - Random-access iterators added in ArithmeticalDSL. (Tristan
    Roussillon, [#801](https://github.com/DGtal-team/DGtal/pull/801))
+ - Updates in Metric concepts: better and simpler concept structure
+   and a new adapter to adapt any euclidean metric to a digital one
+   (with values on Z) (David Coeurjolly,
+   [#870](https://github.com/DGtal-team/DGtal/pull/870)
  - CubicalSudivision has been renamed SpatialCubicalSubdivision and
    moved to "geometry/tools" (David Coeurjolly,
    [#862](https://github.com/DGtal-team/DGtal/pull/862))

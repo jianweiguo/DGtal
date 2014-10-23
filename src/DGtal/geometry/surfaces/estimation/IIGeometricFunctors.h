@@ -45,19 +45,9 @@
 #include "DGtal/math/linalg/EigenDecomposition.h"
 //////////////////////////////////////////////////////////////////////////////
 
-namespace DGtal
-{
-
-  namespace functors
-  {
-  /**
-  * This namespace gathers functors transforming the integral
-  * invariant covariance matrix into some geometric quantity: normal
-  * vector, mean curvature, first and second principal curvatures,
-  * principal directions, etc.
-  */
-  namespace IIGeometricFunctors 
-  {
+// @since 0.8 In DGtal::functors
+namespace DGtal {
+  namespace functors {
 
     /////////////////////////////////////////////////////////////////////////////
     // template class IINormalDirectionFunctor
@@ -86,7 +76,7 @@ namespace DGtal
       typedef Quantity Value;
 
       // BOOST_CONCEPT_ASSERT(( CMatrix<TMatrix> ));
-      BOOST_CONCEPT_ASSERT(( CSpace<TSpace> ));
+      BOOST_CONCEPT_ASSERT(( concepts::CSpace<TSpace> ));
 
       /// Default constructor.
       IINormalDirectionFunctor() {}
@@ -160,7 +150,7 @@ namespace DGtal
       typedef Quantity Value;
 
       // BOOST_CONCEPT_ASSERT(( CMatrix<TMatrix> ));
-      BOOST_CONCEPT_ASSERT(( CSpace<TSpace> ));
+      BOOST_CONCEPT_ASSERT(( concepts::CSpace<TSpace> ));
       BOOST_STATIC_ASSERT(( Space::dimension == 2 ));
 
       /// Default constructor.
@@ -233,7 +223,7 @@ namespace DGtal
       typedef Quantity Value;
 
       // BOOST_CONCEPT_ASSERT(( CMatrix<TMatrix> ));
-      BOOST_CONCEPT_ASSERT(( CSpace<TSpace> ));
+      BOOST_CONCEPT_ASSERT(( concepts::CSpace<TSpace> ));
       BOOST_STATIC_ASSERT(( Space::dimension >= 2 ));
 
       /// Default constructor.
@@ -312,7 +302,7 @@ namespace DGtal
       typedef Quantity Value;
 
       // BOOST_CONCEPT_ASSERT(( CMatrix<TMatrix> ));
-      BOOST_CONCEPT_ASSERT(( CSpace<TSpace> ));
+      BOOST_CONCEPT_ASSERT(( concepts::CSpace<TSpace> ));
       BOOST_STATIC_ASSERT(( Space::dimension >= 3 ));
 
       /// Default constructor.
@@ -390,7 +380,7 @@ namespace DGtal
       typedef Quantity Value;
 
       // BOOST_CONCEPT_ASSERT(( CMatrix<TMatrix> ));
-      BOOST_CONCEPT_ASSERT(( CSpace<TSpace> ));
+      BOOST_CONCEPT_ASSERT(( concepts::CSpace<TSpace> ));
       BOOST_STATIC_ASSERT(( Space::dimension >= 3 ));
 
       /// Default constructor.
@@ -465,7 +455,7 @@ namespace DGtal
       typedef Component Quantity;
       typedef Quantity Value;
 
-      BOOST_CONCEPT_ASSERT(( CSpace<TSpace> ));
+      BOOST_CONCEPT_ASSERT(( concepts::CSpace<TSpace> ));
       BOOST_STATIC_ASSERT(( Space::dimension == 2 ));
 
       /**
@@ -528,7 +518,7 @@ namespace DGtal
       typedef Component Quantity;
       typedef Quantity Value;
 
-      BOOST_CONCEPT_ASSERT(( CSpace<TSpace> ));
+      BOOST_CONCEPT_ASSERT(( concepts::CSpace<TSpace> ));
       BOOST_STATIC_ASSERT(( Space::dimension == 3 ));
 
       /**
@@ -594,7 +584,7 @@ namespace DGtal
       typedef Quantity Value;
 
       // BOOST_CONCEPT_ASSERT(( CMatrix<TMatrix> ));
-      BOOST_CONCEPT_ASSERT(( CSpace<TSpace> ));
+      BOOST_CONCEPT_ASSERT(( concepts::CSpace<TSpace> ));
       BOOST_STATIC_ASSERT(( Space::dimension == 3 ));
 
       /**
@@ -677,7 +667,7 @@ namespace DGtal
       typedef Quantity Value;
 
       // BOOST_CONCEPT_ASSERT(( CMatrix<TMatrix> ));
-      BOOST_CONCEPT_ASSERT(( CSpace<TSpace> ));
+      BOOST_CONCEPT_ASSERT(( concepts::CSpace<TSpace> ));
       BOOST_STATIC_ASSERT(( Space::dimension == 3 ));
 
       /**
@@ -759,7 +749,7 @@ namespace DGtal
       typedef Quantity Value;
 
       // BOOST_CONCEPT_ASSERT(( CMatrix<TMatrix> ));
-      BOOST_CONCEPT_ASSERT(( CSpace<TSpace> ));
+      BOOST_CONCEPT_ASSERT(( concepts::CSpace<TSpace> ));
       BOOST_STATIC_ASSERT(( Space::dimension == 3 ));
 
       /**
@@ -840,7 +830,7 @@ namespace DGtal
       typedef Quantity Value;
 
       // BOOST_CONCEPT_ASSERT(( CMatrix<TMatrix> ));
-      BOOST_CONCEPT_ASSERT(( CSpace<TSpace> ));
+      BOOST_CONCEPT_ASSERT(( concepts::CSpace<TSpace> ));
       BOOST_STATIC_ASSERT(( Space::dimension == 3 ));
 
       /**
@@ -894,7 +884,6 @@ namespace DGtal
       /// A data member only used for temporary calculations.
       mutable RealVector eigenValues;
     }; // end of class IIPrincipalCurvatures3DFunctor
-  } // namespace IIGeometricFunctors 
 
 } // namespace functors
 

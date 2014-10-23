@@ -57,7 +57,6 @@
 
 namespace DGtal
 {
-
   /////////////////////////////////////////////////////////////////////////////
   // template class EigenDecomposition
   /**
@@ -87,7 +86,7 @@ namespace DGtal
   class EigenDecomposition
   {
     // BOOST_CONCEPT_ASSERT(( CMatrix<TMatrix> ));
-    BOOST_CONCEPT_ASSERT(( CEuclideanRing<TComponent> ));
+    BOOST_CONCEPT_ASSERT(( concepts::CEuclideanRing<TComponent> ));
     BOOST_STATIC_ASSERT(TN > 0 );
 
     // ----------------------- Public types -----------------------------------
@@ -179,7 +178,6 @@ namespace DGtal
   private:
 
   }; // end of class EigenDecomposition
-
 
 } // namespace DGtal
 
