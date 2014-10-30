@@ -944,7 +944,7 @@ DGtal::Viewer3D<Space, KSpace>::postSelection ( const QPoint& point )
   DGtal::trace.info() << "Point: " << mySelectedPoint[0] << "," << mySelectedPoint[1] << "," << mySelectedPoint[2] << endl;
   if ( found )
     {
-      DGtal::trace.info() << "Element of liste= " << selectedName() << "selected" << endl;
+      DGtal::trace.info() << "Element of list= " << selectedName() << "selected" << endl;
       // JOL: 2014/10/15
       void* data = 0;
       SelectCallbackFct fct = getSelectCallback3D( selectedName(), data );
@@ -979,7 +979,7 @@ template< typename Space, typename KSpace>
 void
 DGtal::Viewer3D<Space, KSpace>::updateList ( bool needToUpdateBoundingBox )
 {
-  // Additionnaly to the primitive list (of myCubeSetList myLineSetList.size() myBallSetList.size()) we add
+  // Additionally to the primitive list (of myCubeSetList myLineSetList.size() myBallSetList.size()) we add
   // 6 new lists associated to the mesh Display.
   unsigned int nbList= ( unsigned int ) ( Viewer3D<Space, KSpace>::myCubeSetList.size()+
                                           Viewer3D<Space, KSpace>::myLineSetList.size() +
@@ -1232,7 +1232,7 @@ DGtal::Viewer3D<Space, KSpace>::updateList ( bool needToUpdateBoundingBox )
       glPushName ( it->first );
       glEnable ( GL_LIGHTING );
       glBegin ( GL_QUADS );
-      trace.info() << "Quad name = " << it->first << std::endl;
+      // trace.info() << "Quad name = " << it->first << std::endl;
       for (typename std::vector<typename Viewer3D<Space, KSpace>::QuadD3D>::iterator it_s = it->second.begin(); it_s != it->second.end(); it_s++)
         {
           glColor4ub ( it_s->color.red(), it_s->color.green(), it_s->color.blue(), it_s->color.alpha() );
