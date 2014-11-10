@@ -134,6 +134,8 @@ namespace DGtal
     {
       myX.push_back( x );
       myY.push_back( y );
+
+      // trace.error() << x << " " << y << std::endl;
       ++myN;
     }
 
@@ -218,6 +220,34 @@ namespace DGtal
           std::pair<double,double> ic;
           ic = linearModel.trustIntervalForY( *itx, alpha );
           if ( ( *ity < ic.first ) || ( *ity > ic.second ) )
+            break;
+          linearModel.addSample( *itx, *ity );
+          linearModel.computeRegression();
+        }
+    }
+
+    template< typename Functor >
+    void backwardSLR(SimpleLinearRegression &linearModel,
+                     const Functor& funct,
+                     const unsigned int n = 4,
+                     const double alpha = 0.01 ) const
+    {
+      linearModel.setEpsilonZero(myEpsilonZero);
+      linearModel.clear();
+      std::vector<double>::const_reverse_iterator itx = myX.rbegin(); 
+      std::vector<double>::const_reverse_iterator itxe = myX.rend(); 
+      std::vector<double>::const_reverse_iterator ity = myY.rbegin(); 
+      linearModel.addSamples( itx, itx + n, ity );
+      linearModel.computeRegression();
+      itx += n;
+      ity += n;
+      unsigned int l = myX.size() - n + 1;
+      for ( ; itx != itxe; ++itx, ++ity, --l )
+        {
+          std::pair<double,double> ic;
+          ic = linearModel.trustIntervalForY( *itx, alpha );
+
+          if ( !funct( *itx, *ity ) )
             break;
           linearModel.addSample( *itx, *ity );
           linearModel.computeRegression();
