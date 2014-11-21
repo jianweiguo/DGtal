@@ -87,8 +87,8 @@ void drawCCP(const Iterator& itb, const Iterator& ite, Board& aBoard)
     //if located at the end of a connected part
     if ( !(i.intersectNext() && i.intersectPrevious()) ) {
 
-      aPenColor = new CustomPenColor( Color::Black );
-
+      aPenColor = new CustomPenColor( Color::Red );
+      
       //otherwise
     } else {
 
@@ -106,13 +106,13 @@ void drawCCP(const Iterator& itb, const Iterator& ite, Board& aBoard)
 
       //configurations
       if ( (r1<=mu-1)&&(r2<=mu-1) ) {                    //concave
-        aPenColor = new CustomPenColor( Color::Green);
+        aPenColor = new CustomPenColor( Color::Red);
       } else if ( (r1>=mu+omega)&&(r2>=mu+omega) ) {     //convex
-        aPenColor = new CustomPenColor( Color::Blue );
+        aPenColor = new CustomPenColor( Color::Red );
       } else if ( (r1>=mu+omega)&&(r2<=mu-1) ) {         //convex to concave
-        aPenColor = new CustomPenColor( Color::Yellow );
+        aPenColor = new CustomPenColor( Color::Red );
       } else if ( (r1<=mu-1)&&(r2>=mu+omega) ) {         //concave to convex
-        aPenColor = new CustomPenColor( Color::Yellow );
+        aPenColor = new CustomPenColor( Color::Red );
       } else {                                           //pb
         aPenColor = new CustomPenColor( Color::Red );
       }
@@ -177,7 +177,7 @@ int main( int argc, char** argv )
   //create a chain code
   string codes;
   if (argc >= 2) codes = argv[1];
-  else codes = "030030330303303030300001010101101011010000030330303303030300001010110101011010000033";
+  else codes = "1111111112111100100001000100101111121212212212222121111101111101211121222223223232323232222121212121212212223232333333333033332232222322232232333330303003003000030333332333332303330300000100101010101000030303030303003000101011111111121111001000010001001011111212122122122221211111011111012111212222232232323232322221212121212122122232323333333330333322322223222322323333303030030030000303333323333323033303000001001010101010000303030303030030001010";
 
   stringstream ss(stringstream::in | stringstream::out);
   ss << "0 0 " << codes << endl;

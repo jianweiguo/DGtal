@@ -227,7 +227,7 @@ namespace DGtal
     }
 
     template< typename Functor >
-    void backwardSLR(SimpleLinearRegression &linearModel,
+    void backwardFSLR(SimpleLinearRegression &linearModel,
                      const Functor& funct,
                      const unsigned int n = 4,
                      const double alpha = 0.01 ) const
