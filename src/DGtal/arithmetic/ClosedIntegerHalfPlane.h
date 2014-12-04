@@ -43,6 +43,7 @@
 #include <iostream>
 #include "DGtal/base/Common.h"
 #include "DGtal/kernel/CSpace.h"
+#include "DGtal/arithmetic/IntegerComputer.h"
 //////////////////////////////////////////////////////////////////////////////
 
 namespace DGtal
