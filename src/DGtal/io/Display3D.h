@@ -226,6 +226,7 @@ namespace DGtal
       bool isSigned;
       bool signPos;
       double size;
+      unsigned int resolution;
     };
 
 
@@ -419,8 +420,8 @@ namespace DGtal
                               DGtal::int32_t min_name, DGtal::int32_t max_name );
 
     /**
-     * @param[in]  the "OpenGL name" that was selected.
-     * @param[out] a pointer that was given setting the callback function.
+     * @param[in]  name the "OpenGL name" that was selected.
+     * @param[out] data a pointer that was given setting the callback function.
      * @return the select callback function that match the given \a
      * name, or 0 if none is associated to this name.
      */
@@ -621,10 +622,13 @@ namespace DGtal
     /**
      * Method to add a point to the current display.
      * @param center ball center x
-     * @param size the point width
+     * @param size the ball radius (default 1)
+     * @param resolution ball resolution (default 30)
      *
      */
-    void addBall(const RealPoint &center , double size=0.05);
+    void addBall(const RealPoint &center ,
+                 const double size=1.0,
+                 const unsigned int resolution = 30);
 
 
 
@@ -851,7 +855,7 @@ namespace DGtal
     std::vector< QuadD3D > myPrismList;
 
     // Represents all the planes drawn in the Display3D or to display Khalimsky Space Cell.
-    // std::vector<std::vector< QuadD3D > > myQuadSetList;
+    std::vector<std::vector< QuadD3D > > myQuadSetList;
 
     /// Represents all the planes drawn in the Display3D or to display
     /// Khalimsky Space Cell.  The map int --> vector< QuadD3D>
@@ -886,7 +890,7 @@ namespace DGtal
 
     /// names of the lists in myQuadList
     ///
-    // std::vector<std::string> myQuadSetNameList;
+    std::vector<std::string> myQuadSetNameList;
 
     /// names of the lists in myTriangleList
     ///
