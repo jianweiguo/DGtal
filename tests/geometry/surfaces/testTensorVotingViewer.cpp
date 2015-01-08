@@ -52,6 +52,12 @@
 #include "DGtal/io/viewers/Viewer3D.h"
 #include "DGtal/io/colormaps/GradientColorMap.h"
 
+#include "DGtal/images/ImageHelper.h"
+#include "DGtal/kernel/BasicPointFunctors.h"
+#include "DGtal/io/readers/GenericReader.h"
+ #include "DGtal/images/SimpleThresholdForegroundPredicate.h"
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
@@ -74,7 +80,9 @@ bool testLocalEstimatorFromFunctorAdapter(int argc, char **argv)
 
   using namespace Z3i;
  
-  typedef GaussDigitizer<Space,Shape> Gauss;
+  // typedef GaussDigitizer<Space,Shape> Gauss;
+  typedef ImageContainerBySTLVector<Z3i::Domain,unsigned char> ImageVol;
+  typedef functors::SimpleThresholdForegroundPredicate<ImageVol> Gauss;
 
   typedef LightImplicitDigitalSurface<KSpace,Gauss> SurfaceContainer;
   typedef DigitalSurface<SurfaceContainer> Surface;
@@ -84,19 +92,15 @@ bool testLocalEstimatorFromFunctorAdapter(int argc, char **argv)
 
 
   trace.beginBlock("Creating Surface");
-  Point p1( -100, -100, -100 );
-  Point p2( 100, 100, 100 );
-  KSpace K;
-  nbok += K.init( p1, p2, true ) ? 1 : 0;
-  nb++;
-  trace.info() << "(" << nbok << "/" << nb << ") "
-               << "K.init() is ok" << std::endl;
+  std::string test = argv[1];
+  double f_min = atof(argv[2]);
+  double f_max = atof(argv[3]);
+  ImageVol image = GenericReader<ImageVol>::import (test );//VolReader<ImageVol>::importVol(vm["input-file"].as< std::string >());
+  Gauss gauss( image, '0' );
 
-  //Shape
-  Shape shape(RealPoint::diagonal(0.0), 30.0 );
-  Gauss gauss;
-  gauss.attach(shape);
-  gauss.init(p1,p2,1.0);
+  Z3i::KSpace K;
+  K.init( image.domain().lowerBound(), image.domain().upperBound(), true );
+
 
   //Surface
   Surfel bel = Surfaces<KSpace>::findABel( K, gauss, 10000 );
@@ -147,8 +151,12 @@ bool testLocalEstimatorFromFunctorAdapter(int argc, char **argv)
       it!= itend;
       ++it, ++i)
     {
-      viewer << CustomColors3D( Color::Black, cmap_grad( values[ i ] ))
-             <<  *it ;    
+      if( values[i] > f_max )
+        viewer << Color::Red <<  *it;
+      else if ( values[i] < f_min)
+        viewer << Color::White << *it;
+      else
+        viewer << Color::Green << *it; 
     }
   
   

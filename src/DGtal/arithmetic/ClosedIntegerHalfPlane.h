@@ -69,6 +69,7 @@ namespace DGtal
     typedef TSpace Space;
     typedef typename Space::Integer Integer;
     typedef typename Space::Point Point;
+    typedef typename Space::RealPoint RealPoint;
     typedef typename Space::Vector Vector;
     
     // ----------------------- public data ------------------------------
@@ -112,11 +113,17 @@ namespace DGtal
     */
     bool operator()( const Point & p ) const;
 
+    bool operator()( const RealPoint & aPoint ) const;
+
+    Orientation orientation( const RealPoint & aPoint ) const;
+
     /**
        @param p any point in the plane.
        @return 'true' if p is on the boundary of the half-space (i.e. N.p == c ).
     */
     bool isOnBoundary( const Point & p ) const;
+
+    bool isOnBoundary( const RealPoint & p ) const;
 
     /**
        @return the tangent vector to the half-plane boundary (ie. ( -N.y, N.x ) ).
