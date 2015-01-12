@@ -67,6 +67,7 @@ DGtal::ClosedIntegerHalfPlane<TSpace>::
 operator()( const RealPoint & p ) const
 {
   return N.dot( p ) <= c;
+
 }
 //-----------------------------------------------------------------------------
 template <typename TSpace>
@@ -75,7 +76,6 @@ DGtal::Orientation
 DGtal::ClosedIntegerHalfPlane<TSpace>::
 orientation( const RealPoint & p ) const
 {
-  trace.error()<<"Ok ça semble bon"<<std::endl;
   if( isOnBoundary(p) )
     return ON;
   else if (this->operator()(p))
@@ -90,7 +90,6 @@ bool
 DGtal::ClosedIntegerHalfPlane<TSpace>::
 isOnBoundary( const Point & p ) const
 {
-  trace.error()<<"Nop"<<std::endl;
   return N.dot( p ) == c;
 }
 //-----------------------------------------------------------------------------
@@ -100,7 +99,6 @@ bool
 DGtal::ClosedIntegerHalfPlane<TSpace>::
 isOnBoundary( const RealPoint & p ) const
 {
-  trace.error()<<"Yep"<<std::endl;
   return N.dot( p ) == c;
 }
 //-----------------------------------------------------------------------------
