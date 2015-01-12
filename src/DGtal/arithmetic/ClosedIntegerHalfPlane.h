@@ -70,7 +70,7 @@ namespace DGtal
     typedef typename Space::Integer Integer;
     typedef typename Space::Point Point;
     typedef typename Space::RealPoint RealPoint;
-    typedef typename Space::RealVector Vector;
+    typedef typename Space::Vector Vector;
     
     // ----------------------- public data ------------------------------
   public:
