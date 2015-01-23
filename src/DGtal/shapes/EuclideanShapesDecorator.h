@@ -50,6 +50,186 @@
 namespace DGtal
 {
 
+  template <typename ShapeA, typename ShapeB>
+  class EuclideanShapesCSG
+  {
+  protected:
+    enum e_operator
+    {
+      e_union,
+      e_intersection,
+      e_minus
+    };
+
+  public:
+    BOOST_CONCEPT_ASSERT (( concepts::CEuclideanBoundedShape< ShapeA > ));
+    BOOST_CONCEPT_ASSERT (( concepts::CEuclideanOrientedShape< ShapeA > ));
+
+    typedef typename ShapeA::Space Space;
+    typedef typename ShapeA::RealPoint RealPoint;
+
+    EuclideanShapesCSG( )
+    {
+    }
+
+    EuclideanShapesCSG ( const EuclideanShapesCSG & other )
+    {
+      myShapeA = other.myShapeA;
+      v_shapes = other.v_shapes;
+
+      myLowerBound = other.myLowerBound;
+      myUpperBound = other.myUpperBound;
+
+    }
+
+    EuclideanShapesCSG & operator= ( const EuclideanShapesCSG & other )
+    {
+      myShapeA = other.myShapeA;
+      v_shapes = other.v_shapes;
+
+      myLowerBound = other.myLowerBound;
+      myUpperBound = other.myUpperBound;
+      return *this;
+    }
+
+    EuclideanShapesCSG( ShapeA* a )
+      : myShapeA( a )
+    {
+      RealPoint shapeALowerBoundary = myShapeA->getLowerBound();
+      RealPoint shapeAUpperBoundary = myShapeA->getUpperBound();
+    }
+
+    void op_union( ShapeB* b )
+    {
+      BOOST_CONCEPT_ASSERT (( concepts::CEuclideanBoundedShape< ShapeB > ));
+      BOOST_CONCEPT_ASSERT (( concepts::CEuclideanOrientedShape< ShapeB > ));
+      std::pair<e_operator, ShapeB*> shape( e_union, b );
+      v_shapes.push_back(shape); 
+    }
+
+    void op_intersection( ShapeB* b )
+    {
+      BOOST_CONCEPT_ASSERT (( concepts::CEuclideanBoundedShape< ShapeB > ));
+      BOOST_CONCEPT_ASSERT (( concepts::CEuclideanOrientedShape< ShapeB > ));
+      std::pair<e_operator, ShapeB*> shape( e_intersection, b );
+      v_shapes.push_back(shape); 
+    }
+
+    void op_minus( ShapeB* b )
+    {
+      BOOST_CONCEPT_ASSERT (( concepts::CEuclideanBoundedShape< ShapeB > ));
+      BOOST_CONCEPT_ASSERT (( concepts::CEuclideanOrientedShape< ShapeB > ));
+      std::pair<e_operator, ShapeB*> shape( e_minus, b );
+      v_shapes.push_back(shape); 
+    }
+
+    RealPoint getLowerBound() const
+    {
+      return myLowerBound;
+    }
+
+    RealPoint getUpperBound() const
+    {
+      return myUpperBound;
+    }
+
+    Orientation orientation( const RealPoint & p ) const
+    {
+      Orientation orient = myShapeA->orientation( p );
+
+      for(unsigned int i = 0; i < v_shapes.size(); ++i)
+      {
+        if( v_shapes[i].first == e_minus )
+        {
+          if (( v_shapes[i].second->orientation( p ) == INSIDE ) || ( v_shapes[i].second->orientation( p ) == ON ))
+          {
+            orient = OUTSIDE;
+          }
+        }
+        else if( v_shapes[i].first == e_intersection )
+        {
+          if (( orient == ON ) && ( v_shapes[i].second->orientation( p ) != OUTSIDE ))
+          {
+            orient = ON;
+          }
+          else if (( v_shapes[i].second->orientation( p ) == ON ) && ( orient != OUTSIDE ))
+          {
+            orient = ON;
+          }
+          else if (( orient == INSIDE ) && ( v_shapes[i].second->orientation( p ) == INSIDE ))
+          {
+            orient = INSIDE;
+          }
+
+          orient = OUTSIDE;
+        }
+        else
+        {
+          if (( orient == INSIDE ) || ( v_shapes[i].second->orientation( p ) == INSIDE ))
+          {
+              orient = INSIDE;
+          }
+          else if (( orient == ON ) || ( v_shapes[i].second->orientation( p ) == ON ))
+          {
+              orient = ON;
+          }
+          orient = OUTSIDE;
+        }
+      }
+
+      return orient;
+    }
+
+  public:
+
+    /**
+     * Writes/Displays the object on an output stream.
+     * @param out the output stream where the object is written.
+     */
+    void selfDisplay ( std::ostream & out ) const;
+
+    /**
+     * Checks the validity/consistency of the object.
+     * @return 'true' if the object is valid, 'false' otherwise.
+     */
+    bool isValid() const;
+
+    // ------------------------- Hidden services ------------------------------
+  protected:
+
+    /**
+     * Constructor.
+     * Forbidden by default (protected to avoid g++ warnings).
+     */
+    // EuclideanShapesCSG();
+
+  private:
+
+    /**
+     * Copy constructor.
+     * @param other the object to clone.
+     * Forbidden by default.
+     */
+    // EuclideanShapesCSG ( const EuclideanShapesCSG & other );
+
+    /**
+     * Assignment.
+     * @param other the object to copy.
+     * @return a reference on 'this'.
+     * Forbidden by default.
+     */
+    // EuclideanShapesCSG & operator= ( const EuclideanShapesCSG & other );
+
+    // ------------------------- Internals ------------------------------------
+  private:
+    ShapeA * myShapeA;
+    std::vector< std::pair<e_operator, ShapeB*> > v_shapes;
+
+    RealPoint myLowerBound;
+    RealPoint myUpperBound;
+
+  };
+
 /////////////////////////////////////////////////////////////////////////////
 // template class EuclideanShapesDecorator
 /**
