@@ -50,6 +50,9 @@
 #include "DGtal/topology/DigitalSurface.h"
 
 #include "DGtal/geometry/surfaces/estimation/estimationFunctors/ElementaryConvolutionNormalVectorEstimator.h"
+#include "DGtal/geometry/surfaces/estimation/estimationFunctors/LocalSurfaceAreaEstimator.h"
+
+#include "DGtal/geometry/surfaces/estimation/IntegralInvariantNormalVectorEstimator.h"
 
 
 #ifdef WITH_CGAL

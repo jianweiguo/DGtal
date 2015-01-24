@@ -114,7 +114,7 @@ namespace DGtal
      *
      * @return the mean curvature
      */
-    Quantity eval( )
+    Quantity eval( ) const
     {
       return myWeightedVector.getNormalized();
     }

@@ -16,6 +16,7 @@ SET(TESTS_SURFACES_SRC
   ##testVoronoiCovarianceMeasureOnSurface
   testTensorVoting
   testEstimatorCache
+  testLocalSurfaceAreaEstimator
   )
 
 FOREACH(FILE ${TESTS_SURFACES_SRC})
