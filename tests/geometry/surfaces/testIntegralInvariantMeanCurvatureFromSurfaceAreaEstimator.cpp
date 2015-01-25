@@ -15,7 +15,7 @@
  **/
 
 /**
- * @file testLocalSurfaceAreaEstimator.cpp
+ * @file testIntegralInvariantMeanCurvatureFromSurfaceAreaEstimator.cpp
  * @ingroup Tests
  * @author David Coeurjolly (\c david.coeurjolly@liris.cnrs.fr )
  * Laboratoire d'InfoRmatique en Image et Systemes d'information - LIRIS (CNRS, UMR 5205), CNRS, France
@@ -49,7 +49,7 @@
 #include "DGtal/topology/LightImplicitDigitalSurface.h"
 
 //Main include
-#include "DGtal/geometry/surfaces/estimation/estimationFunctors/LocalSurfaceAreaEstimator.h"
+#include "DGtal/geometry/surfaces/estimation/estimationFunctors/IntegralInvariantMeanCurvatureFromSurfaceAreaEstimator.h"
 
 
 #include "DGtal/geometry/surfaces/estimation/estimationFunctors/ElementaryConvolutionNormalVectorEstimator.h"
@@ -70,7 +70,8 @@ using namespace DGtal;
  */
 bool testFitting()
 {
-  double myH=0.6;
+  double myH = 0.5;
+  
   unsigned int nbok = 0;
   unsigned int nb = 0;
   trace.beginBlock ( "Testing init ..." );
@@ -81,7 +82,7 @@ bool testFitting()
   Point p1( -20, -20, -20 );
   Point p2( 20, 20, 20 );
    
-  ImplicitBall<Z3i::Space> shape( RealPoint(0.0,0,0), 10);
+  ImplicitBall<Z3i::Space> shape( RealPoint(0,0,0), 10);
   typedef GaussDigitizer<Z3i::Space, ImplicitBall<Z3i::Space> > Gauss;
   Gauss gauss;
   gauss.attach(shape);
@@ -111,6 +112,7 @@ bool testFitting()
                                                  DGtal::functors::GaussianKernel> ReporterNormal;
   typedef EstimatorCache<ReporterNormal> NormalCache;
 
+  
   //estimator
   double myRadius = 2.0;
   DGtal::functors::GaussianKernel gaussKernelFunc(myRadius/myH);
@@ -125,22 +127,23 @@ bool testFitting()
   trace.info() << "Normal vector field cached... "<< normalCache << std::endl;
   trace.endBlock();
 
-  trace.beginBlock("Creating  surface area adapter from normal vector field");
-  typedef functors::LocalSurfaceAreaEstimator<Surfel, CanonicSCellEmbedder<KSpace> , NormalCache> Functor;
+  
+  trace.beginBlock("Creating  mean curvature adapter from normal vector field");
+  typedef functors::IntegralInvariantMeanCurvatureFromSurfaceAreaEstimator<Surfel, CanonicSCellEmbedder<KSpace> , NormalCache> Functor;
   typedef functors::ConstValue< double > ConvFunctor;
   typedef LocalEstimatorFromSurfelFunctorAdapter<SurfaceContainer, Z3i::L2Metric, Functor, ConvFunctor> Reporter;
 
-  Functor fitter(embedder,myH, normalCache);
+  Functor meancurvature(embedder,myH, myRadius ,normalCache);
   ConvFunctor convFunc(1.0);
   Reporter reporter;
   reporter.attach(surface);
-  reporter.setParams(l2Metric, fitter , convFunc, myRadius/myH);
+  reporter.setParams(l2Metric, meancurvature , convFunc, myRadius/myH);
   
-  reporter.init(1, surface.begin(), surface.end());
+  reporter.init(myH, surface.begin(), surface.end());
   for(Surface::ConstIterator it = surface.begin(), ite=surface.end(); it!=ite; ++it)
     {
       Functor::Quantity val = reporter.eval( it );
-      trace.info() << "Area = "<<val<<std::endl;
+      trace.info() << "MeanCurvature = "<<val<<std::endl;
     }
   trace.endBlock();
 
@@ -160,7 +163,7 @@ bool testFitting()
 
 int main( int argc, char** argv )
 {
-  trace.beginBlock ( "Testing class Local surface area patch" );
+  trace.beginBlock ( "Testing class Mean curvature from surface area II" );
   trace.info() << "Args:";
   for ( int i = 0; i < argc; ++i )
     trace.info() << " " << argv[ i ];

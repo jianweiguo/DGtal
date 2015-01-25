@@ -17,6 +17,7 @@ SET(TESTS_SURFACES_SRC
   testTensorVoting
   testEstimatorCache
   testLocalSurfaceAreaEstimator
+  testIntegralInvariantMeanCurvatureFromSurfaceAreaEstimator
   )
 
 FOREACH(FILE ${TESTS_SURFACES_SRC})
