@@ -46,7 +46,6 @@
 #include <iostream>
 #include <DGtal/base/Common.h>
 #include "DGtal/geometry/surfaces/estimation/CSurfelLocalEstimator.h"
-
 //////////////////////////////////////////////////////////////////////////////
 
 namespace DGtal
@@ -57,9 +56,10 @@ namespace DGtal
     // template class IntegralInvariantMeanCurvatureFromSurfaceAreaEstimator
     /**
      * Description of template class 'IntegralInvariantMeanCurvatureFromSurfaceAreaEstimator' <p>
-     * \brief Aim: Estimate the surface area of a local patch. This
-     * estimation is given by summing a dot product between estimated
-     * normal vectors and surfel elementary normal vector.
+     * \brief Aim: Estimate the mean curvature using integral
+     * invariant estimator from local patch surface area. This
+     * functor needs a normal vector estimator (or cache) to evaluate
+     * the surface area of the given patch.
      *
      * model of CLocalEstimatorFromSurfelFunctor.
      *
