@@ -106,7 +106,7 @@ namespace DGtal
                                                              const double h,
                                                              const double radius,
                                                              ConstAlias<NormalVectorEstimator> anEstimator):
-        myEmbedder(&anEmbedder), myH2(h*h), myRadius(radius), myNormalEsitmatorCache(&anEstimator), myArea(0.0)
+        myEmbedder(&anEmbedder), myH2(h*h), myRadius(radius), myNormalEstimatorCache(&anEstimator), myArea(0.0)
       { }
 
 
@@ -130,9 +130,14 @@ namespace DGtal
         RealPoint elementary;
         Dimension i = myEmbedder->space().sOrthDir ( aSurf );
         elementary[ i ] = myEmbedder->space().sDirect ( aSurf, i ) ? 1 : -1;
-        RealPoint estimatedNormal = myNormalEsitmatorCache->eval( &aSurf );          
+        RealPoint estimatedNormal = myNormalEstimatorCache->eval( &aSurf );          
 
-        myArea += elementary.dot(estimatedNormal);
+        ASSERT( estimatedNormal.norm() <= 1.0);
+        ASSERT( elementary.norm() <= 1.0);
+
+        //trace.info() << estimatedNormal.norm() << " " << elementary.norm()<< "  "<<elementary.dot(-estimatedNormal)<< std::endl;
+        
+        myArea += elementary.dot(-estimatedNormal);
       }
 
       /**
@@ -168,7 +173,7 @@ namespace DGtal
       const double myRadius;
 
       ///NormalVectorCache
-      const NormalVectorEstimator *myNormalEsitmatorCache;
+      const NormalVectorEstimator *myNormalEstimatorCache;
 
       ///Surface area
       double myArea;
