@@ -128,7 +128,7 @@ namespace DGtal
         RealPoint elementary;
         Dimension i = myEmbedder->space().sOrthDir ( aSurf );
         elementary[ i ] = myEmbedder->space().sDirect ( aSurf, i ) ? 1 : -1;
-        RealPoint estimatedNormal = myNormalEsitmatorCache->eval( aSurf );          
+        RealPoint estimatedNormal = myNormalEsitmatorCache->eval( &aSurf );          
 
         myArea += elementary.dot(estimatedNormal);
       }

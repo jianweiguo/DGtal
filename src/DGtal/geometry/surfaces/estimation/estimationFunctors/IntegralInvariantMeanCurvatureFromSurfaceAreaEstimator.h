@@ -106,7 +106,7 @@ namespace DGtal
                                                              const double h,
                                                              const double radius,
                                                              ConstAlias<NormalVectorEstimator> anEstimator):
-        myEmbedder(&anEmbedder), myH(h), myRadius(radius), myNormalEsitmatorCache(&anEstimator), myArea(0.0)
+        myEmbedder(&anEmbedder), myH2(h*h), myRadius(radius), myNormalEsitmatorCache(&anEstimator), myArea(0.0)
       { }
 
 
@@ -130,7 +130,7 @@ namespace DGtal
         RealPoint elementary;
         Dimension i = myEmbedder->space().sOrthDir ( aSurf );
         elementary[ i ] = myEmbedder->space().sDirect ( aSurf, i ) ? 1 : -1;
-        RealPoint estimatedNormal = myNormalEsitmatorCache->eval( aSurf );          
+        RealPoint estimatedNormal = myNormalEsitmatorCache->eval( &aSurf );          
 
         myArea += elementary.dot(estimatedNormal);
       }
@@ -142,10 +142,10 @@ namespace DGtal
        */
       Quantity eval() const
       {
-        return (2.0/myRadius - myArea*myH*myH / (M_PI*myRadius*myRadius*myRadius)) ;
+        return (2.0/myRadius - myArea*myH2 / (M_PI*myRadius*myRadius*myRadius)) ;
       }
                              
-
+      
       /**
        * Reset the point list.
        *
@@ -161,8 +161,8 @@ namespace DGtal
       ///Alias of the geometrical embedder
       const SCellEmbedder * myEmbedder;
 
-      ///Grid step
-      const double myH;
+      ///Square of the grid step
+      const double myH2;
 
       ///Ball radius
       const double myRadius;
