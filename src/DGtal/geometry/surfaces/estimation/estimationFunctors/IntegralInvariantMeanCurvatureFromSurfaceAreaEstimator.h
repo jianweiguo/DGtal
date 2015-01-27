@@ -107,8 +107,11 @@ namespace DGtal
                                                              const double radius,
                                                              ConstAlias<NormalVectorEstimator> anEstimator):
         myEmbedder(&anEmbedder), myH2(h*h), myRadius(radius), myNormalEstimatorCache(&anEstimator), myArea(0.0)
-      { }
-
+      {
+        myRatio = myH2 / (M_PI*myRadius*myRadius*myRadius);
+        myShift = 2.0/myRadius;
+      }
+      
 
       /**
        * Destructor.
@@ -147,7 +150,7 @@ namespace DGtal
        */
       Quantity eval() const
       {
-        return (2.0/myRadius - myArea*myH2 / (M_PI*myRadius*myRadius*myRadius)) ;
+        return (myShift - myArea*myRatio);
       }
                              
       
@@ -177,6 +180,11 @@ namespace DGtal
 
       ///Surface area
       double myArea;
+
+      ///Ratio (internal)
+      double myRatio;
+      ///Shift (internal)
+      double myShift;
       
     }; // end of class IntegralInvariantMeanCurvatureFromSurfaceAreaEstimator
   }
