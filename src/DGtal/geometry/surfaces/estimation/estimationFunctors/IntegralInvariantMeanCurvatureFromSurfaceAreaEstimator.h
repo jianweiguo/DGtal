@@ -137,7 +137,7 @@ namespace DGtal
 
         //trace.info() << estimatedNormal.norm() << " " << elementary.norm()<< "  "<<elementary.dot(-estimatedNormal)<< std::endl;
         
-        myArea += elementary.dot(-estimatedNormal);
+        myArea += elementary.dot(estimatedNormal);
       }
 
       /**
