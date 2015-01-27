@@ -24,7 +24,7 @@ script:
   - make DGtal && make DGtalIO
   - cd examples && make -j 3 
   - cd ../tests &&  make &&  cd ..&& make test
-  - tests/geometry/surfaces/testTensorVoting
+  - tests/geometry/surfaces/testIntegralInvariantMeanCurvatureFromSurfaceAreaEstimator
 
 after_script:
   - make lcov
