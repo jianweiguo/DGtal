@@ -158,6 +158,10 @@ namespace DGtal
         myFit = new Fit();
         myWeightFunction = new WeightFunc(100.0);
         myFit->setWeightFunc(*myWeightFunction);
+
+#ifdef DEBUG_VERBOSE
+        myNbSurfels = 0;
+#endif
       }
 
 
@@ -195,6 +199,7 @@ namespace DGtal
         PatatePoint point(pp,  normal);
         myFit->addNeighbor(point);
 #ifdef DEBUG_VERBOSE
+        ++myNbSurfels;
         trace.info() <<"#";
 #endif
       }
@@ -212,35 +217,52 @@ namespace DGtal
         trace.info() <<std::endl;
         
         //Test if the fitting ended without errors
-	if(myFit->isStable())
-	{
-		std::cout << "Center: [" << myFit->center().transpose() << "] ;  radius: " << myFit->radius() << std::endl;
+        if(myFit->isStable())
+        {
+          std::cout << "Center: [" << myFit->center().transpose() << "] ;  radius: " << myFit->radius() << std::endl;
 
-		std::cout << "Pratt normalization" 
-			<< (myFit->applyPrattNorm() ? " is now done." : " has already been applied.") << std::endl;
+          std::cout << "Pratt normalization" 
+                    << (myFit->applyPrattNorm() ? " is now done." : " has already been applied.") << std::endl;
 
-	
-		std::cout << "Fitted Sphere: " << std::endl
-			<< "\t Tau  : "      << myFit->tau()             << std::endl
-			<< "\t Eta  : "      << myFit->eta().transpose() << std::endl
-			<< "\t Kappa: "      << myFit->kappa()           << std::endl;
 
-	}
+          std::cout << "Fitted Sphere: " << std::endl
+                    << "\t Tau  : "      << myFit->tau()             << std::endl
+                    << "\t Eta  : "      << myFit->eta().transpose() << std::endl
+                    << "\t Kappa: "      << myFit->kappa()           << std::endl;
+
+        }
         else
-          {
-            std::cout << "Ooops... not stable result"<<std::endl;
-          }
+        {
+          std::cout << "Ooops... not stable result. || Number of surfels: " << myNbSurfels << std::endl;
+        }
 #endif
         Quantity res;
-        res.center = RealPoint((myFit->center())(0),
-                               (myFit->center())(1),
-                               (myFit->center())(2));
-        res.radius =  myFit->radius();
-        res.tau = myFit->tau();
-        res.kappa = myFit->kappa();
-        res.eta = RealPoint((myFit->eta())(0),
-                            (myFit->eta())(1),
-                            (myFit->eta())(2));
+
+        if(myFit->isStable())
+        {
+          res.center = RealPoint((myFit->center())(0),
+                                 (myFit->center())(1),
+                                 (myFit->center())(2));
+          res.radius =  myFit->radius();
+          res.tau = myFit->tau();
+          res.kappa = myFit->kappa();
+          res.eta = RealPoint((myFit->eta())(0),
+                              (myFit->eta())(1),
+                              (myFit->eta())(2));
+        }
+        else // myFit isn't stable. Probably we are on a flat surface ?
+        {
+            res.center = RealPoint((myFit->center())(0),
+                                   (myFit->center())(1),
+                                   (myFit->center())(2));
+            res.radius =  myFit->radius();
+            res.tau = myFit->tau();
+            res.kappa = 0.0;
+            res.eta = RealPoint((0.0),
+                                (0.0),
+                                (0.0));
+        }
+
         return res;
       }
                              
@@ -254,7 +276,11 @@ namespace DGtal
         delete myFit;
         myFit = new Fit();
         myFit->setWeightFunc(*myWeightFunction);
-     }
+
+#ifdef DEBUG_VERBOSE
+        myNbSurfels = 0;
+#endif
+      }
 
 
     private:
@@ -264,6 +290,11 @@ namespace DGtal
 
       ///Fitting object
       Fit *myFit;
+
+#ifdef DEBUG_VERBOSE
+      ///Number of surfels pushed at eval.
+      unsigned int myNbSurfels;
+#endif
       
       ///Grid step
       double myH;
