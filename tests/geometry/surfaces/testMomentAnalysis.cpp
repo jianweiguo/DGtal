@@ -51,6 +51,7 @@
 #include "DGtal/geometry/surfaces/estimation/IntegralInvariantCovarianceEstimator.h"
 
 #include "DGtal/io/viewers/Viewer3D.h"
+#include "DGtal/io/boards/Board3D.h"
 #include "DGtal/io/Color.h"
 #include "DGtal/io/colormaps/GradientColorMap.h"
 
@@ -110,11 +111,6 @@ bool testCube( double radius, double alpha, double beta, int argc, char** argv )
   // dshape.init( Z3i::RealPoint( -15.0, -15.0, -15.0 ), Z3i::RealPoint( 15.0, 15.0, 15.0 ), h );
 
   Z3i::KSpace K;
-  // if ( !K.init( dshape.getLowerBound(), dshape.getUpperBound(), true ) )
-  // {
-  //   trace.error() << "Problem with Khalimsky space" << std::endl;
-  //   return false;
-  // }
   if ( !K.init( domain.lowerBound(), domain.upperBound(), true ) )
   {
     trace.error() << "Problem with Khalimsky space" << std::endl;
@@ -149,9 +145,9 @@ bool testCube( double radius, double alpha, double beta, int argc, char** argv )
   // std::vector<std::vector< double > > results(nbTest);
   std::vector< double > results;
 
-  for( unsigned int i = 0; i < nbTest; ++i )
+  // for( unsigned int i = 0; i < nbTest; ++i )
   {
-    double re = 5;//(6.0 + i) * h;
+    double re = 10;//(6.0 + i) * h;
 
     std::vector< Value_k > results_k;
 
@@ -179,10 +175,6 @@ bool testCube( double radius, double alpha, double beta, int argc, char** argv )
     {
       trace.beginBlock( "Barycenter speed estimator initialisation ...");
       
-      // VisitorRange range( new Visitor( surf, *surf.begin() ));
-      // VisitorConstIterator ibegin = range.begin();
-      // VisitorConstIterator iend = range.end();
-
       MyIIBarycenterSpeedFunctor barycenterSpeedFunctor;
       barycenterSpeedFunctor.init( h, re );
 
@@ -197,24 +189,18 @@ bool testCube( double radius, double alpha, double beta, int argc, char** argv )
 
       std::vector< Value > results_bar;
       std::back_insert_iterator< std::vector< Value > > resultsIt( results_bar );
-      // while(ibegin != iend)
-      // {
-      //   *resultsIt = barycenterEstimator.eval(ibegin);
-      //   ++resultsIt;
-      //   ++ibegin;
-      // }
       barycenterEstimator.eval( v_border.begin(), v_border.end(), resultsIt );
 
       for(unsigned int j = 0; j < results_bar.size(); ++j )
       {
-        if( results_k[j][1] > results_k[j][2] )
-        {
-          trace.error() << "Wrong sens lambda1 lambda2 " << results_k[j][0] << " " << results_k[j][1] << " " << results_k[j][2] << std::endl;
-        }
+        // if( results_k[j][1] > results_k[j][2] )
+        // {
+        //   trace.error() << "Wrong sens lambda1 lambda2 " << results_k[j][0] << " " << results_k[j][1] << " " << results_k[j][2] << std::endl;
+        // }
 
-        double value = results_bar[j].norm();
+        // double value = results_bar[j].norm();
         // double value = 1.0 / ( alpha + beta * ( results_bar[j].norm() / re ) * ( results_bar[j].norm() / re ));
-        // double value = 1.0 / ( alpha + beta * (( results_bar[j].norm() * results_k[j][0] ) / ( re * results_k[j][2] )) * (( results_bar[j].norm() * results_k[j][0] ) / ( re * results_k[j][2] )));
+        double value = 1.0 / ( alpha + beta * (( results_bar[j].norm() * results_k[j][1] ) / ( re * results_k[j][2] )) * (( results_bar[j].norm() * results_k[j][1] ) / ( re * results_k[j][2] )));
         // double value = 1.0 / ( alpha + beta * (( results_bar[j].norm() * results_k[j][2] ) / ( re * results_k[j][0] )) * (( results_bar[j].norm() * results_k[j][2] ) / ( re * results_k[j][0] )));
         results.push_back(value);
       }
@@ -238,30 +224,38 @@ bool testCube( double radius, double alpha, double beta, int argc, char** argv )
     typedef GradientColorMap< double > Gradient;
     Gradient cmap_grad( minval, maxval );
     cmap_grad.addColor( Color( 255, 50, 50 ) );
-    cmap_grad.addColor( Color( 50, 255, 50 ) );
     // cmap_grad.addColor( Color( 255, 255, 10 ) );
+    cmap_grad.addColor( Color( 50, 255, 50 ) );
 
-    // VisitorRange range( new Visitor( surf, *surf.begin() ));
-    // VisitorConstIterator ibegin = range.begin();
-    // VisitorConstIterator iend = range.end();
+    // typedef Board3D<Z3i::Space, Z3i::KSpace> Board;
+    // Board board( K ); 
 
 
     viewer << SetMode3D((*(v_border.begin())).className(), "Basic" );
-    unsigned int i=0;
-    auto it_value = results.begin();
+    // board << SetMode3D((v_border[0]).className(), "Basic" );
+
+    // viewer << CustomColors3D(Color(250, 0,0),Color(250, 0,0));
     
-    for( auto it = v_border.begin(), itend=v_border.end();
-      it!= itend;
-      ++it, ++it_value, ++i)
+    unsigned int i = 0;
+    auto it_value = results.begin();
+    for( auto it = v_border.begin(), itend = v_border.end();
+      it != itend;
+      ++it, ++it_value, ++i )
     {
+      // trace.info() << CustomColors3D( Color::Black, cmap_grad( *it_value )).myFillColor << std::endl;
+      // board << CustomColors3D( Color::Black, cmap_grad( *it_value ))
+      //      << *it ;
+
+      // viewer.setFillColor(cmap_grad( *it_value )); 
+      // viewer << *it;
       viewer << CustomColors3D( Color::Black, cmap_grad( *it_value ))
-             <<  *it ;
+             << *it ;
 
       trace.progressBar( i, v_border.size() );
     }
     
-    
     viewer << Viewer3D<>::updateDisplay;
+    // board.saveOBJ("test.obj",true);
     
     trace.endBlock();
     application.exec();
