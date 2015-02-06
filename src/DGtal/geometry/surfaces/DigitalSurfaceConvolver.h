@@ -230,6 +230,67 @@ public:
               EvalFunctor functor ) const;
 
 
+    /**
+  * Convolve the kernel at a position \a it.
+  *
+  * @param[in] it (iterator of a) surfel of the shape where the covariance matrix is computed.
+  *
+  * @tparam SurfelIterator type of iterator of a surfel on the shape.
+  *
+  * @return the covariance matrix at *it
+  */
+  template< typename SurfelIterator >
+  VectorQuantity evalBarycenter ( const SurfelIterator & it ) const;
+
+  /**
+  * Convolve the kernel at a position \a it and applies the functor \a functor on the result.
+  *
+  * @param[in] it (iterator of a) surfel of the shape where the covariance matrix is computed.
+  * @param[in] functor functor called with the result of the convolution.
+  *
+  * @tparam SurfelIterator type of iterator of a surfel on the shape.
+  * @tparam EvalFunctor type of functor on VectorQuantity.
+  *
+  * @return the result of the functor with the covariance matrix.
+  */
+  template< typename SurfelIterator, typename EvalFunctor >
+  typename EvalFunctor::Value evalBarycenter ( const SurfelIterator & it,
+                                                     EvalFunctor functor ) const;
+
+  /**
+  * Convolve the kernel at all positions of the range [itBegin, itEnd[ and outputs results sequentially with \a result iterator.
+  *
+  * @param[in] itbegin (iterator of the) first surfel of the shape where the covariance matrix is computed.
+  * @param[in] itend (iterator of the) last (excluded) surfel of the shape where the covariance matrix is computed.
+  * @param[out] result iterator of an array where estimates covariance matrix are set ( the covariance matrix from *itbegin till *itend (excluded)).
+  *
+  * @tparam SurfelIterator type of iterator of a surfel on the shape.
+  * @tparam OutputIterator type of iterator on an array when Quantity are stored.
+  */
+  template< typename SurfelIterator, typename OutputIterator >
+  void evalBarycenter ( const SurfelIterator & itbegin,
+                              const SurfelIterator & itend,
+                              OutputIterator & result ) const;
+
+  /**
+  * Convolve the kernel at all positions of the range [itBegin, itEnd[ and applies the functor \a functor on results outputed sequentially with \a result iterator.
+  *
+  * @param[in] itbegin (iterator of the) first surfel of the shape where the covariance matrix is computed.
+  * @param[in] itend (iterator of the) last (excluded) surfel of the shape where the covariance matrix is computed.
+  * @param[out] result iterator of an array where results of functor are set.
+  * @param[in] functor functor called with the result of the convolution.
+  *
+  * @tparam SurfelIterator type of iterator of a surfel on the shape.
+  * @tparam OutputIterator type of iterator on an array when Quantity are stored.
+  * @tparam EvalFunctor type of functor on CovarianceMatrix.
+  */
+  template< typename SurfelIterator, typename OutputIterator, typename EvalFunctor >
+  void evalBarycenter ( const SurfelIterator & itbegin,
+                              const SurfelIterator & itend,
+                              OutputIterator & result,
+                              EvalFunctor functor ) const;
+
+
   /**
   * Convolve the kernel at a position \a it.
   *
@@ -309,6 +370,18 @@ protected:
    * ]
    * @param[out] aCovarianceMatrix the result covariance matrix
    */
+  void computeBarycenter( const Quantity * aMomentMatrix, VectorQuantity & aBarycenter ) const;
+
+  /**
+   * @brief computeCovarianceMatrix compute the covariance matrix from matrix of moments.
+   *
+   * @param[in] aMomentMatrix a matrix of digital moments
+   * [ sum(1)
+   *   sum(y) sum (x)
+   *   sum(x*y) sum(y*y) sum(x*x)
+   * ]
+   * @param[out] aCovarianceMatrix the result covariance matrix
+   */
   void computeCovarianceMatrix( const Quantity * aMomentMatrix, CovarianceMatrix & aCovarianceMatrix ) const;
 
   /**
@@ -355,6 +428,30 @@ protected:
                    Spel & lastOuterSpel = defaultOuterSpel,
                    Quantity & lastInnerSum = defaultInnerSum,
                    Quantity & lastOuterSum = defaultOuterSum ) const;
+
+  /**
+   * @brief core_evalCovarianceMatrix method used ( in intern by evalCovarianceMatrix() ) to compute the covariance matrix on a given surfel (*it)
+   *
+   * @param[in] it (iterator of a) surfel of the shape where the convolution is computed.
+   * @param[out] innerMatrix the result covariance matrix when centering with the innerSpel.
+   * @param[out] outerMatrix the result covariance matrix when centering with the outerSpel.
+   * @param[in] useLastResults if we can use last results (optimisation with masks)
+   * @param[in,out] lastInnerSpel last inner spel. Override at end of function with current inner spel (from surfel *it). Set empty if useLastResults is false.
+   * @param[in,out] lastOuterSpel last outer spel. Override at end of function with current outer spel (from surfel *it). Set empty if useLastResults is false.
+   * @param[in,out] lastInnerMoments last inner moments when centering with inner spel. Override at end of function with current inner moments (from surfel *it). Set empty if useLastResults is false.
+   * @param[in,out] lastOuterMoments last inner moments when centering with inner spel. Override at end of function with current outer moments (from surfel *it). Set empty if useLastResults is false.
+   *
+   * @tparam SurfelIterator type of iterator on surfel
+   */
+  template< typename SurfelIterator >
+  bool core_evalBarycenter ( const SurfelIterator & it,
+                                   VectorQuantity & innerBarycenter,
+                                   VectorQuantity & outerBarycenter,
+                                   bool useLastResults = false,
+                                   Spel & lastInnerSpel = defaultInnerSpel,
+                                   Spel & lastOuterSpel = defaultOuterSpel,
+                                   Quantity * lastInnerMoments = defaultInnerMoments,
+                                   Quantity * lastOuterMoments = defaultOuterMoments ) const;
 
   /**
    * @brief core_evalCovarianceMatrix method used ( in intern by evalCovarianceMatrix() ) to compute the covariance matrix on a given surfel (*it)
@@ -600,6 +697,66 @@ public:
   * @return the covariance matrix at *it
   */
   template< typename SurfelIterator >
+  VectorQuantity evalBarycenter ( const SurfelIterator & it ) const;
+
+  /**
+  * Convolve the kernel at a position \a it and applies the functor \a functor on the result.
+  *
+  * @param[in] it (iterator of a) surfel of the shape where the covariance matrix is computed.
+  * @param[in] functor functor called with the result of the convolution.
+  *
+  * @tparam SurfelIterator type of iterator of a surfel on the shape.
+  * @tparam EvalFunctor type of functor on CovarianceMatrix.
+  *
+  * @return the result of the functor with the covariance matrix.
+  */
+  template< typename SurfelIterator, typename EvalFunctor >
+  typename EvalFunctor::Value evalBarycenter ( const SurfelIterator & it,
+                                                     EvalFunctor functor ) const;
+
+  /**
+  * Convolve the kernel at all positions of the range [itBegin, itEnd[ and outputs results sequentially with \a result iterator.
+  *
+  * @param[in] itbegin (iterator of the) first surfel of the shape where the covariance matrix is computed.
+  * @param[in] itend (iterator of the) last (excluded) surfel of the shape where the covariance matrix is computed.
+  * @param[out] result iterator of an array where estimates covariance matrix are set ( the covariance matrix from *itbegin till *itend (excluded)).
+  *
+  * @tparam SurfelIterator type of iterator of a surfel on the shape.
+  * @tparam OutputIterator type of iterator on an array when Quantity are stored.
+  */
+  template< typename SurfelIterator, typename OutputIterator >
+  void evalBarycenter ( const SurfelIterator & itbegin,
+                              const SurfelIterator & itend,
+                              OutputIterator & result ) const;
+
+  /**
+  * Convolve the kernel at all positions of the range [itBegin, itEnd[ and applies the functor \a functor on results outputed sequentially with \a result iterator.
+  *
+  * @param[in] itbegin (iterator of the) first surfel of the shape where the covariance matrix is computed.
+  * @param[in] itend (iterator of the) last (excluded) surfel of the shape where the covariance matrix is computed.
+  * @param[out] result iterator of an array where results of functor are set.
+  * @param[in] functor functor called with the result of the convolution.
+  *
+  * @tparam SurfelIterator type of iterator of a surfel on the shape.
+  * @tparam OutputIterator type of iterator on an array when Quantity are stored.
+  * @tparam EvalFunctor type of functor on CovarianceMatrix.
+  */
+  template< typename SurfelIterator, typename OutputIterator, typename EvalFunctor >
+  void evalBarycenter ( const SurfelIterator & itbegin,
+                              const SurfelIterator & itend,
+                              OutputIterator & result,
+                              EvalFunctor functor ) const;
+
+  /**
+  * Convolve the kernel at a position \a it.
+  *
+  * @param[in] it (iterator of a) surfel of the shape where the covariance matrix is computed.
+  *
+  * @tparam SurfelIterator type of iterator of a surfel on the shape.
+  *
+  * @return the covariance matrix at *it
+  */
+  template< typename SurfelIterator >
   CovarianceMatrix evalCovarianceMatrix ( const SurfelIterator & it ) const;
 
   /**
@@ -669,6 +826,18 @@ protected:
    * ]
    * @param[out] aCovarianceMatrix the result covariance matrix
    */
+  void computeBarycenter( const Quantity * aMomentMatrix, VectorQuantity & aBarycenter ) const;
+
+  /**
+   * @brief computeCovarianceMatrix compute the covariance matrix from matrix of moments.
+   *
+   * @param[in] aMomentMatrix a matrix of digital moments
+   * [ sum(1)
+   *   sum(y) sum (x)
+   *   sum(x*y) sum(y*y) sum(x*x)
+   * ]
+   * @param[out] aCovarianceMatrix the result covariance matrix
+   */
   void computeCovarianceMatrix( const Quantity * aMomentMatrix, CovarianceMatrix & aCovarianceMatrix ) const;
 
   /**
@@ -715,6 +884,30 @@ protected:
                    Spel & lastOuterSpel = defaultOuterSpel,
                    Quantity & lastInnerSum = defaultInnerSum,
                    Quantity & lastOuterSum = defaultOuterSum ) const;
+
+  /**
+   * @brief core_evalCovarianceMatrix method used ( in intern by evalCovarianceMatrix() ) to compute the covariance matrix on a given surfel (*it)
+   *
+   * @param[in] it (iterator of a) surfel of the shape where the convolution is computed.
+   * @param[out] innerMatrix the result covariance matrix when centering with the innerSpel.
+   * @param[out] outerMatrix the result covariance matrix when centering with the outerSpel.
+   * @param[in] useLastResults if we can use last results (optimisation with masks)
+   * @param[in,out] lastInnerSpel last inner spel. Override at end of function with current inner spel (from surfel *it). Set empty if useLastResults is false.
+   * @param[in,out] lastOuterSpel last outer spel. Override at end of function with current outer spel (from surfel *it). Set empty if useLastResults is false.
+   * @param[in,out] lastInnerMoments last inner moments when centering with inner spel. Override at end of function with current inner moments (from surfel *it). Set empty if useLastResults is false.
+   * @param[in,out] lastOuterMoments last inner moments when centering with inner spel. Override at end of function with current outer moments (from surfel *it). Set empty if useLastResults is false.
+   *
+   * @tparam SurfelIterator type of iterator on surfel
+   */
+  template< typename SurfelIterator >
+  bool core_evalBarycenter ( const SurfelIterator & it,
+                                   VectorQuantity & innerBarycenter,
+                                   VectorQuantity & outerBarycenter,
+                                   bool useLastResults = false,
+                                   Spel & lastInnerSpel = defaultInnerSpel,
+                                   Spel & lastOuterSpel = defaultOuterSpel,
+                                   Quantity * lastInnerMoments = defaultInnerMoments,
+                                   Quantity * lastOuterMoments = defaultOuterMoments ) const;
 
   /**
    * @brief core_evalCovarianceMatrix method used ( in intern by evalCovarianceMatrix() ) to compute the covariance matrix on a given surfel (*it)
@@ -965,6 +1158,67 @@ public:
   * @return the covariance matrix at *it
   */
   template< typename SurfelIterator >
+  VectorQuantity evalBarycenter ( const SurfelIterator & it ) const;
+
+  /**
+  * Convolve the kernel at a position \a it and applies the functor \a functor on the result.
+  *
+  * @param[in] it (iterator of a) surfel of the shape where the covariance matrix is computed.
+  * @param[in] functor functor called with the result of the convolution.
+  *
+  * @tparam SurfelIterator type of iterator of a surfel on the shape.
+  * @tparam EvalFunctor type of functor on CovarianceMatrix.
+  *
+  * @return the result of the functor with the covariance matrix.
+  */
+  template< typename SurfelIterator, typename EvalFunctor >
+  typename EvalFunctor::Value evalBarycenter ( const SurfelIterator & it,
+                                                     EvalFunctor functor ) const;
+
+  /**
+  * Convolve the kernel at all positions of the range [itBegin, itEnd[ and outputs results sequentially with \a result iterator.
+  *
+  * @param[in] itbegin (iterator of the) first surfel of the shape where the covariance matrix is computed.
+  * @param[in] itend (iterator of the) last (excluded) surfel of the shape where the covariance matrix is computed.
+  * @param[out] result iterator of an array where estimates covariance matrix are set ( the covariance matrix from *itbegin till *itend (excluded)).
+  *
+  * @tparam SurfelIterator type of iterator of a surfel on the shape.
+  * @tparam OutputIterator type of iterator on an array when Quantity are stored.
+  */
+  template< typename SurfelIterator, typename OutputIterator >
+  void evalBarycenter ( const SurfelIterator & itbegin,
+                              const SurfelIterator & itend,
+                              OutputIterator & result ) const;
+
+  /**
+  * Convolve the kernel at all positions of the range [itBegin, itEnd[ and applies the functor \a functor on results outputed sequentially with \a result iterator.
+  *
+  * @param[in] itbegin (iterator of the) first surfel of the shape where the covariance matrix is computed.
+  * @param[in] itend (iterator of the) last (excluded) surfel of the shape where the covariance matrix is computed.
+  * @param[out] result iterator of an array where results of functor are set.
+  * @param[in] functor functor called with the result of the convolution.
+  *
+  * @tparam SurfelIterator type of iterator of a surfel on the shape.
+  * @tparam OutputIterator type of iterator on an array when Quantity are stored.
+  * @tparam EvalFunctor type of functor on CovarianceMatrix.
+  */
+  template< typename SurfelIterator, typename OutputIterator, typename EvalFunctor >
+  void evalBarycenter ( const SurfelIterator & itbegin,
+                              const SurfelIterator & itend,
+                              OutputIterator & result,
+                              EvalFunctor functor ) const;
+
+
+  /**
+  * Convolve the kernel at a position \a it.
+  *
+  * @param[in] it (iterator of a) surfel of the shape where the covariance matrix is computed.
+  *
+  * @tparam SurfelIterator type of iterator of a surfel on the shape.
+  *
+  * @return the covariance matrix at *it
+  */
+  template< typename SurfelIterator >
   CovarianceMatrix evalCovarianceMatrix ( const SurfelIterator & it ) const;
 
   /**
@@ -1034,6 +1288,19 @@ protected:
    * ]
    * @param[out] aCovarianceMatrix the result covariance matrix
    */
+  void computeBarycenter ( const Quantity * aMomentMatrix, VectorQuantity & aBarycenter ) const;
+
+  /**
+   * @brief computeCovarianceMatrix compute the covariance matrix from matrix of moments.
+   *
+   * @param[in] aMomentMatrix a matrix of digital moments
+   * [ sum(1)
+   *   sum(z) sum(y) sum (x)
+   *   sum(y*z) sum(x*z) sum(x*y)
+   *   sum(z*z) sum(y*y) sum(x*x)
+   * ]
+   * @param[out] aCovarianceMatrix the result covariance matrix
+   */
   void computeCovarianceMatrix ( const Quantity * aMomentMatrix, CovarianceMatrix & aCovarianceMatrix ) const;
 
   /**
@@ -1081,6 +1348,30 @@ protected:
                    Spel & lastOuterSpel = defaultOuterSpel,
                    Quantity & lastInnerSum = defaultInnerSum,
                    Quantity & lastOuterSum = defaultOuterSum ) const;
+
+  /**
+   * @brief core_evalCovarianceMatrix method used ( in intern by evalCovarianceMatrix() ) to compute the covariance matrix on a given surfel (*it)
+   *
+   * @param[in] it (iterator of a) surfel of the shape where the convolution is computed.
+   * @param[out] innerMatrix the result covariance matrix when centering with the innerSpel.
+   * @param[out] outerMatrix the result covariance matrix when centering with the outerSpel.
+   * @param[in] useLastResults if we can use last results (optimisation with masks)
+   * @param[in,out] lastInnerSpel last inner spel. Override at end of function with current inner spel (from surfel *it). Set empty if useLastResults is false.
+   * @param[in,out] lastOuterSpel last outer spel. Override at end of function with current outer spel (from surfel *it). Set empty if useLastResults is false.
+   * @param[in,out] lastInnerMoments last inner moments when centering with inner spel. Override at end of function with current inner moments (from surfel *it). Set empty if useLastResults is false.
+   * @param[in,out] lastOuterMoments last inner moments when centering with inner spel. Override at end of function with current outer moments (from surfel *it). Set empty if useLastResults is false.
+   *
+   * @tparam SurfelIterator type of iterator on surfel
+   */
+  template< typename SurfelIterator >
+  bool core_evalBarycenter ( const SurfelIterator & it,
+                                   VectorQuantity & innerBarycenter,
+                                   VectorQuantity & outerBarycenter,
+                                   bool useLastResults = false,
+                                   Spel & lastInnerSpel = defaultInnerSpel,
+                                   Spel & lastOuterSpel = defaultOuterSpel,
+                                   Quantity * lastInnerMoments = defaultInnerMoments,
+                                   Quantity * lastOuterMoments = defaultOuterMoments ) const;
 
   /**
    * @brief core_evalCovarianceMatrix method used ( in intern by evalCovarianceMatrix() ) to compute the covariance matrix on a given surfel (*it)
