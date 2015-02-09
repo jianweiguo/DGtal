@@ -1562,15 +1562,15 @@ void DGtal::Display3DFactory<Space,KSpace>::draw( Display & display, const DGtal
     {
       display.setFillColor(cc3d.myFillColor);
       display.setLineColor(cc3d.myPenColor);
-      display.createNewLineList("CustomColors3D");
-      display.createNewBallList("CustomColors3D");
-      display.createNewCubeList("CustomColors3D");
+      // display.createNewLineList("CustomColors3D");
+      // display.createNewBallList("CustomColors3D");
+      // display.createNewCubeList("CustomColors3D");
 
       // @todo to be change with single map processing.
-      display.createNewQuadList();
+      // display.createNewQuadList();
 
-      display.createNewTriangleList("CustomColors3D");
-      display.createNewPolygonList("CustomColors3D");
+      // display.createNewTriangleList("CustomColors3D");
+      // display.createNewPolygonList("CustomColors3D");
     }
 }
 

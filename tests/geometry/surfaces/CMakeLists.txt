@@ -12,6 +12,7 @@ SET(TESTS_SURFACES_SRC
   testNormalVectorEstimatorEmbedder
   testIntegralInvariantVolumeEstimator
   testIntegralInvariantCovarianceEstimator
+  testMomentAnalysis
   testLocalEstimatorFromFunctorAdapter
   ##testVoronoiCovarianceMeasureOnSurface
   testTensorVoting
