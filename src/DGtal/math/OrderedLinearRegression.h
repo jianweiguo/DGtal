@@ -247,6 +247,8 @@ namespace DGtal
 
           if ( !funct( *itx, *ity ) )
             break;
+          if ( ( *ity < ic.first ) || ( *ity > ic.second ) )
+            break;
           linearModel.addSample( *itx, *ity );
           linearModel.computeRegression();
         }
