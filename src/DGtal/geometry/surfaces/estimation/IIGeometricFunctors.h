@@ -244,8 +244,6 @@ namespace DGtal {
       */
       Value operator()( const Argument& arg ) const
       {
-
-        // trace.info() << "barycenter: " << arg.first << " position: " << arg.second << std::endl;
         return arg.first - arg.second;
       }
 

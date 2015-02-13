@@ -181,6 +181,72 @@ namespace DGtal
         }
     }
 
+    /**
+     * Returns the slope of the first straight part of the data. The
+     * straightness is evaluated through a statistic test based on a
+     * simple linear regression (SLR) model.
+     * It requires two parameters:
+     * @a n is the minimum number of samples to fit a linear model,
+     * 1-[ @a alpha] is the proportion of accepted linear model of the
+     * test (99%, alpha=0.01, means that 99% of all linear model with
+     * a Gaussian noise are accepted).
+     *
+     * @param[in] n the minimum number of samples greater than 3 (default
+     * value is 4).
+     * @param[in] alpha is the proportion of rejected linear
+     * model (the ones with big variance, default value is 0.01).
+     *
+     * @param[out] linearModel the SLR instance of the first straight part of the data.
+     */
+    template< typename Functor >
+    void forwardFSLR(SimpleLinearRegression &linearModel,
+                     const Functor& funct,
+                     unsigned int& distance,
+                    const unsigned int n = 4,
+                    const double alpha = 0.01) const
+    {
+      linearModel.setEpsilonZero(myEpsilonZero);
+      linearModel.clear();
+      std::vector<double>::const_iterator itx = myX.begin();
+      std::vector<double>::const_iterator itxe = myX.end();
+      std::vector<double>::const_iterator ity = myY.begin();
+      unsigned int lol = 0;
+      for ( ; itx != itxe; ++itx, ++ity,++lol )
+      {
+        if ( funct( *itx, *ity ) )
+        {
+          break;
+        }
+      }
+      if( lol + n > myX.size() )
+      {
+        distance = 0;
+        return;
+      }
+      linearModel.addSamples( itx, itx + n, ity );
+      linearModel.computeRegression();
+      itx += n;
+      ity += n;
+      unsigned int l = 0;
+      for ( ; itx != itxe; ++itx, ++ity, ++l )
+        {
+          std::pair<double,double> ic;
+          ic = linearModel.trustIntervalForY( *itx, alpha );
+          if ( !funct( *itx, *ity ) )
+          {
+            break;
+          }
+          if ( ( *ity < ic.first ) || ( *ity > ic.second ) )
+          {
+            distance = l;
+            break;
+          }
+          linearModel.addSample( *itx, *ity );
+          linearModel.computeRegression();
+        }
+    }
+
+
     
      /**
      * Returns the slope of the last straight part of the data.  The
@@ -227,6 +293,7 @@ namespace DGtal
     template< typename Functor >
     void backwardFSLR(SimpleLinearRegression &linearModel,
                      const Functor& funct,
+                     unsigned int& distance,
                      const unsigned int n = 4,
                      const double alpha = 0.01 ) const
     {
@@ -239,16 +306,22 @@ namespace DGtal
       linearModel.computeRegression();
       itx += n;
       ity += n;
-      unsigned int l = myX.size() - n + 1;
-      for ( ; itx != itxe; ++itx, ++ity, --l )
+      unsigned int l = 0;
+      distance = 0;
+      for ( ; itx != itxe; ++itx, ++ity, ++l )
         {
           std::pair<double,double> ic;
           ic = linearModel.trustIntervalForY( *itx, alpha );
 
           if ( !funct( *itx, *ity ) )
+          {
             break;
+          }
           if ( ( *ity < ic.first ) || ( *ity > ic.second ) )
+          {
+            distance = l;
             break;
+          }
           linearModel.addSample( *itx, *ity );
           linearModel.computeRegression();
         }

@@ -55,7 +55,7 @@
 #include "DGtal/images/ImageHelper.h"
 #include "DGtal/kernel/BasicPointFunctors.h"
 #include "DGtal/io/readers/GenericReader.h"
- #include "DGtal/images/SimpleThresholdForegroundPredicate.h"
+#include "DGtal/images/IntervalForegroundPredicate.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ bool testLocalEstimatorFromFunctorAdapter(int argc, char **argv)
  
   // typedef GaussDigitizer<Space,Shape> Gauss;
   typedef ImageContainerBySTLVector<Z3i::Domain,unsigned char> ImageVol;
-  typedef functors::SimpleThresholdForegroundPredicate<ImageVol> Gauss;
+  typedef functors::IntervalForegroundPredicate<ImageVol> Gauss;
 
   typedef LightImplicitDigitalSurface<KSpace,Gauss> SurfaceContainer;
   typedef DigitalSurface<SurfaceContainer> Surface;
@@ -90,17 +90,21 @@ bool testLocalEstimatorFromFunctorAdapter(int argc, char **argv)
   //typedef Surface::Tracker Tracker;
   typedef typename Surface::Surfel Surfel;
 
+  const double h  = 1;
+  const double radius = 15.0;
+
 
   trace.beginBlock("Creating Surface");
   std::string test = argv[1];
   double f_min = atof(argv[2]);
   double f_max = atof(argv[3]);
-  ImageVol image = GenericReader<ImageVol>::import (test );//VolReader<ImageVol>::importVol(vm["input-file"].as< std::string >());
-  Gauss gauss( image, '0' );
+  ImageVol image = VolReader<ImageVol>::importVol(test);
+  Gauss gauss( image, 0, 255 );
 
   Z3i::KSpace K;
   K.init( image.domain().lowerBound(), image.domain().upperBound(), true );
 
+  trace.error() << image.domain() << std::endl;
 
   //Surface
   Surfel bel = Surfaces<KSpace>::findABel( K, gauss, 10000 );
@@ -116,14 +120,14 @@ bool testLocalEstimatorFromFunctorAdapter(int argc, char **argv)
   typedef LocalEstimatorFromSurfelFunctorAdapter<SurfaceContainer, Z3i::L2Metric, FunctorVoting, ConvFunctor> Reporter;
 
   CanonicSCellEmbedder<KSpace> embedder(surface.container().space());
-  FunctorVoting estimator(embedder,1);
+  FunctorVoting estimator(embedder,radius);
 
   ConvFunctor convFunc(4.0);
   Reporter reporter;
   reporter.attach(surface);
-  reporter.setParams(l2Metric, estimator , convFunc, 5.0);
+  reporter.setParams(l2Metric, estimator , convFunc, radius/h);
 
-  reporter.init(1, surface.begin() , surface.end());
+  reporter.init(h, surface.begin() , surface.end());
 
   std::vector<double> values;
   reporter.eval( surface.begin(), surface.end(), std::back_insert_iterator<std::vector<double> >(values));
@@ -151,12 +155,15 @@ bool testLocalEstimatorFromFunctorAdapter(int argc, char **argv)
       it!= itend;
       ++it, ++i)
     {
-      if( values[i] > f_max )
-        viewer << Color::Red <<  *it;
-      else if ( values[i] < f_min)
-        viewer << Color::White << *it;
-      else
-        viewer << Color::Green << *it; 
+      viewer << CustomColors3D( Color::Black, cmap_grad( values[i] ))
+             << *it ;
+
+      // if( values[i] > f_max )
+      //   viewer << Color::Red <<  *it;
+      // else if ( values[i] < f_min)
+      //   viewer << Color::White << *it;
+      // else
+      //   viewer << Color::Green << *it; 
     }
   
   
