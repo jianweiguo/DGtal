@@ -141,8 +141,8 @@ DGtal::SimpleModelLinearRegression::~SimpleModelLinearRegression()
  * @param eps_zero the value below which the absolute value of the
  * determinant is considered null.
  */
-DGtal::SimpleModelLinearRegression::SimpleModelLinearRegression( double slope, double eps_zero )
-  : myEpsilonZero( eps_zero ), mySlope( slope ), myN( 0 )
+DGtal::SimpleModelLinearRegression::SimpleModelLinearRegression( double _slope, double eps_zero )
+  : myEpsilonZero( eps_zero ), mySlope( _slope ), myN( 0 )
 {
   clear();
 }

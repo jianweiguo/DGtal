@@ -88,7 +88,7 @@ namespace DGtal
      * @param eps_zero the value below which the absolute value of the
      * determinant is considered null.
      */
-    SimpleModelLinearRegression( double slope, double eps_zero = 1e-8 );
+    SimpleModelLinearRegression( double _slope, double eps_zero = 1e-8 );
 
     /**
      * Clear all datas.
