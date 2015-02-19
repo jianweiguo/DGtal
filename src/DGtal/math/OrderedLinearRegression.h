@@ -156,7 +156,8 @@ namespace DGtal
      *
      * @param[out] linearModel the SLR instance of the first straight part of the data.
      */
-    void forwardSLR(SimpleLinearRegression &linearModel,
+    template< typename Regression >
+    void forwardSLR(Regression &linearModel,
                     const unsigned int n = 4,
                     const double alpha = 0.01) const
     {
@@ -198,8 +199,8 @@ namespace DGtal
      *
      * @param[out] linearModel the SLR instance of the first straight part of the data.
      */
-    template< typename Functor >
-    void forwardFSLR(SimpleLinearRegression &linearModel,
+    template< typename Functor, typename Regression >
+    void forwardFSLR(Regression &linearModel,
                      const Functor& funct,
                      unsigned int& distance,
                     const unsigned int n = 4,
@@ -265,7 +266,8 @@ namespace DGtal
      *
      * @param[out] linearModel the SLR instance of the last straight part of the data.
      */
-    void backwardSLR(SimpleLinearRegression &linearModel,
+    template< typename Regression >
+    void backwardSLR(Regression &linearModel,
                      const unsigned int n = 4,
                      const double alpha = 0.01 ) const
     {
@@ -290,8 +292,37 @@ namespace DGtal
         }
     }
 
-    template< typename Functor >
-    void backwardFSLR(SimpleLinearRegression &linearModel,
+    template< typename Functor, typename Regression >
+    void backwardFSLR(Regression &linearModel,
+                     const Functor& funct,
+                     unsigned int& distance,
+                     const unsigned int n = 4 ) const
+    {
+      linearModel.setEpsilonZero(myEpsilonZero);
+      linearModel.clear();
+      std::vector<double>::const_reverse_iterator itx = myX.rbegin(); 
+      std::vector<double>::const_reverse_iterator itxe = myX.rend(); 
+      std::vector<double>::const_reverse_iterator ity = myY.rbegin(); 
+      linearModel.addSamples( itx, itx + n, ity );
+      linearModel.computeRegression();
+      itx += n;
+      ity += n;
+      unsigned int l = 0;
+      distance = 0;
+      for ( ; itx != itxe; ++itx, ++ity, ++l )
+        {
+          if ( !funct( *itx, *ity ) )
+          {
+            break;
+          }
+
+          linearModel.addSample( *itx, *ity );
+          linearModel.computeRegression();
+        }
+    }
+
+    template< typename Functor, typename Regression >
+    void backwardFDSLR(Regression &linearModel,
                      const Functor& funct,
                      unsigned int& distance,
                      const unsigned int n = 4,
@@ -299,9 +330,9 @@ namespace DGtal
     {
       linearModel.setEpsilonZero(myEpsilonZero);
       linearModel.clear();
-      std::vector<double>::const_reverse_iterator itx = myX.rbegin(); 
-      std::vector<double>::const_reverse_iterator itxe = myX.rend(); 
-      std::vector<double>::const_reverse_iterator ity = myY.rbegin(); 
+      std::vector<double>::const_reverse_iterator itx = myX.rbegin();
+      std::vector<double>::const_reverse_iterator itxe = myX.rend();
+      std::vector<double>::const_reverse_iterator ity = myY.rbegin();
       linearModel.addSamples( itx, itx + n, ity );
       linearModel.computeRegression();
       itx += n;

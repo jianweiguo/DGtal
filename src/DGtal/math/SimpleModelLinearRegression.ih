@@ -74,8 +74,8 @@ DGtal::SimpleModelLinearRegression::addSample(const double x, const double y )
   mySumX += x;
 //  mySumX2 += x*x;
   mySumY += y;
-  if( y < 0.0 )
-    trace.error() << " WHATTTT ? " << y << std::endl;
+//  if( y < 0.0 )
+//    trace.error() << " WHATTTT ? " << y << std::endl;
 //  mySumXY += x*y;
   ++myN;
  }
@@ -186,7 +186,7 @@ DGtal::SimpleModelLinearRegression::computeRegression()
 //    }
   myB[ 1 ] = mySlope;// ( -mySumX * mySumY + myN * mySumXY ) / myD;
   myB[ 0 ] = mySumY/(double)myN - myB[ 1 ]*mySumX/(double)myN;
-  trace.error() << mySumY << " " << myN << " " << myB[1] << " " << mySumX << std::endl;
+//  trace.error() << mySumY << " " << myN << " " << myB[1] << " " << mySumX << std::endl;
   myU.clear();
   myNormU2 = 0.0;
   for ( unsigned int i = 0; i < myN; ++i )
