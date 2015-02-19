@@ -118,6 +118,9 @@ bool testSimpleRegression2()
   trace.info() << "Got slope= "<< SLR.slope()<<std::endl;
   trace.info() << "Got Intercept= "<< SLR.intercept()<<std::endl;
 
+  trace.info() << "Got interval= ["<< SLR.trustIntervalForY(10.0,0.01).first<<", "<< SLR.trustIntervalForY(10.0,0.01).second<<"]"<<std::endl;
+  trace.info() << "Got interval= ["<< SLR.trustIntervalForY(10.0,0.1).first<<", "<< SLR.trustIntervalForY(10.0,0.1).second<<"]"<<std::endl;
+
 
   nbok += ( std::abs(SLR.slope() - 1) < 0.1)  ? 1 : 0;
   nb++;
@@ -205,7 +208,6 @@ bool testSimpleModelRegression()
 
   trace.info() << "Got slope= "<< SLR.slope()<<std::endl;
   trace.info() << "Got Intercept= "<< SLR.intercept()<<std::endl;
-
 
   nbok += ( std::abs(SLR.slope() + 0.25) < 0.1)  ? 1 : 0;
   nb++;

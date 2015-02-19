@@ -95,8 +95,8 @@ namespace DGtal
     EuclideanShapesCSG( ShapeA* a )
       : myShapeA( a )
     {
-      RealPoint shapeALowerBoundary = myShapeA->getLowerBound();
-      RealPoint shapeAUpperBoundary = myShapeA->getUpperBound();
+      myLowerBound = myShapeA->getLowerBound();
+      myUpperBound = myShapeA->getUpperBound();
     }
 
     void op_union( ShapeB* b )
@@ -104,6 +104,13 @@ namespace DGtal
       BOOST_CONCEPT_ASSERT (( concepts::CEuclideanBoundedShape< ShapeB > ));
       BOOST_CONCEPT_ASSERT (( concepts::CEuclideanOrientedShape< ShapeB > ));
       std::pair<e_operator, ShapeB*> shape( e_union, b );
+
+      for(uint i =0; i < Space::dimension; ++i)
+      {
+        myLowerBound[i] = std::min(myLowerBound[i], b->getLowerBound()[i]);
+        myUpperBound[i] = std::max(myUpperBound[i], b->getUpperBound()[i]);
+      }
+
       v_shapes.push_back(shape); 
     }
 
@@ -112,6 +119,13 @@ namespace DGtal
       BOOST_CONCEPT_ASSERT (( concepts::CEuclideanBoundedShape< ShapeB > ));
       BOOST_CONCEPT_ASSERT (( concepts::CEuclideanOrientedShape< ShapeB > ));
       std::pair<e_operator, ShapeB*> shape( e_intersection, b );
+
+      for(uint i =0; i < Space::dimension; ++i)
+      {
+        myLowerBound[i] = std::max(myLowerBound[i], b->getLowerBound()[i]);
+        myUpperBound[i] = std::min(myUpperBound[i], b->getUpperBound()[i]);
+      }
+
       v_shapes.push_back(shape); 
     }
 
@@ -121,6 +135,7 @@ namespace DGtal
       BOOST_CONCEPT_ASSERT (( concepts::CEuclideanOrientedShape< ShapeB > ));
       std::pair<e_operator, ShapeB*> shape( e_minus, b );
       v_shapes.push_back(shape); 
+
     }
 
     RealPoint getLowerBound() const
@@ -163,9 +178,21 @@ namespace DGtal
 
           orient = OUTSIDE;
         }
-        else
+        else /// e_union
         {
-          if (( orient == INSIDE ) || ( v_shapes[i].second->orientation( p ) == INSIDE ))
+          if (( orient == OUTSIDE ) && ( v_shapes[i].second->orientation( p ) == OUTSIDE ))
+          {
+            orient = OUTSIDE;
+          }
+          else if(( orient == OUTSIDE ) && ( v_shapes[i].second->orientation( p ) != OUTSIDE ))
+          {
+            orient = v_shapes[i].second->orientation( p );
+          }
+          else if(( orient != OUTSIDE ) && ( v_shapes[i].second->orientation( p ) == OUTSIDE ))
+          {
+            orient = orient;
+          }
+          else if (( orient == INSIDE ) || ( v_shapes[i].second->orientation( p ) == INSIDE ))
           {
               orient = INSIDE;
           }
@@ -173,7 +200,6 @@ namespace DGtal
           {
               orient = ON;
           }
-          orient = OUTSIDE;
         }
       }
 
@@ -230,6 +256,8 @@ namespace DGtal
 
   };
 
+ //namespace deprecated
+// {
 /////////////////////////////////////////////////////////////////////////////
 // template class EuclideanShapesDecorator
 /**
@@ -647,7 +675,7 @@ namespace DGtal
   }; // end of class EuclideanShapesMinus
 
 
-
+ //}
 
 
   /**
@@ -658,15 +686,15 @@ namespace DGtal
    */
   template <typename ShapeA, typename ShapeB>
   std::ostream&
-  operator<< ( std::ostream & out, const EuclideanShapesUnion<ShapeA, ShapeB> & object );
+  operator<< ( std::ostream & out, const /*deprecated::*/EuclideanShapesUnion<ShapeA, ShapeB> & object );
 
   template <typename ShapeA, typename ShapeB>
   std::ostream&
-  operator<< ( std::ostream & out, const EuclideanShapesIntersection<ShapeA, ShapeB> & object );
+  operator<< ( std::ostream & out, const /*deprecated::*/EuclideanShapesIntersection<ShapeA, ShapeB> & object );
 
   template <typename ShapeA, typename ShapeB>
   std::ostream&
-  operator<< ( std::ostream & out, const EuclideanShapesMinus<ShapeA, ShapeB> & object );
+  operator<< ( std::ostream & out, const /*deprecated::*/EuclideanShapesMinus<ShapeA, ShapeB> & object );
 
 } // namespace DGtal
 
