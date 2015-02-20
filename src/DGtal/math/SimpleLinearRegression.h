@@ -245,6 +245,8 @@ namespace DGtal
     double myD;
     double myNormU2;
 
+    bool myIsValid;
+
     // ------------------------- Hidden services ------------------------------
   protected:
 
