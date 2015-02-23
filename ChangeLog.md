@@ -2,6 +2,13 @@
 
 ## New Features / Critical Changes
 
+- *Configuration*
+ - Continuous integration enabled on both linux and macosx
+   systems. Furthermore, the nightly build documentation is
+   automatically deployed.  (David Coeurjolly,
+   [#955](https://github.com/DGtal-team/DGtal/pull/955))
+
+
 ## Changes
 
 - *Geometry Package*
@@ -12,7 +19,7 @@
   fitting. It requires to have the Patate library installed (and
   WITH_PATATE=true): http://patate.gforge.inria.fr/html/. See
   SphereFittingEstimator (David Coeurjolly,
-  [929](https://github.com/DGtal-team/DGtal/pull/929))
+  [#929](https://github.com/DGtal-team/DGtal/pull/929))
 
 - *Math Package*
  - Utilities added (OrderedLinearRegression) to perform sequential
@@ -36,7 +43,10 @@
    substraction scaling...). Color is now CopyConstructible and
    Assignable (David Coeurjolly
    [#940](https://github.com/DGtal-team/DGtal/pull/940))
- 
+ - Improvement of memory footprint of DGtal::Color (David Coeurjolly,
+   [#961](https://github.com/DGtal-team/DGtal/pull/961)
+
+
 - *Shapes Package*
  - Adds a vertex Iterator in the Mesh class in addition to the
    ConstIterator and adds a new method to change the color of a
@@ -65,6 +75,13 @@
    of positions as input arguments.
    (Tristan Roussillon, [#944](https://github.com/DGtal-team/DGtal/pull/944))
  - Fix Bezout Vector computation (Isabelle Sivignon, [#948](https://github.com/DGtal-team/DGtal/pull/948))
+
+- *IO Package*
+ - Performance improvement of color managment in Display3D, Board3D
+   and Viewer3D: no more "createNew...List" when setting a new
+   color. (David Coeurjolly,
+   [#958](https://github.com/DGtal-team/DGtal/pull/958))
+
 
 # DGtal 0.8
 

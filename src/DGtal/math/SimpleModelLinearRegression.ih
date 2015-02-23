@@ -176,7 +176,7 @@ inline
 bool
 DGtal::SimpleModelLinearRegression::computeRegression()
 {
-//  if ( myN <= 2 ) return false;
+  if ( myN <= 2 ) return false;
 //  myD = myN * mySumX2 - ( mySumX * mySumX );
 
 //  if ( ( myD > -myEpsilonZero ) && ( myD < myEpsilonZero ) )
