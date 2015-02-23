@@ -2,6 +2,13 @@
 
 ## New Features / Critical Changes
 
+- *Configuration*
+ - Continuous integration enabled on both linux and macosx
+   systems. Furthermore, the nightly build documentation is
+   automatically deployed.  (David Coeurjolly,
+   [#955](https://github.com/DGtal-team/DGtal/pull/955))
+
+
 ## Changes
 
 - *Geometry Package*
@@ -12,7 +19,7 @@
   fitting. It requires to have the Patate library installed (and
   WITH_PATATE=true): http://patate.gforge.inria.fr/html/. See
   SphereFittingEstimator (David Coeurjolly,
-  [929](https://github.com/DGtal-team/DGtal/pull/929))
+  [#929](https://github.com/DGtal-team/DGtal/pull/929))
 
 - *Math Package*
  - Utilities added (OrderedLinearRegression) to perform sequential
@@ -61,7 +68,17 @@
    (Tristan Roussillon, [#939](https://github.com/DGtal-team/DGtal/pull/939))
  - Fixing DSS based length estimator on open curves. (David
    Coeurjolly, [#941](https://github.com/DGtal-team/DGtal/pull/941))
+ - Fix bug of method ArithmeticalDSL::getPoint with negative values
+   of positions as input arguments.
+   (Tristan Roussillon, [#944](https://github.com/DGtal-team/DGtal/pull/944))
  - Fix Bezout Vector computation (Isabelle Sivignon, [#948](https://github.com/DGtal-team/DGtal/pull/948))
+
+- *IO Package*
+ - Performance improvement of color managment in Display3D, Board3D
+   and Viewer3D: no more "createNew...List" when setting a new
+   color. (David Coeurjolly,
+   [#958](https://github.com/DGtal-team/DGtal/pull/958))
+
 
 # DGtal 0.8
 
