@@ -71,7 +71,7 @@ bool testCube( double radius, double alpha, double beta, int argc, char** argv )
 {
   typedef ImplicitHyperCube<Z3i::Space> Cube;
   typedef ImplicitBall<Z3i::Space> Sphere;
-  typedef EuclideanShapesUnion< Cube, Sphere > CubeSphere;
+  typedef EuclideanShapesCSG< Cube, Sphere > CubeSphere;
   typedef GaussDigitizer<Z3i::Space, CubeSphere> DigitalShape;
   typedef LightImplicitDigitalSurface<Z3i::KSpace,DigitalShape> Boundary;
   typedef DigitalSurface< Boundary > MyDigitalSurface;
@@ -96,7 +96,8 @@ bool testCube( double radius, double alpha, double beta, int argc, char** argv )
 
   Cube cube( Z3i::RealPoint( 0, 0, 0 ), radius );
   Sphere sphere( Z3i::RealPoint( radius, 0, 0 ), radius/2.0 );
-  CubeSphere cubesphere( cube, sphere );
+  CubeSphere cubesphere( cube );
+  cubesphere.op_union( sphere );
   DigitalShape dshape;
   dshape.attach( cubesphere );
   dshape.init( p1, p2, h );
