@@ -35,6 +35,8 @@
  /// Shape
 #include "DGtal/shapes/implicit/ImplicitBall.h"
 #include "DGtal/shapes/implicit/ImplicitHyperCube.h"
+#include "DGtal/io/readers/GenericReader.h"
+#include "DGtal/images/IntervalForegroundPredicate.h"
 
  /// Digitization
 #include "DGtal/shapes/GaussDigitizer.h"
@@ -48,6 +50,11 @@
 #include "DGtal/geometry/surfaces/estimation/IntegralInvariantBarycenterEstimator.h"
 #include "DGtal/geometry/surfaces/estimation/IntegralInvariantCovarianceEstimator.h"
 
+#include "DGtal/io/viewers/Viewer3D.h"
+#include "DGtal/io/boards/Board3D.h"
+#include "DGtal/io/Color.h"
+#include "DGtal/io/colormaps/GradientColorMap.h"
+
 #include "DGtal/shapes/EuclideanShapesDecorator.h"
 
 
@@ -60,7 +67,7 @@ using namespace DGtal;
 // Functions for testing class IntegralInvariantCovarianceEstimator and IIGeometricFunctor.
 ///////////////////////////////////////////////////////////////////////////////
 
-bool testCubeSphere()
+bool testCube( double radius, double alpha, double beta, int argc, char** argv )
 {
   typedef ImplicitHyperCube<Z3i::Space> Cube;
   typedef ImplicitBall<Z3i::Space> Sphere;
@@ -82,12 +89,13 @@ bool testCubeSphere()
 
   const double h  = 1;//0.5;
 
-  trace.beginBlock( "Shape initialisation ..." );
-
   Z3i::Point p1( -100, -100, -100 );
   Z3i::Point p2( 100, 100, 100 );
-  Cube cube( Z3i::RealPoint( 0, 0, 0 ), 30 );
-  Sphere sphere( Z3i::RealPoint( 30, 0, 0 ), 15 );
+
+  trace.beginBlock( "Shape initialisation ..." );
+
+  Cube cube( Z3i::RealPoint( 0, 0, 0 ), radius );
+  Sphere sphere( Z3i::RealPoint( radius, 0, 0 ), radius/2.0 );
   CubeSphere cubesphere( cube, sphere );
   DigitalShape dshape;
   dshape.attach( cubesphere );
@@ -124,7 +132,11 @@ bool testCubeSphere()
 
   trace.endBlock();
 
-  double re = 5;
+  std::vector< double > results;
+
+  double re = 10;//(6.0 + i) * h;
+
+  std::vector< Value_k > results_k;
 
   {
     trace.beginBlock( "Curvature estimator initialisation ...");
@@ -141,7 +153,6 @@ bool testCubeSphere()
 
     trace.beginBlock( "Curvature evaluation ...");
 
-    std::vector< Value_k > results_k;
     std::back_insert_iterator< std::vector< Value_k > > resultsIt( results_k );
     kEstimator.eval( v_border.begin(), v_border.end(), resultsIt );
 
@@ -167,11 +178,55 @@ bool testCubeSphere()
     std::back_insert_iterator< std::vector< Value > > resultsIt( results_bar );
     barycenterEstimator.eval( v_border.begin(), v_border.end(), resultsIt );
 
+    for(unsigned int j = 0; j < results_bar.size(); ++j )
+    {
+      double value = results_bar[j].norm();
+      // double value = 1.0 / ( alpha + beta * ( results_bar[j].norm() / re ) * ( results_bar[j].norm() / re ));
+      // double value = 1.0 / ( alpha + beta * (( results_bar[j].norm() * results_k[j][2] ) / ( re * results_k[j][0] )) * (( results_bar[j].norm() * results_k[j][2] ) / ( re * results_k[j][0] )));
+      results.push_back(value);
+    }
+
     trace.endBlock();
   }
 
 
-  return true;
+  {
+    trace.beginBlock ( "Comparing results ..." );
+    double maxval = *std::max_element(results.begin(), results.end());
+    double minval = *std::min_element(results.begin(), results.end());
+    trace.info() << "Min/max= "<< minval<<"/"<<maxval<<std::endl;
+    QApplication application( argc, argv );
+    typedef Viewer3D<Z3i::Space, Z3i::KSpace> Viewer;
+    Viewer viewer( K );
+    viewer.setWindowTitle("Features from Tensor Voting");
+    viewer.show();
+
+    typedef GradientColorMap< double > Gradient;
+    Gradient cmap_grad( minval, maxval );
+    cmap_grad.addColor( Color( 255, 50, 50 ) );
+    // cmap_grad.addColor( Color( 255, 255, 10 ) );
+    cmap_grad.addColor( Color( 50, 255, 50 ) );
+
+    viewer << SetMode3D((*(v_border.begin())).className(), "Basic" );
+
+    unsigned int i = 0;
+    std::vector< double >::iterator it_value = results.begin();
+    for( std::vector< Z3i::SCell >::iterator it = v_border.begin(), itend = v_border.end();
+         it != itend;
+         ++it, ++it_value, ++i )
+    {
+      viewer << CustomColors3D( Color::Black, cmap_grad( *it_value ))
+             << *it ;
+
+      trace.progressBar( i, v_border.size() );
+    }
+
+    viewer << Viewer3D<>::updateDisplay;
+
+    trace.endBlock();
+    application.exec();
+    return true;
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -187,7 +242,7 @@ int main( int argc, char** argv )
   }
   trace.info() << std::endl;
 
-  bool res = testCubeSphere();
+  bool res = testCube( 30, 1, 5, argc, argv );
   trace.emphase() << ( res ? "Passed." : "Error." ) << std::endl;
   trace.endBlock();
   return res ? 0 : 1;

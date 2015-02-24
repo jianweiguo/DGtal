@@ -40,7 +40,9 @@ endif ( WITH_CGAL )
 if (  WITH_VISU3D_QGLVIEWER )
   SET(QGLVIEWER_TESTS_SRC
     testLocalConvolutionNormalVectorEstimator
-    testTensorVotingViewer)
+    testTensorVotingViewer
+    testMomentAnalysisViewer
+    )
 
   FOREACH(FILE ${QGLVIEWER_TESTS_SRC})
     add_executable(${FILE} ${FILE})
