@@ -204,7 +204,6 @@ namespace DGtal {
     * value.
     *
     * @tparam TSpace a model of CSpace, for instance SpaceND.
-    * @tparam TMatrix a model of CMatrix, for instance SimpleMatrix.
     *
     * @see IntegralInvariantCovarianceEstimator
     */

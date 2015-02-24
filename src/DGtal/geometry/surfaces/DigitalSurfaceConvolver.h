@@ -361,14 +361,14 @@ public:
 protected:
 
   /**
-   * @brief computeCovarianceMatrix compute the covariance matrix from matrix of moments.
+   * @brief computeBarycenter compute the covariance matrix from matrix of moments.
    *
    * @param[in] aMomentMatrix a matrix of digital moments
    * [ sum(1)
    *   sum(y) sum (x)
    *   sum(x*y) sum(y*y) sum(x*x)
    * ]
-   * @param[out] aCovarianceMatrix the result covariance matrix
+   * @param[out] aBarycenter the result covariance matrix
    */
   void computeBarycenter( const Quantity * aMomentMatrix, VectorQuantity & aBarycenter ) const;
 
@@ -433,8 +433,8 @@ protected:
    * @brief core_evalCovarianceMatrix method used ( in intern by evalCovarianceMatrix() ) to compute the covariance matrix on a given surfel (*it)
    *
    * @param[in] it (iterator of a) surfel of the shape where the convolution is computed.
-   * @param[out] innerMatrix the result covariance matrix when centering with the innerSpel.
-   * @param[out] outerMatrix the result covariance matrix when centering with the outerSpel.
+   * @param[out] innerBarycenter the result covariance matrix when centering with the innerSpel.
+   * @param[out] outerBarycenter the result covariance matrix when centering with the outerSpel.
    * @param[in] useLastResults if we can use last results (optimisation with masks)
    * @param[in,out] lastInnerSpel last inner spel. Override at end of function with current inner spel (from surfel *it). Set empty if useLastResults is false.
    * @param[in,out] lastOuterSpel last outer spel. Override at end of function with current outer spel (from surfel *it). Set empty if useLastResults is false.
@@ -817,14 +817,14 @@ public:
 protected:
 
   /**
-   * @brief computeCovarianceMatrix compute the covariance matrix from matrix of moments.
+   * @brief computeBarycenter compute the covariance matrix from matrix of moments.
    *
    * @param[in] aMomentMatrix a matrix of digital moments
    * [ sum(1)
    *   sum(y) sum (x)
    *   sum(x*y) sum(y*y) sum(x*x)
    * ]
-   * @param[out] aCovarianceMatrix the result covariance matrix
+   * @param[out] aBarycenter the result covariance matrix
    */
   void computeBarycenter( const Quantity * aMomentMatrix, VectorQuantity & aBarycenter ) const;
 
@@ -886,11 +886,11 @@ protected:
                    Quantity & lastOuterSum = defaultOuterSum ) const;
 
   /**
-   * @brief core_evalCovarianceMatrix method used ( in intern by evalCovarianceMatrix() ) to compute the covariance matrix on a given surfel (*it)
+   * @brief core_evalBarycenter method used ( in intern by evalCovarianceMatrix() ) to compute the covariance matrix on a given surfel (*it)
    *
    * @param[in] it (iterator of a) surfel of the shape where the convolution is computed.
-   * @param[out] innerMatrix the result covariance matrix when centering with the innerSpel.
-   * @param[out] outerMatrix the result covariance matrix when centering with the outerSpel.
+   * @param[out] innerBarycenter the result covariance matrix when centering with the innerSpel.
+   * @param[out] outerBarycenter the result covariance matrix when centering with the outerSpel.
    * @param[in] useLastResults if we can use last results (optimisation with masks)
    * @param[in,out] lastInnerSpel last inner spel. Override at end of function with current inner spel (from surfel *it). Set empty if useLastResults is false.
    * @param[in,out] lastOuterSpel last outer spel. Override at end of function with current outer spel (from surfel *it). Set empty if useLastResults is false.
@@ -1278,7 +1278,7 @@ public:
 protected:
 
   /**
-   * @brief computeCovarianceMatrix compute the covariance matrix from matrix of moments.
+   * @brief computeBarycenter compute the covariance matrix from matrix of moments.
    *
    * @param[in] aMomentMatrix a matrix of digital moments
    * [ sum(1)
@@ -1286,7 +1286,7 @@ protected:
    *   sum(y*z) sum(x*z) sum(x*y)
    *   sum(z*z) sum(y*y) sum(x*x)
    * ]
-   * @param[out] aCovarianceMatrix the result covariance matrix
+   * @param[out] aBarycenter the result covariance matrix
    */
   void computeBarycenter ( const Quantity * aMomentMatrix, VectorQuantity & aBarycenter ) const;
 
@@ -1350,11 +1350,11 @@ protected:
                    Quantity & lastOuterSum = defaultOuterSum ) const;
 
   /**
-   * @brief core_evalCovarianceMatrix method used ( in intern by evalCovarianceMatrix() ) to compute the covariance matrix on a given surfel (*it)
+   * @brief core_evalBarycenter method used ( in intern by evalCovarianceMatrix() ) to compute the covariance matrix on a given surfel (*it)
    *
    * @param[in] it (iterator of a) surfel of the shape where the convolution is computed.
-   * @param[out] innerMatrix the result covariance matrix when centering with the innerSpel.
-   * @param[out] outerMatrix the result covariance matrix when centering with the outerSpel.
+   * @param[out] innerBarycenter the result covariance matrix when centering with the innerSpel.
+   * @param[out] outerBarycenter the result covariance matrix when centering with the outerSpel.
    * @param[in] useLastResults if we can use last results (optimisation with masks)
    * @param[in,out] lastInnerSpel last inner spel. Override at end of function with current inner spel (from surfel *it). Set empty if useLastResults is false.
    * @param[in,out] lastOuterSpel last outer spel. Override at end of function with current outer spel (from surfel *it). Set empty if useLastResults is false.

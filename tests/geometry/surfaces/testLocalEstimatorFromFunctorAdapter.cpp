@@ -43,6 +43,7 @@
 #include "DGtal/graph/DistanceBreadthFirstVisitor.h"
 #include "DGtal/geometry/volumes/distance/ExactPredicateLpSeparableMetric.h"
 #include "DGtal/geometry/surfaces/estimation/LocalEstimatorFromSurfelFunctorAdapter.h"
+#include "DGtal/geometry/surfaces/estimation/IntegralInvariantBarycenterEstimator.h"
 #include "DGtal/geometry/surfaces/estimation/estimationFunctors/BasicEstimatorFromSurfelsFunctors.h"
 #include "DGtal/geometry/surfaces/estimation/estimationFunctors/CLocalEstimatorFromSurfelFunctor.h"
 
@@ -130,52 +131,88 @@ bool testLocalEstimatorFromFunctorAdapter()
   trace.endBlock();
 
   trace.beginBlock("Creating  adapter");
-  typedef DGtal::functors::DummyEstimatorFromSurfels<Surfel, CanonicSCellEmbedder<KSpace> > Functor;
-  typedef DGtal::functors::ConstValue< double > ConvFunctor;
-  typedef LocalEstimatorFromSurfelFunctorAdapter<SurfaceContainer, Z3i::L2Metric, 
-                                                 Functor, ConvFunctor> Reporter;
+  {
+    typedef DGtal::functors::DummyEstimatorFromSurfels<Surfel, CanonicSCellEmbedder<KSpace> > Functor;
+    typedef DGtal::functors::ConstValue< double > ConvFunctor;
+    typedef LocalEstimatorFromSurfelFunctorAdapter<SurfaceContainer, Z3i::L2Metric, 
+                                                   Functor, ConvFunctor> Reporter;
 
-  typedef LocalEstimatorFromSurfelFunctorAdapter<SurfaceContainer, Z3i::L2Metric, 
-                                                 Functor, DGtal::functors::GaussianKernel> ReporterGaussian;
+    typedef LocalEstimatorFromSurfelFunctorAdapter<SurfaceContainer, Z3i::L2Metric, 
+                                                   Functor, DGtal::functors::GaussianKernel> ReporterGaussian;
 
-  CanonicSCellEmbedder<KSpace> embedder(surface.container().space());
-  Functor estimator(embedder, 1);
+    CanonicSCellEmbedder<KSpace> embedder(surface.container().space());
+    Functor estimator(embedder, 1);
 
-  ConvFunctor convFunc(1.0);
-  Reporter reporter;//(surface,l2Metric,estimator,convFunc);
-  reporter.attach(surface);
-  reporter.setParams(l2Metric,estimator,convFunc, 5);
+    ConvFunctor convFunc(1.0);
+    Reporter reporter;//(surface,l2Metric,estimator,convFunc);
+    reporter.attach(surface);
+    reporter.setParams(l2Metric,estimator,convFunc, 5);
 
-  //We just test the init for Gaussian
-  DGtal::functors::GaussianKernel gaussKernelFunc(1.0);
-  ReporterGaussian reporterGaussian;
-  reporterGaussian.attach(surface);
-  reporterGaussian.setParams(l2Metric,estimator,gaussKernelFunc, 5.0);
-  reporterGaussian.init(1, surface.begin(), surface.end());
+    //We just test the init for Gaussian
+    DGtal::functors::GaussianKernel gaussKernelFunc(1.0);
+    ReporterGaussian reporterGaussian;
+    reporterGaussian.attach(surface);
+    reporterGaussian.setParams(l2Metric,estimator,gaussKernelFunc, 5.0);
+    reporterGaussian.init(1, surface.begin(), surface.end());
 
-  reporter.init(1.0, surface.begin(), surface.end());
-  Functor::Quantity val = reporter.eval( surface.begin() );
-  trace.info() <<  "Value with radius 5= "<<val << std::endl;
-  nbok += ((fabs((double)val - 124.0)) < 40) ? 1 : 0;
-  nb++;
+    reporter.init(1.0, surface.begin(), surface.end());
+    Functor::Quantity val = reporter.eval( surface.begin() );
+    trace.info() <<  "Value with radius 5= "<<val << std::endl;
+    nbok += ((fabs((double)val - 124.0)) < 40) ? 1 : 0;
+    nb++;
 
-  reporter.setParams(l2Metric,estimator,convFunc, 20.0);
-  reporter.init(1, surface.begin(), surface.end());
-  Functor::Quantity val2 = reporter.eval( surface.begin() );
-  trace.info() <<  "Value with radius 20= "<<val2 << std::endl;
+    reporter.setParams(l2Metric,estimator,convFunc, 20.0);
+    reporter.init(1, surface.begin(), surface.end());
+    Functor::Quantity val2 = reporter.eval( surface.begin() );
+    trace.info() <<  "Value with radius 20= "<<val2 << std::endl;
 
-  nbok += ((fabs((double)val2 - 398.0)) < 120) ? 1 : 0;
-  nb++;
+    nbok += ((fabs((double)val2 - 398.0)) < 120) ? 1 : 0;
+    nb++;
+  }
 
   trace.endBlock();
-  trace.endBlock();
 
-  nbok += true ? 1 : 0;
-  nb++;
-  trace.info() << "(" << nbok << "/" << nb << ") "
-	       << "true == true" << std::endl;
 
-  return nbok == nb;
+  trace.beginBlock("Creating  adapter");
+  {  
+    typedef DGtal::functors::IntegralInvariantBarycenterEstimatorFromSurfels<Surfel, CanonicSCellEmbedder<KSpace> > Functor;
+    typedef DGtal::functors::ConstValue< double > ConvFunctor;
+    typedef LocalEstimatorFromSurfelFunctorAdapter<SurfaceContainer, Z3i::L2Metric, 
+                                                   Functor, ConvFunctor> Reporter;
+
+    CanonicSCellEmbedder<KSpace> embedder(surface.container().space());
+    Functor estimator(embedder, 1);
+
+    ConvFunctor convFunc(1.0);
+    Reporter reporter;//(surface,l2Metric,estimator,convFunc);
+    reporter.attach(surface);
+    reporter.setParams(l2Metric,estimator,convFunc, 5);
+    reporter.init(1.0, surface.begin(), surface.end());
+    Functor::Quantity val = reporter.eval( surface.begin() );
+    trace.info() <<  "Value with radius 5= "<< val.barycenter - val.center << std::endl;
+    
+    nbok += 1;//((fabs((double)val - 124.0)) < 40) ? 1 : 0;
+    nb++;
+
+    reporter.setParams(l2Metric,estimator,convFunc, 20.0);
+    reporter.init(1, surface.begin(), surface.end());
+    Functor::Quantity val2 = reporter.eval( surface.begin() );
+    trace.info() <<  "Value with radius 20= "<< val.barycenter - val.center << std::endl;
+
+    nbok += 1;//((fabs((double)val2 - 398.0)) < 120) ? 1 : 0;
+    nb++;
+
+    trace.endBlock();
+
+    trace.endBlock();
+
+    nbok += true ? 1 : 0;
+    nb++;
+    trace.info() << "(" << nbok << "/" << nb << ") "
+           << "true == true" << std::endl;
+
+    return nbok == nb;
+  }
 }
 
 
@@ -186,6 +223,7 @@ bool testConcepts()
   trace.beginBlock("Checking concepts");
   BOOST_CONCEPT_ASSERT(( concepts::CLocalEstimatorFromSurfelFunctor< functors::DummyEstimatorFromSurfels<Surfel,Embedder > >));
   BOOST_CONCEPT_ASSERT(( concepts::CLocalEstimatorFromSurfelFunctor< functors::ElementaryConvolutionNormalVectorEstimator<Surfel,Embedder > >));
+  BOOST_CONCEPT_ASSERT(( concepts::CLocalEstimatorFromSurfelFunctor< functors::IntegralInvariantBarycenterEstimatorFromSurfels<Surfel,Embedder > >));
 
 #ifdef WITH_CGAL
   BOOST_CONCEPT_ASSERT((  concepts::CLocalEstimatorFromSurfelFunctor< functors::MongeJetFittingNormalVectorEstimator<Surfel,Embedder > >));

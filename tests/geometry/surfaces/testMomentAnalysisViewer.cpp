@@ -67,7 +67,7 @@ using namespace DGtal;
 // Functions for testing class IntegralInvariantCovarianceEstimator and IIGeometricFunctor.
 ///////////////////////////////////////////////////////////////////////////////
 
-bool testCube( double radius, double alpha, double beta, int argc, char** argv )
+/*bool testCube( double radius, double alpha, double beta, int argc, char** argv )
 {
   typedef ImplicitHyperCube<Z3i::Space> Cube;
   typedef ImplicitBall<Z3i::Space> Sphere;
@@ -227,7 +227,7 @@ bool testCube( double radius, double alpha, double beta, int argc, char** argv )
     application.exec();
     return true;
   }
-}
+}*/
 
 ///////////////////////////////////////////////////////////////////////////////
 // Standard services - public :
@@ -242,7 +242,7 @@ int main( int argc, char** argv )
   }
   trace.info() << std::endl;
 
-  bool res = testCube( 30, 1, 5, argc, argv );
+  bool res = true;//testCube( 30, 1, 5, argc, argv );
   trace.emphase() << ( res ? "Passed." : "Error." ) << std::endl;
   trace.endBlock();
   return res ? 0 : 1;
