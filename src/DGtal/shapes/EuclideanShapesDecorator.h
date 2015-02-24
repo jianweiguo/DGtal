@@ -50,6 +50,19 @@
 namespace DGtal
 {
 
+  /////////////////////////////////////////////////////////////////////////////
+  // template class EuclideanShapesCSG
+  /**
+   * Description of template class 'EuclideanShapesCSG' <p>
+   * \brief Aim: Constructive Solid Geometry (CSG) between models of CEuclideanBoundedShape and CEuclideanOrientedShape
+   * Use CSG operation (union, intersection, minus) from a shape of Type ShapeA with one (or more) shapes of Type ShapeB.
+   * Can combine differents operations.
+   * Limitations: Since we don't have a class derived by all shapes, operations can be done by only one type of shapes.
+   * Use CSG of CSG to go beyond this limitation.
+   *
+   * @tparam ShapeA type of a first shape. Must be a model of CEuclideanBoundedShape and CEuclideanOrientedShape
+   * @tparam ShapeB type of a second shape. Must be a model of CEuclideanBoundedShape and CEuclideanOrientedShape
+   */
   template <typename ShapeA, typename ShapeB>
   class EuclideanShapesCSG
   {
@@ -69,18 +82,12 @@ namespace DGtal
     typedef typename ShapeA::RealPoint RealPoint;
 
     EuclideanShapesCSG( )
-    {
-    }
+    {}
 
     EuclideanShapesCSG ( const EuclideanShapesCSG & other )
-    {
-      myShapeA = other.myShapeA;
-      v_shapes = other.v_shapes;
-
-      myLowerBound = other.myLowerBound;
-      myUpperBound = other.myUpperBound;
-
-    }
+      : myShapeA(other.myShapeA), v_shapes(other.v_shapes),
+        myLowerBound(other.myLowerBound), myUpperBound(other.myUpperBound)
+    {}
 
     EuclideanShapesCSG & operator= ( const EuclideanShapesCSG & other )
     {
@@ -92,18 +99,29 @@ namespace DGtal
       return *this;
     }
 
-    EuclideanShapesCSG( ShapeA* a )
-      : myShapeA( a )
+    /**
+      * Constructor.
+      *
+      * @param[in] a a model of CEuclideanBoundedShape and CEuclideanOrientedShape
+      */
+    EuclideanShapesCSG( ConstAlias<ShapeA> a )
+      : myShapeA( &a )
     {
       myLowerBound = myShapeA->getLowerBound();
       myUpperBound = myShapeA->getUpperBound();
     }
 
-    void op_union( ShapeB* b )
+    /**
+      * Union between a (ShapeA) and b (ShapeB). If an operation was already set, the
+      * union will be between the CSG shape and b (ShapeB).
+      *
+      * @param[in] b a model of CEuclideanBoundedShape and CEuclideanOrientedShape
+      */
+    void op_union( ConstAlias<ShapeB> b )
     {
       BOOST_CONCEPT_ASSERT (( concepts::CEuclideanBoundedShape< ShapeB > ));
       BOOST_CONCEPT_ASSERT (( concepts::CEuclideanOrientedShape< ShapeB > ));
-      std::pair<e_operator, ShapeB*> shape( e_union, b );
+      std::pair<e_operator, const ShapeB*> shape( e_union, &b );
 
       for(uint i =0; i < Space::dimension; ++i)
       {
@@ -114,13 +132,19 @@ namespace DGtal
       v_shapes.push_back(shape); 
     }
 
-    void op_intersection( ShapeB* b )
+    /**
+      * Intersection between a (ShapeA) and b (ShapeB). If an operation was already set, the
+      * intersection will be between the CSG shape and b (ShapeB).
+      *
+      * @param[in] b a model of CEuclideanBoundedShape and CEuclideanOrientedShape
+      */
+    void op_intersection( ConstAlias<ShapeB> b )
     {
       BOOST_CONCEPT_ASSERT (( concepts::CEuclideanBoundedShape< ShapeB > ));
       BOOST_CONCEPT_ASSERT (( concepts::CEuclideanOrientedShape< ShapeB > ));
-      std::pair<e_operator, ShapeB*> shape( e_intersection, b );
+      std::pair<e_operator, const ShapeB*> shape( e_intersection, &b );
 
-      for(uint i =0; i < Space::dimension; ++i)
+      for(uint i=0; i < Space::dimension; ++i)
       {
         myLowerBound[i] = std::max(myLowerBound[i], b->getLowerBound()[i]);
         myUpperBound[i] = std::min(myUpperBound[i], b->getUpperBound()[i]);
@@ -129,25 +153,47 @@ namespace DGtal
       v_shapes.push_back(shape); 
     }
 
-    void op_minus( ShapeB* b )
+    /**
+      * Minus between a (ShapeA) and b (ShapeB). If an operation was already set, the
+      * minus will be between the CSG shape and b (ShapeB).
+      *
+      * @param[in] b a model of CEuclideanBoundedShape and CEuclideanOrientedShape
+      */
+    void op_minus( ConstAlias<ShapeB> b )
     {
       BOOST_CONCEPT_ASSERT (( concepts::CEuclideanBoundedShape< ShapeB > ));
       BOOST_CONCEPT_ASSERT (( concepts::CEuclideanOrientedShape< ShapeB > ));
-      std::pair<e_operator, ShapeB*> shape( e_minus, b );
+      std::pair<e_operator, const ShapeB*> shape( e_minus, &b );
       v_shapes.push_back(shape); 
 
     }
 
+    /**
+     * @return the lower bound of the shape bounding box.
+     *
+     */
     RealPoint getLowerBound() const
     {
       return myLowerBound;
     }
 
+    /**
+     * @return the upper bound of the shape bounding box.
+     *
+     */
     RealPoint getUpperBound() const
     {
       return myUpperBound;
     }
 
+    /**
+     * Return the orientation of a point with respect to a shape. Resolve all operations done
+     * with operators in the order they are set.
+     *
+     * @param[in] p input point
+     *
+     * @return the orientation of the point (0 = INSIDE, 1 = ON, 2 = OUTSIDE)
+     */
     Orientation orientation( const RealPoint & p ) const
     {
       Orientation orient = myShapeA->orientation( p );
@@ -175,30 +221,24 @@ namespace DGtal
           {
             orient = INSIDE;
           }
-
-          orient = OUTSIDE;
-        }
-        else /// e_union
-        {
-          if (( orient == OUTSIDE ) && ( v_shapes[i].second->orientation( p ) == OUTSIDE ))
+          else
           {
             orient = OUTSIDE;
           }
-          else if(( orient == OUTSIDE ) && ( v_shapes[i].second->orientation( p ) != OUTSIDE ))
+        }
+        else /// e_union
+        {
+          if (( orient == INSIDE ) || ( v_shapes[i].second->orientation( p ) == INSIDE ))
           {
-            orient = v_shapes[i].second->orientation( p );
-          }
-          else if(( orient != OUTSIDE ) && ( v_shapes[i].second->orientation( p ) == OUTSIDE ))
-          {
-            orient = orient;
-          }
-          else if (( orient == INSIDE ) || ( v_shapes[i].second->orientation( p ) == INSIDE ))
-          {
-              orient = INSIDE;
+            orient = INSIDE;
           }
           else if (( orient == ON ) || ( v_shapes[i].second->orientation( p ) == ON ))
           {
-              orient = ON;
+            orient = ON;
+          }
+          else
+          {
+            orient = OUTSIDE;
           }
         }
       }
@@ -220,44 +260,25 @@ namespace DGtal
      */
     bool isValid() const;
 
-    // ------------------------- Hidden services ------------------------------
-  protected:
-
-    /**
-     * Constructor.
-     * Forbidden by default (protected to avoid g++ warnings).
-     */
-    // EuclideanShapesCSG();
-
-  private:
-
-    /**
-     * Copy constructor.
-     * @param other the object to clone.
-     * Forbidden by default.
-     */
-    // EuclideanShapesCSG ( const EuclideanShapesCSG & other );
-
-    /**
-     * Assignment.
-     * @param other the object to copy.
-     * @return a reference on 'this'.
-     * Forbidden by default.
-     */
-    // EuclideanShapesCSG & operator= ( const EuclideanShapesCSG & other );
-
     // ------------------------- Internals ------------------------------------
   private:
-    ShapeA * myShapeA;
-    std::vector< std::pair<e_operator, ShapeB*> > v_shapes;
 
+    /// Base Shape.
+    const ShapeA * myShapeA;
+
+    /// Vector of all operations (ordered) of ShapeB.
+    std::vector< std::pair<e_operator, const ShapeB*> > v_shapes;
+
+    /// Domain lower bound.
     RealPoint myLowerBound;
+
+    /// Domain upper bound.
     RealPoint myUpperBound;
 
   };
 
- //namespace deprecated
-// {
+namespace deprecated
+{
 /////////////////////////////////////////////////////////////////////////////
 // template class EuclideanShapesDecorator
 /**
@@ -675,7 +696,7 @@ namespace DGtal
   }; // end of class EuclideanShapesMinus
 
 
- //}
+ }
 
 
   /**
@@ -686,15 +707,15 @@ namespace DGtal
    */
   template <typename ShapeA, typename ShapeB>
   std::ostream&
-  operator<< ( std::ostream & out, const /*deprecated::*/EuclideanShapesUnion<ShapeA, ShapeB> & object );
+  operator<< ( std::ostream & out, const deprecated::EuclideanShapesUnion<ShapeA, ShapeB> & object );
 
   template <typename ShapeA, typename ShapeB>
   std::ostream&
-  operator<< ( std::ostream & out, const /*deprecated::*/EuclideanShapesIntersection<ShapeA, ShapeB> & object );
+  operator<< ( std::ostream & out, const deprecated::EuclideanShapesIntersection<ShapeA, ShapeB> & object );
 
   template <typename ShapeA, typename ShapeB>
   std::ostream&
-  operator<< ( std::ostream & out, const /*deprecated::*/EuclideanShapesMinus<ShapeA, ShapeB> & object );
+  operator<< ( std::ostream & out, const deprecated::EuclideanShapesMinus<ShapeA, ShapeB> & object );
 
 } // namespace DGtal
 
