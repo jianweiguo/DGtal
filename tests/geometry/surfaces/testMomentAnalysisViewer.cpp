@@ -210,8 +210,8 @@ bool testCube( double radius, double alpha, double beta, int argc, char** argv )
     viewer << SetMode3D((*(v_border.begin())).className(), "Basic" );
 
     unsigned int i = 0;
-    auto it_value = results.begin();
-    for( auto it = v_border.begin(), itend = v_border.end();
+    std::vector< double >::iterator it_value = results.begin();
+    for( std::vector< Z3i::SCell >::iterator it = v_border.begin(), itend = v_border.end();
          it != itend;
          ++it, ++it_value, ++i )
     {
