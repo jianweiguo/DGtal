@@ -138,7 +138,7 @@ namespace DGtal
         myReceiver = myEmbedder->operator()(aSurfel);
         myFirstSurfel = false;
       }
-      else
+      //else
       {
         RealPoint p = myEmbedder->operator()(aSurfel);
 

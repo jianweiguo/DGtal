@@ -46,9 +46,8 @@
 #include "DGtal/graph/GraphVisitorRange.h"
 
 /// Estimator
-#include "DGtal/geometry/surfaces/estimation/IIGeometricFunctors.h"
+#include "DGtal/geometry/surfaces/estimation/LocalEstimatorFromSurfelFunctorAdapter.h"
 #include "DGtal/geometry/surfaces/estimation/IntegralInvariantBarycenterEstimator.h"
-#include "DGtal/geometry/surfaces/estimation/IntegralInvariantCovarianceEstimator.h"
 
 #include "DGtal/io/viewers/Viewer3D.h"
 #include "DGtal/io/boards/Board3D.h"
@@ -66,6 +65,116 @@ using namespace DGtal;
 ///////////////////////////////////////////////////////////////////////////////
 // Functions for testing class IntegralInvariantCovarianceEstimator and IIGeometricFunctor.
 ///////////////////////////////////////////////////////////////////////////////
+
+
+bool testT(int argc, char** argv)
+{
+
+  typedef ImplicitHyperCube<Z3i::Space> Cube;
+  typedef ImplicitBall<Z3i::Space> Sphere;
+  typedef EuclideanShapesUnion< Cube, Sphere > Shape;
+  typedef GaussDigitizer<Z3i::Space,Shape> Gauss;
+
+  typedef LightImplicitDigitalSurface<Z3i::KSpace,Gauss> SurfaceContainer;
+  typedef DigitalSurface<SurfaceContainer> Surface;
+  //typedef Surface::SurfelConstIterator ConstIterator;
+  //typedef Surface::Tracker Tracker;
+  typedef typename Surface::Surfel Surfel;
+
+  const double h = 1.0;
+  const double radius = 30;
+  const double radius_kernel = 5;
+
+
+  trace.beginBlock("Creating Surface");
+  Z3i::Point p1( -100, -100, -100 );
+  Z3i::Point p2( 100, 100, 100 );
+  Z3i::KSpace K;
+  if( !K.init( p1, p2, true ))
+    return false;
+
+  //Shape
+  Cube cube( Z3i::RealPoint( 0, 0, 0 ), radius );
+  Sphere sphere( Z3i::RealPoint( radius, 0, 0 ), radius/2.0 );
+  Shape shape( cube, sphere );
+  Gauss gauss;
+  gauss.attach(shape);
+  gauss.init(p1,p2,h);
+
+  //Surface
+  Surfel bel = Surfaces<Z3i::KSpace>::findABel( K, gauss, 10000 );
+  SurfaceContainer* surfaceContainer = new SurfaceContainer
+    ( K, gauss, SurfelAdjacency<Z3i::KSpace::dimension>( true ), bel );
+  Surface surface( surfaceContainer ); // acquired
+  trace.endBlock();
+
+  trace.beginBlock("Creating  adapters");
+  typedef functors::IntegralInvariantBarycenterEstimatorFromSurfels<Surfel, CanonicSCellEmbedder<Z3i::KSpace> > Functor;
+  typedef Functor::Quantity Quantity;
+
+  typedef functors::ConstValue< double > ConvFunctor;
+  typedef LocalEstimatorFromSurfelFunctorAdapter<SurfaceContainer, Z3i::L2Metric, Functor, ConvFunctor> Reporter;
+
+  CanonicSCellEmbedder<Z3i::KSpace> embedder(surface.container().space());
+  Functor estimator(embedder,h);
+
+  ConvFunctor convFunc(1.0);
+  Reporter reporter;
+  reporter.attach(surface);
+  reporter.setParams(Z3i::l2Metric, estimator , convFunc, radius_kernel);
+
+  reporter.init(h, surface.begin() , surface.end());
+
+  std::vector<Quantity> values;
+  reporter.eval( surface.begin(), surface.end(), std::back_insert_iterator<std::vector<Quantity> >(values));
+
+  std::vector<double> distance;
+  for(uint i = 0; i < values.size(); ++i)
+  {
+    distance.push_back( (values[i].barycenter - values[i].center).norm() );
+    trace.info() << values[i].barycenter << " " << values[i].center << " " << (values[i].barycenter - values[i].center).norm() << std::endl;
+  }
+
+  distance[0] = 0;
+
+  double maxval = *std::max_element(distance.begin(), distance.end());
+  double minval = *std::min_element(distance.begin(), distance.end());
+  trace.info() << "Min/max= "<< minval<<"/"<<maxval<<std::endl;
+  QApplication application( argc, argv );
+  typedef Viewer3D<Z3i::Space, Z3i::KSpace> Viewer;
+  Viewer viewer( K );
+  viewer.setWindowTitle("Features from Tensor Voting");
+  viewer.show();
+
+  typedef GradientColorMap< double > Gradient;
+  Gradient cmap_grad( minval, maxval );
+  // cmap_grad.addColor( Color( 50, 50, 255 ) );
+  // cmap_grad.addColor( Color( 255, 0, 0 ) );
+  // cmap_grad.addColor( Color( 255, 255, 10 ) );
+
+  cmap_grad.addColor( Color( 255, 50, 50 ) );
+  cmap_grad.addColor( Color( 50, 255, 50 ) );
+
+
+  viewer << SetMode3D((*(surface.begin())).className(), "Basic" );
+  
+  unsigned int i=0;
+  for(typename Surface::ConstIterator it = surface.begin(), itend=surface.end();
+      it!= itend;
+      ++it, ++i)
+    {
+      viewer << CustomColors3D( Color::Black, cmap_grad( distance[ i ] ))
+             <<  *it ;    
+    }
+  
+  
+  viewer << Viewer3D<>::updateDisplay;
+  
+  trace.endBlock();
+  application.exec();
+
+  return true;
+}
 
 /*bool testCube( double radius, double alpha, double beta, int argc, char** argv )
 {
@@ -242,7 +351,7 @@ int main( int argc, char** argv )
   }
   trace.info() << std::endl;
 
-  bool res = true;//testCube( 30, 1, 5, argc, argv );
+  bool res = testT(argc, argv);//testCube( 30, 1, 5, argc, argv );
   trace.emphase() << ( res ? "Passed." : "Error." ) << std::endl;
   trace.endBlock();
   return res ? 0 : 1;
