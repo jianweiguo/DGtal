@@ -116,6 +116,8 @@ namespace DGtal
       myEmbedder(&anEmbedder), myH(h)
     {
       myFirstSurfel = true;
+      myN = 0;
+      mySumX = RealVector::diagonal(0.0);
     }
 
     /**

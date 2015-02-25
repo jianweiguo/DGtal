@@ -82,13 +82,13 @@ bool testT(int argc, char** argv)
   typedef typename Surface::Surfel Surfel;
 
   const double h = 1.0;
-  const double radius = 30;
-  const double radius_kernel = 5;
+  const double radius = 50;
+  const double radius_kernel = 15;
 
 
   trace.beginBlock("Creating Surface");
-  Z3i::Point p1( -100, -100, -100 );
-  Z3i::Point p2( 100, 100, 100 );
+  Z3i::Point p1( -1000, -1000, -1000 );
+  Z3i::Point p2( 1000, 1000, 1000 );
   Z3i::KSpace K;
   if( !K.init( p1, p2, true ))
     return false;
@@ -132,10 +132,10 @@ bool testT(int argc, char** argv)
   for(uint i = 0; i < values.size(); ++i)
   {
     distance.push_back( (values[i].barycenter - values[i].center).norm() );
-    trace.info() << values[i].barycenter << " " << values[i].center << " " << (values[i].barycenter - values[i].center).norm() << std::endl;
+    // trace.info() << values[i].barycenter << " " << values[i].center << " " << (values[i].barycenter - values[i].center).norm() << std::endl;
   }
 
-  distance[0] = 0;
+  //distance[0] = 0;
 
   double maxval = *std::max_element(distance.begin(), distance.end());
   double minval = *std::min_element(distance.begin(), distance.end());
