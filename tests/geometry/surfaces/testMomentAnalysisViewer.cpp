@@ -72,7 +72,7 @@ bool testT(int argc, char** argv)
 
   typedef ImplicitHyperCube<Z3i::Space> Cube;
   typedef ImplicitBall<Z3i::Space> Sphere;
-  typedef EuclideanShapesUnion< Cube, Sphere > Shape;
+  typedef EuclideanShapesCSG< Cube, Sphere > Shape;
   typedef GaussDigitizer<Z3i::Space,Shape> Gauss;
 
   typedef LightImplicitDigitalSurface<Z3i::KSpace,Gauss> SurfaceContainer;
@@ -96,7 +96,8 @@ bool testT(int argc, char** argv)
   //Shape
   Cube cube( Z3i::RealPoint( 0, 0, 0 ), radius );
   Sphere sphere( Z3i::RealPoint( radius, 0, 0 ), radius/2.0 );
-  Shape shape( cube, sphere );
+  Shape shape( cube );
+  shape.op_union( sphere );
   Gauss gauss;
   gauss.attach(shape);
   gauss.init(p1,p2,h);
