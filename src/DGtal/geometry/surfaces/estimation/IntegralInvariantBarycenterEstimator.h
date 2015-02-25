@@ -44,6 +44,8 @@
 #include "DGtal/base/Common.h"
 #include "DGtal/kernel/NumberTraits.h"
 #include "DGtal/topology/CSCellEmbedder.h"
+#include "DGtal/math/linalg/SimpleMatrix.h"
+#include "DGtal/math/linalg/EigenDecomposition.h"
 //////////////////////////////////////////////////////////////////////////////
 
 namespace DGtal
@@ -54,12 +56,24 @@ namespace DGtal
   struct IntegralInvariantBarycenterEstimatorFromSurfels
   {
   public:
+    ///Surfel type
+    typedef TSurfel Surfel;
+    typedef TSCellEmbedder SCellEmbedder;
+    BOOST_CONCEPT_ASSERT(( concepts::CSCellEmbedder<SCellEmbedder> ));
+    typedef typename SCellEmbedder::Space Space;
+    typedef typename Space::RealVector RealVector;
+    typedef typename Space::RealPoint RealPoint;
+
+    typedef SimpleMatrix<double, Space::dimension, Space::dimension> Matrix;
+    typedef typename RealVector::Component Component;
 
     template<typename Space>
     struct BarycenterStruct
     {
       typename Space::RealVector barycenter;
       typename Space::RealVector center;
+      typename EigenDecomposition<Space::dimension, Component, Matrix>::Matrix eigenvectors;
+      typename EigenDecomposition<Space::dimension, Component, Matrix>::Vector eigenvalues;
 
       inline bool operator==(const BarycenterStruct& a)
       {
@@ -91,16 +105,6 @@ namespace DGtal
       }
     };
 
-
-
-    ///Surfel type
-    typedef TSurfel Surfel;
-    typedef TSCellEmbedder SCellEmbedder;
-    BOOST_CONCEPT_ASSERT(( concepts::CSCellEmbedder<SCellEmbedder> ));
-    typedef typename SCellEmbedder::Space Space;
-    typedef typename Space::RealVector RealVector;
-    typedef typename Space::RealPoint RealPoint;
-
     ///Embedder type
     ///Type of output values
     typedef BarycenterStruct<Space> Quantity;
@@ -118,6 +122,11 @@ namespace DGtal
       myFirstSurfel = true;
       myN = 0;
       mySumX = RealVector::diagonal(0.0);
+      myAccum.clear();
+      myMatrix.clear();
+      myXMatrix.clear();
+      double h2 = h * h;
+      dh5 = h2 * h2 * h;
     }
 
     /**
@@ -140,25 +149,42 @@ namespace DGtal
         myReceiver = myEmbedder->operator()(aSurfel);
         myFirstSurfel = false;
       }
-      //else
+
+      RealPoint p = myEmbedder->operator()(aSurfel);
+
+      mySumX += p;
+      for(DGtal::Dimension i=0; i < Space::dimension; ++i)
       {
-        RealPoint p = myEmbedder->operator()(aSurfel);
-
-        mySumX += p;
-
-        ++myN;
+        for(DGtal::Dimension j=0; j < Space::dimension; ++j)
+        {
+          myAccum.setComponent(i,j, myAccum(i,j) + p[i]*p[j] );
+        }
       }
+      ++myN;
     }
 
     /**
      * @return the estimated quantity.
      */
-    Quantity eval( ) const
+    Quantity eval( )
     {
       Quantity res;
+      
+      for(DGtal::Dimension i=0; i < Space::dimension; ++i)
+      {
+        for(DGtal::Dimension j=0; j < Space::dimension; ++j)
+        {
+          myXMatrix.setComponent(i,j,mySumX[i]*mySumX[j]);
+        }
+      }
 
+      myMatrix = myAccum - myXMatrix*(1.0/myN);
+      myMatrix *= dh5;
+      
       res.barycenter = (mySumX*(1.0/myN))*myH;
       res.center = myReceiver*myH;
+      EigenDecomposition<Space::dimension, Component, Matrix>::
+            getEigenDecomposition( myMatrix, res.eigenvectors, res.eigenvalues );
 
       return res;
     }
@@ -171,6 +197,9 @@ namespace DGtal
       myFirstSurfel = true;
       myN = 0;
       mySumX = RealVector::diagonal(0.0);
+      myAccum.clear();
+      myMatrix.clear();
+      myXMatrix.clear();
     }
 
   private:
@@ -189,10 +218,16 @@ namespace DGtal
     bool myFirstSurfel;
 
     RealVector mySumX;
+    Matrix myAccum;
+    Matrix myMatrix;
+    Matrix myXMatrix;
     unsigned int myN;
+
 
     ///Grid step
     double myH;
+
+    double dh5;
   };
   }
 

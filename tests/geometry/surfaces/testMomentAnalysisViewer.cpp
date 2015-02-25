@@ -82,13 +82,13 @@ bool testT(int argc, char** argv)
   typedef typename Surface::Surfel Surfel;
 
   const double h = 1.0;
-  const double radius = 50;
-  const double radius_kernel = 15;
+  const double radius = 20;
+  const double radius_kernel = 10;
 
 
   trace.beginBlock("Creating Surface");
-  Z3i::Point p1( -1000, -1000, -1000 );
-  Z3i::Point p2( 1000, 1000, 1000 );
+  Z3i::Point p1( -(radius + 20 ), -(radius + 20 ), -(radius + 20 ) );
+  Z3i::Point p2( (radius + 20 ), (radius + 20 ), (radius + 20 ) );
   Z3i::KSpace K;
   if( !K.init( p1, p2, true ))
     return false;
