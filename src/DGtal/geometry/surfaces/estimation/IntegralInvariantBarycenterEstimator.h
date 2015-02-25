@@ -17,339 +17,225 @@
 #pragma once
 
 /**
- * @file IntegralInvariantBarycenterEstimator.h
- * @author Jeremy Levallois (\c jeremy.levallois@liris.cnrs.fr )
- * Laboratoire d'InfoRmatique en Image et Systèmes d'information - LIRIS (CNRS, UMR 5205), INSA-Lyon, France
- * LAboratoire de MAthématiques - LAMA (CNRS, UMR 5127), Université de Savoie, France
- * @author Jacques-Olivier Lachaud (\c jacques-olivier.lachaud@univ-savoie.fr )
- * Laboratory of Mathematics (CNRS, UMR 5127), University of Savoie, France
+ * @file IntegralInvariantBarycenterEstimatorFromSurfelsFunctors.h
+ * @author David Coeurjolly (\c david.coeurjolly@liris.cnrs.fr )
+ * Laboratoire d'InfoRmatique en Image et Systemes d'information - LIRIS (CNRS, UMR 5205), CNRS, France
  *
- * @date 2014/04/24
+ * @date 2013/05/30
  *
- * Header file for module IntegralInvariantBarycenterEstimator.ih
+ * Header file for module IntegralInvariantBarycenterEstimatorFromSurfelsFunctors.cpp
  *
  * This file is part of the DGtal library.
  */
 
-#if defined(IntegralInvariantBarycenterEstimator_RECURSES)
-#error Recursive header files inclusion detected in IntegralInvariantBarycenterEstimator.h
-#else // defined(IntegralInvariantBarycenterEstimator_RECURSES)
+#if defined(IntegralInvariantBarycenterEstimatorFromSurfelsFunctors_RECURSES)
+#error Recursive header files inclusion detected in IntegralInvariantBarycenterEstimatorFromSurfelsFunctors.h
+#else // defined(IntegralInvariantBarycenterEstimatorFromSurfelsFunctors_RECURSES)
 /** Prevents recursive inclusion of headers. */
-#define IntegralInvariantBarycenterEstimator_RECURSES
+#define IntegralInvariantBarycenterEstimatorFromSurfelsFunctors_RECURSES
 
-#if !defined IntegralInvariantBarycenterEstimator_h
+#if !defined IntegralInvariantBarycenterEstimatorFromSurfelsFunctors_h
 /** Prevents repeated inclusion of headers. */
-#define IntegralInvariantBarycenterEstimator_h
+#define IntegralInvariantBarycenterEstimatorFromSurfelsFunctors_h
 
 //////////////////////////////////////////////////////////////////////////////
 // Inclusions
 #include <iostream>
 #include "DGtal/base/Common.h"
-
-#include "DGtal/kernel/CPointPredicate.h"
-#include "DGtal/kernel/BasicPointFunctors.h"
-#include "DGtal/topology/CCellFunctor.h"
-#include "DGtal/topology/CCellularGridSpaceND.h"
-#include "DGtal/geometry/surfaces/FunctorOnCells.h"
-
-#include "DGtal/shapes/GaussDigitizer.h"
-#include "DGtal/shapes/Shapes.h"
-
-#include "DGtal/geometry/surfaces/DigitalSurfaceConvolver.h"
-#include "DGtal/geometry/surfaces/estimation/IIGeometricFunctors.h"
-#include "DGtal/shapes/EuclideanShapesDecorator.h"
-
-#include "DGtal/shapes/implicit/ImplicitBall.h"
+#include "DGtal/kernel/NumberTraits.h"
+#include "DGtal/topology/CSCellEmbedder.h"
+#include "DGtal/math/linalg/SimpleMatrix.h"
+#include "DGtal/math/linalg/EigenDecomposition.h"
 //////////////////////////////////////////////////////////////////////////////
-
 
 namespace DGtal
 {
+  namespace functors
+  {
+  template<typename TSurfel, typename TSCellEmbedder>
+  struct IntegralInvariantBarycenterEstimatorFromSurfels
+  {
+  public:
+    ///Surfel type
+    typedef TSurfel Surfel;
+    typedef TSCellEmbedder SCellEmbedder;
+    BOOST_CONCEPT_ASSERT(( concepts::CSCellEmbedder<SCellEmbedder> ));
+    typedef typename SCellEmbedder::Space Space;
+    typedef typename Space::RealVector RealVector;
+    typedef typename Space::RealPoint RealPoint;
 
-/////////////////////////////////////////////////////////////////////////////
-// template class IntegralInvariantBarycenterEstimator
-/**
-* Description of template class 'IntegralInvariantBarycenterEstimator' <p>
-* \brief Aim: This class implement an Integral Invariant estimator which computes for each surfel the covariance matrix of the intersection of the shape with a ball of given radius centered on the surfel.
-*
-* @cite Coeurjo-CVIU-2014
-*
-* The algorithm we propose uses a kernel (2D: Ball2D, 3D: Ball3D) that
-* is moved along the surface. The covariance matrix of this kernel
-* intersected with the shape carries local geometric information. It
-* can be used to compute normal and curvature directions, and
-* curvature values also. Theorical multigrid convergence is proved,
-* with a convergence speed of O(h^1/3) with hypothesis about the shape
-* geometry and the convolution kernel radius.  Experimental results
-* confirm the multigrid convergence.
-*
-* Optimization is available when we give a range of 0-adjacent
-* surfels to the estimator. Note that you should use
-* IntegralInvariantVolumeEstimator instead when trying to estimate the
-* 2D curvature or the mean curvature.
-*
-* @tparam TKSpace a model of CCellularGridSpaceND, the cellular space
-* in which the shape is defined.
-*
-* @tparam TPointPredicate a model of concepts::CPointPredicate, a predicate
-* Point -> bool that defines a digital shape as a characteristic
-* function.
-*
-* @tparam TBarycenterFunctor a model of functor Matrix ->
-* Quantity, that defines how the covariance matrix computed by the
-* Integral Invariant estimator is transformed into e.g. a normal
-* direction, a curvature, etc. Models include
-* IIGeometricFunctors::IINormalDirectionFunctor,
-* IIGeometricFunctors::IITangentDirectionFunctor,
-* IIGeometricFunctors::IIFirstPrincipalDirectionFunctor,
-* IIGeometricFunctors::IISecondPrincipalDirectionFunctor.
-*
-* @note In opposition to IntegralInvariantMeanCurvatureEstimator and
-* IntegralInvariantGaussianCurvatureEstimator, this class is
-* parameterized by a point predicate instead of a functor spel ->
-* {0,1}. The two latter classes should evolve as this one in a further release.
-*
-* @see testIntegralInvariantBarycenterEstimator.cpp
-*/
-template <typename TKSpace, typename TPointPredicate, typename TBarycenterFunctor>
-class IntegralInvariantBarycenterEstimator
-{
-public:
-  typedef IntegralInvariantBarycenterEstimator< TKSpace, TPointPredicate, TBarycenterFunctor> Self;
-  typedef TKSpace KSpace;
-  typedef TPointPredicate PointPredicate;
-  typedef TBarycenterFunctor BarycenterFunctor;
+    typedef SimpleMatrix<double, Space::dimension, Space::dimension> Matrix;
+    typedef typename RealVector::Component Component;
 
-  BOOST_CONCEPT_ASSERT (( concepts::CCellularGridSpaceND< KSpace > ));
-  BOOST_CONCEPT_ASSERT (( concepts::CPointPredicate< PointPredicate > ));
+    template<typename Space>
+    struct BarycenterStruct
+    {
+      typename Space::RealVector barycenter;
+      typename Space::RealVector center;
+      typename EigenDecomposition<Space::dimension, Component, Matrix>::Matrix eigenvectors;
+      typename EigenDecomposition<Space::dimension, Component, Matrix>::Vector eigenvalues;
 
-  typedef typename KSpace::Space Space;
-  typedef HyperRectDomain<Space> Domain;
-  typedef typename Space::Point Point;
-  typedef typename Space::RealPoint RealPoint;
-  typedef typename Space::RealVector RealVector;
-  typedef typename DigitalSetSelector<Domain,  BIG_DS + HIGH_VAR_DS>::Type DigitalSet;
-  typedef typename KSpace::SCell Spel;
-  typedef typename KSpace::Surfel Surfel;
-  typedef typename KSpace::SurfelSet SurfelSet;
-  typedef typename SurfelSet::const_iterator ConstIteratorKernel;
-  typedef CanonicSCellEmbedder< KSpace > Embedder;
+      inline bool operator==(const BarycenterStruct& a)
+      {
+       if (a.barycenter==barycenter && a.center== center)
+          return true;
+       else
+          return false;
+      }
 
-  /// The returned type of the estimator, depends on the functor
-  typedef typename BarycenterFunctor::Quantity Quantity;
-  typedef typename BarycenterFunctor::Argument Argument;
-  /// The type used for convolutions
-  typedef int Value;
+      inline bool operator<(const BarycenterStruct& a)
+      {
+       if (a.center < center)
+          return true;
+       else
+          return false;
+      }
 
-  /// A wrapper around point predicate (functor Point -> bool) that
-  /// transforms it into a functor Point -> uint (0 or 1).
-  typedef functors::PointFunctorFromPointPredicateAndDomain< PointPredicate, Domain, unsigned int > ShapePointFunctor;
-  /// Adapts the a functor Point -> uint (0 or 1) to a functor Cell ->
-  /// uint (0 ot 1), where Cell is a spel. Needed by DigitalSurfaceConvolver.
-  typedef FunctorOnCells< ShapePointFunctor, KSpace > ShapeSpelFunctor;
+      inline bool operator>(const BarycenterStruct& a)
+      {
+       if (a.center > center)
+          return true;
+       else
+          return false;
+      }
 
+      inline bool operator!=(const BarycenterStruct& a)
+      {
+        return !operator==( a );
+      }
+    };
 
-  typedef functors::ConstValueCell<Value, Spel> KernelSpelFunctor;
-  typedef ImplicitBall<Space> KernelSupport;
-  typedef EuclideanShapesCSG< KernelSupport, KernelSupport > EuclideanMinus;
-  typedef GaussDigitizer< Space, KernelSupport > DigitalShapeKernel;
-  typedef GaussDigitizer< Space, EuclideanMinus > DigitalShape;
+    ///Embedder type
+    ///Type of output values
+    typedef BarycenterStruct<Space> Quantity;
 
-  typedef DigitalSurfaceConvolver<ShapeSpelFunctor, KernelSpelFunctor, 
-                                  KSpace, DigitalShapeKernel> Convolver;
-  typedef typename Convolver::VectorQuantity Barycenter;
-  typedef typename Convolver::PairIterators PairIterators;
-  // typedef typename Matrix::Component Component;
-  typedef double Scalar;
-  BOOST_CONCEPT_ASSERT (( concepts::CCellFunctor< ShapeSpelFunctor > ));
-  BOOST_CONCEPT_ASSERT (( concepts::CUnaryFunctor< BarycenterFunctor, Argument, Quantity > ));
-  BOOST_STATIC_ASSERT (( ConceptUtils::SameType< std::pair<Barycenter, RealPoint>, 
-                                                 typename BarycenterFunctor::Argument >::value ));
+    /**
+     * Constructor.
+     *
+     * @param [in] anEmbedder any model of CSCellEmbedder.
+     * @param [in] h a grid step
+     */
+    IntegralInvariantBarycenterEstimatorFromSurfels(ConstAlias<SCellEmbedder> anEmbedder ,
+                              const double h):
+      myEmbedder(&anEmbedder), myH(h)
+    {
+      myFirstSurfel = true;
+      myN = 0;
+      mySumX = RealVector::diagonal(0.0);
+      myAccum.clear();
+      myMatrix.clear();
+      myXMatrix.clear();
+      double h2 = h * h;
+      dh5 = h2 * h2 * h;
+    }
 
+    /**
+     * Destructor
+     */
+    ~IntegralInvariantBarycenterEstimatorFromSurfels() {}
 
-  // ----------------------- Standard services ------------------------------
-public:
+    /**
+     * Push a surfel to the estimator. For this dummy estimator,
+     * we just count the number of surfels.
+     */
+    void pushSurfel(const Surfel &aSurfel,
+                    const double aDistance)
+    {
+      BOOST_VERIFY(aDistance == aDistance);
+      BOOST_VERIFY(aSurfel == aSurfel);
 
-  /**
-  * Default constructor. The object is invalid. The user needs to call
-  * setParams and attach.
-  * 
-  * @param fct the functor for transforming the covariance matrix into
-  * some quantity. If not precised, a default object is instantiated.
-  */
-  IntegralInvariantBarycenterEstimator( BarycenterFunctor fct = BarycenterFunctor() );
+      if (myFirstSurfel)
+      {
+        myReceiver = myEmbedder->operator()(aSurfel);
+        myFirstSurfel = false;
+      }
 
-  /**
-  * Constructor.
-  *
-  * @param[in] K the cellular grid space in which the shape is defined.
-  * @param[in] aPointPredicate the shape of interest. The alias can be secured
-  * if a some counted pointer is handed.
-  * @param fct the functor for transforming the covariance matrix into
-  * some quantity. If not precised, a default object is instantiated.
-  */
-  IntegralInvariantBarycenterEstimator ( ConstAlias< KSpace > K, 
-                               ConstAlias< PointPredicate > aPointPredicate,
-                               BarycenterFunctor fct = BarycenterFunctor() );
+      RealPoint p = myEmbedder->operator()(aSurfel);
 
-  /**
-  * Destructor.
-  */
-  ~IntegralInvariantBarycenterEstimator();
+      mySumX += p;
+      for(DGtal::Dimension i=0; i < Space::dimension; ++i)
+      {
+        for(DGtal::Dimension j=0; j < Space::dimension; ++j)
+        {
+          myAccum.setComponent(i,j, myAccum(i,j) + p[i]*p[j] );
+        }
+      }
+      ++myN;
+    }
 
-  /**
-  * Copy constructor.
-  * @param other the object to clone.
-  */
-  IntegralInvariantBarycenterEstimator ( const Self& other );
+    /**
+     * @return the estimated quantity.
+     */
+    Quantity eval( )
+    {
+      Quantity res;
+      
+      for(DGtal::Dimension i=0; i < Space::dimension; ++i)
+      {
+        for(DGtal::Dimension j=0; j < Space::dimension; ++j)
+        {
+          myXMatrix.setComponent(i,j,mySumX[i]*mySumX[j]);
+        }
+      }
 
-  /**
-  * Assignment.
-  * @param other the object to copy.
-  * @return a reference on 'this'.
-  */
-  Self& operator= ( const Self& other );
+      myMatrix = myAccum - myXMatrix*(1.0/myN);
+      myMatrix *= dh5;
+      
+      res.barycenter = (mySumX*(1.0/myN))*myH;
+      res.center = myReceiver*myH;
+      EigenDecomposition<Space::dimension, Component, Matrix>::
+            getEigenDecomposition( myMatrix, res.eigenvectors, res.eigenvalues );
 
-  /**
-  * Clears the object. It is now invalid.
-  */
-  void clear();
+      return res;
+    }
 
-  // ----------------------- Interface --------------------------------------
-public:
+    /**
+     * Reset the estimator.
+     */
+    void reset()
+    {
+      myFirstSurfel = true;
+      myN = 0;
+      mySumX = RealVector::diagonal(0.0);
+      myAccum.clear();
+      myMatrix.clear();
+      myXMatrix.clear();
+    }
 
-  /// @return the grid step.
-  Scalar h() const;
+  private:
 
-  /**
-  * Attach a shape, defined as a functor spel -> boolean
-  *
-  * @param[in] K the cellular grid space in which the shape is defined.
-  * @param aPointPredicate the shape of interest. The alias can be secured
-  * if a some counted pointer is handed.
-  */
-  void attach( ConstAlias< KSpace > K, 
-               ConstAlias<PointPredicate> aPointPredicate );
+    /**
+     * Private default constructor.
+     */
+    IntegralInvariantBarycenterEstimatorFromSurfels();
 
-  /**
-  * Set specific parameters: the radius of the ball.
-  *
-  * @param[in] dRadius the "digital" radius of the kernel (but may be non integer).
-  */
-  void setParams( const double dRadius );
-  
-  /**
-  * Model of CDigitalSurfaceLocalEstimator. Initialisation.
-  *
-  * @tparam SurfelConstIterator any model of forward readable iterator on Surfel.
-  * @param[in] _h grid size (must be >0).
-  * @param[in] ite iterator on the first surfel of the surface.
-  * @param[in] itb iterator after the last surfel of the surface.
-  */
-  template <typename SurfelConstIterator>
-  void init( const double _h, SurfelConstIterator itb, SurfelConstIterator ite );
+    ///ConstAlias of the Embedder
+    const SCellEmbedder * myEmbedder;
 
-  /**
-  * -- Estimation -- 
-  *
-  * Compute the integral invariant covariance matrix at surfel *it of
-  * a shape, then apply the BarycenterFunctor to extract some
-  * geometric information.
-  *
-  * @tparam SurfelConstIterator type of Iterator on a Surfel
-  *
-  * @param[in] it iterator pointing on the surfel of the shape where
-  * we wish to evaluate some geometric information.
-  *
-  * @return quantity (normal vector) at surfel *it
-  */
-  template< typename SurfelConstIterator >
-  Quantity eval ( SurfelConstIterator it ) const;
+    RealVector myReceiver;
+
+    ///Surfel counter.
+    bool myFirstSurfel;
+
+    RealVector mySumX;
+    Matrix myAccum;
+    Matrix myMatrix;
+    Matrix myXMatrix;
+    unsigned int myN;
 
 
-  /**
-  * -- Estimation -- 
-  *
-  * Compute the integral invariant covariance matrix for a range of
-  * surfels [itb,ite) on a shape, then apply the
-  * BarycenterFunctor to extract some geometric information.
-  * Return the result on an OutputIterator (param).
-  *
-  * @tparam OutputIterator type of Iterator of an array of Quantity
-  * @tparam SurfelConstIterator type of Iterator on a Surfel
-  *
-  * @param[in] itb iterator defining the start of the range of surfels
-  * where we wish to compute some geometric information.
-  *
-  * @param[in] ite iterator defining the end of the range of surfels
-  * where we wish to compute some geometric information.
-  *
-  * @param[in] result output iterator of results of the computation.
-  * @return the updated output iterator after all outputs.
-  */
-  template <typename OutputIterator, typename SurfelConstIterator>
-  OutputIterator eval( SurfelConstIterator itb,
-                       SurfelConstIterator ite,
-                       OutputIterator result ) const;
+    ///Grid step
+    double myH;
 
-  /**
-  * Writes/Displays the object on an output stream.
-  * @param out the output stream where the object is written.
-  */
-  void selfDisplay ( std::ostream & out ) const;
-
-  /**
-  * Checks the validity/consistency of the object.
-  * @return 'true' if the object is valid, 'false' otherwise.
-  */
-  bool isValid() const;
-
-  // ------------------------- Private Datas --------------------------------
-private:
-
-  BarycenterFunctor myFct;            ///< The covariance matrix functor that transforms the II covariance matrix into a quantity.
-  const KernelSpelFunctor myKernelFunctor;  ///< Kernel functor (on Spel)
-  std::vector< PairIterators > myKernels;   ///< array of begin/end iterator of shifting masks.
-  std::vector< DigitalSet * > myKernelsSet; ///< Array of shifting masks. Size = 9 for each shifting (0-adjacent and full kernel included)
-  CountedPtr<KernelSupport>      myKernel;      ///< Euclidean kernel
-  CountedPtr<DigitalShapeKernel> myDigKernel;   ///< Digital kernel
-  CountedConstPtrOrConstPtr<PointPredicate> myPointPredicate; ///< Smart pointer (if required) on a point predicate.
-  CountedPtr<Domain>             myShapeDomain; ///< Smart pointer on domain         
-  CountedPtr<ShapePointFunctor>  myShapePointFunctor; ///< Smart pointer on functor point -> {0,1}
-  CountedPtr<ShapeSpelFunctor>   myShapeSpelFunctor;  ///< Smart pointer on functor spel ->  {0,1}
-  CountedPtr<Convolver>          myConvolver;   ///< Convolver
-  CountedPtr<Embedder>           myEmbedder; ///< SCell to Point Embedder
-  CountedPtr<KSpace>             myKSpace; ///< SCell to Point Embedder
-  Scalar myH;                               ///< precision of the grid
-  Scalar myRadius;                          ///< "digital" radius of the kernel (but may be non integer).
-
-private:
-
-
-}; // end of class IntegralInvariantBarycenterEstimator
-
-  /**
-  * Overloads 'operator<<' for displaying objects of class 'IntegralInvariantBarycenterEstimator'.
-  * @param out the output stream where the object is written.
-  * @param object the object of class 'IntegralInvariantBarycenterEstimator' to write.
-  * @return the output stream after the writing.
-  */
-  template <typename TKSpace, typename TPointPredicate, typename TBarycenterFunctor>
-  std::ostream&
-  operator<< ( std::ostream & out, 
-               const IntegralInvariantBarycenterEstimator<TKSpace, TPointPredicate, TBarycenterFunctor> & object );
+    double dh5;
+  };
+  }
 
 } // namespace DGtal
 
 
-///////////////////////////////////////////////////////////////////////////////
-// Includes inline functions.
-#include "DGtal/geometry/surfaces/estimation/IntegralInvariantBarycenterEstimator.ih"
 
-//                                                                           //
-///////////////////////////////////////////////////////////////////////////////
+#endif // !defined IntegralInvariantBarycenterEstimatorFromSurfelsFunctors_h
 
-#endif // !defined IntegralInvariantBarycenterEstimator_h
-
-#undef IntegralInvariantBarycenterEstimator_RECURSES
-#endif // else defined(IntegralInvariantBarycenterEstimator_RECURSES)
+#undef IntegralInvariantBarycenterEstimatorFromSurfelsFunctors_RECURSES
+#endif // else defined(IntegralInvariantBarycenterEstimatorFromSurfelsFunctors_RECURSES)
