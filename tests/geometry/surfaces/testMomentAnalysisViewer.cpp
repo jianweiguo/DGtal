@@ -67,7 +67,7 @@ using namespace DGtal;
 ///////////////////////////////////////////////////////////////////////////////
 
 
-bool testT(int argc, char** argv)
+bool testT(const double radius, const double alpha, const double beta, int argc, char** argv)
 {
 
   typedef ImplicitHyperCube<Z3i::Space> Cube;
@@ -82,7 +82,6 @@ bool testT(int argc, char** argv)
   typedef typename Surface::Surfel Surfel;
 
   const double h = 1.0;
-  const double radius = 20;
   const double radius_kernel = 10;
 
 
@@ -122,7 +121,7 @@ bool testT(int argc, char** argv)
   ConvFunctor convFunc(1.0);
   Reporter reporter;
   reporter.attach(surface);
-  reporter.setParams(Z3i::l2Metric, estimator , convFunc, radius_kernel);
+  reporter.setParams(Z3i::l2Metric, estimator , convFunc, radius_kernel/h);
 
   reporter.init(h, surface.begin() , surface.end());
 
@@ -132,8 +131,27 @@ bool testT(int argc, char** argv)
   std::vector<double> distance;
   for(uint i = 0; i < values.size(); ++i)
   {
-    distance.push_back( (values[i].barycenter - values[i].center).norm() );
-    // trace.info() << values[i].barycenter << " " << values[i].center << " " << (values[i].barycenter - values[i].center).norm() << std::endl;
+    double distanceBary = (values[i].barycenter*h - values[i].center*h).norm();
+
+    double a = ( distanceBary * values[i].eigenvalues[2] ) / ( radius_kernel * values[i].eigenvalues[0] );
+    // double b = ( distanceBary * values[i].eigenvalues[2] ) / ( radius_kernel * values[i].eigenvalues[0] );
+    // double dist = distanceBary;
+    // double dist = 1.0 / ( alpha + beta * ( distanceBary.norm() / radius_kernel ) * ( distanceBary.norm() / radius_kernel ));
+    double dist = 1.0 / ( alpha + beta * a * a);
+
+    if( a != a )
+    {
+      trace.error() << "--------------------" << std::endl;
+      // trace.error() << distanceBary << std::endl;
+      // trace.error() << distanceBary * values[i].eigenvalues[2] << std::endl;
+      // trace.error() << radius_kernel * values[i].eigenvalues[0] << std::endl;
+      // trace.error() << " a != a " << a << std::endl;
+      dist = 0;
+    }
+
+    distance.push_back( dist );
+
+    // trace.info() << values[i].eigenvalues[0] << " " << values[i].eigenvalues[1] << " " << values[i].eigenvalues[2] << std::endl;
   }
 
   //distance[0] = 0;
@@ -149,12 +167,12 @@ bool testT(int argc, char** argv)
 
   typedef GradientColorMap< double > Gradient;
   Gradient cmap_grad( minval, maxval );
-  // cmap_grad.addColor( Color( 50, 50, 255 ) );
-  // cmap_grad.addColor( Color( 255, 0, 0 ) );
-  // cmap_grad.addColor( Color( 255, 255, 10 ) );
+  cmap_grad.addColor( Color( 50, 50, 255 ) );
+  cmap_grad.addColor( Color( 255, 0, 0 ) );
+  cmap_grad.addColor( Color( 255, 255, 10 ) );
 
-  cmap_grad.addColor( Color( 255, 50, 50 ) );
-  cmap_grad.addColor( Color( 50, 255, 50 ) );
+  // cmap_grad.addColor( Color( 255, 50, 50 ) );
+  // cmap_grad.addColor( Color( 50, 255, 50 ) );
 
 
   viewer << SetMode3D((*(surface.begin())).className(), "Basic" );
@@ -353,7 +371,7 @@ int main( int argc, char** argv )
   }
   trace.info() << std::endl;
 
-  bool res = testT(argc, argv);//testCube( 30, 1, 5, argc, argv );
+  bool res = testT( 30, 1, 5, argc, argv );//testCube( 30, 1, 5, argc, argv );
   trace.emphase() << ( res ? "Passed." : "Error." ) << std::endl;
   trace.endBlock();
   return res ? 0 : 1;
