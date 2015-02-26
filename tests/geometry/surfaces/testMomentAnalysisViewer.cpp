@@ -67,7 +67,7 @@ using namespace DGtal;
 ///////////////////////////////////////////////////////////////////////////////
 
 
-bool testT(const double radius, const double alpha, const double beta, int argc, char** argv)
+bool testT(const double radius, const double radius_kernel, const double alpha, const double beta, int argc, char** argv)
 {
 
   typedef ImplicitHyperCube<Z3i::Space> Cube;
@@ -82,12 +82,10 @@ bool testT(const double radius, const double alpha, const double beta, int argc,
   typedef typename Surface::Surfel Surfel;
 
   const double h = 1.0;
-  const double radius_kernel = 10;
-
 
   trace.beginBlock("Creating Surface");
-  Z3i::Point p1( -(radius + 20 ), -(radius + 20 ), -(radius + 20 ) );
-  Z3i::Point p2( (radius + 20 ), (radius + 20 ), (radius + 20 ) );
+  Z3i::Point p1( -(1.5*radius + 20 ), -(1.5*radius + 20 ), -(1.5*radius + 20 ) );
+  Z3i::Point p2( (1.5*radius + 20 ), (1.5*radius + 20 ), (1.5*radius + 20 ) );
   Z3i::KSpace K;
   if( !K.init( p1, p2, true ))
     return false;
@@ -133,21 +131,21 @@ bool testT(const double radius, const double alpha, const double beta, int argc,
   {
     double distanceBary = (values[i].barycenter*h - values[i].center*h).norm();
 
-    double a = ( distanceBary * values[i].eigenvalues[2] ) / ( radius_kernel * values[i].eigenvalues[0] );
-    // double b = ( distanceBary * values[i].eigenvalues[2] ) / ( radius_kernel * values[i].eigenvalues[0] );
-    // double dist = distanceBary;
-    // double dist = 1.0 / ( alpha + beta * ( distanceBary.norm() / radius_kernel ) * ( distanceBary.norm() / radius_kernel ));
-    double dist = 1.0 / ( alpha + beta * a * a);
+    // double a = ( distanceBary * values[i].eigenvalues[0] ) / ( radius_kernel * values[i].eigenvalues[2] );
+    // double dist = 1.0 / ( alpha + beta * a * a);
 
-    if( a != a )
-    {
-      trace.error() << "--------------------" << std::endl;
-      // trace.error() << distanceBary << std::endl;
-      // trace.error() << distanceBary * values[i].eigenvalues[2] << std::endl;
-      // trace.error() << radius_kernel * values[i].eigenvalues[0] << std::endl;
-      // trace.error() << " a != a " << a << std::endl;
-      dist = 0;
-    }
+    // double dist = distanceBary;
+    
+    double dist = 1.0 / ( alpha + beta * ( distanceBary / radius_kernel ) * ( distanceBary / radius_kernel ));
+
+    // if( a != a )
+    // {
+    //   trace.error() << "--------------------" << std::endl;
+    //   // trace.error() << distanceBary << std::endl;
+    //   trace.error() << values[i].eigenvalues[0] << " " << values[i].eigenvalues[2] << std::endl;
+    //   // trace.error() << " a != a " << a << std::endl;
+    //   dist = 0;
+    // }
 
     distance.push_back( dist );
 
@@ -162,14 +160,15 @@ bool testT(const double radius, const double alpha, const double beta, int argc,
   QApplication application( argc, argv );
   typedef Viewer3D<Z3i::Space, Z3i::KSpace> Viewer;
   Viewer viewer( K );
-  viewer.setWindowTitle("Features from Tensor Voting");
+  viewer.setWindowTitle("Features from Moment Analysis");
   viewer.show();
 
   typedef GradientColorMap< double > Gradient;
   Gradient cmap_grad( minval, maxval );
   cmap_grad.addColor( Color( 50, 50, 255 ) );
+  cmap_grad.addColor( Color( 50, 255, 50 ) );
+  // cmap_grad.addColor( Color( 255, 255, 10 ) );
   cmap_grad.addColor( Color( 255, 0, 0 ) );
-  cmap_grad.addColor( Color( 255, 255, 10 ) );
 
   // cmap_grad.addColor( Color( 255, 50, 50 ) );
   // cmap_grad.addColor( Color( 50, 255, 50 ) );
@@ -195,169 +194,6 @@ bool testT(const double radius, const double alpha, const double beta, int argc,
   return true;
 }
 
-/*bool testCube( double radius, double alpha, double beta, int argc, char** argv )
-{
-  typedef ImplicitHyperCube<Z3i::Space> Cube;
-  typedef ImplicitBall<Z3i::Space> Sphere;
-  typedef EuclideanShapesCSG< Cube, Sphere > CubeSphere;
-  typedef GaussDigitizer<Z3i::Space, CubeSphere> DigitalShape;
-  typedef LightImplicitDigitalSurface<Z3i::KSpace,DigitalShape> Boundary;
-  typedef DigitalSurface< Boundary > MyDigitalSurface;
-  typedef DepthFirstVisitor< MyDigitalSurface > Visitor;
-  typedef GraphVisitorRange< Visitor > VisitorRange;
-  typedef VisitorRange::ConstIterator VisitorConstIterator;
-
-  typedef functors::IIBarycenterSpeedFunctor<Z3i::Space> MyIIBarycenterSpeedFunctor;
-  typedef IntegralInvariantBarycenterEstimator< Z3i::KSpace, DigitalShape, MyIIBarycenterSpeedFunctor > MyIIBarycenterEstimator;
-  typedef MyIIBarycenterSpeedFunctor::Value Value;
-
-  typedef functors::IIEigenvalues3DFunctor<Z3i::Space> MyIIPrincipalCurvaturesFunctor;
-  typedef IntegralInvariantCovarianceEstimator< Z3i::KSpace, DigitalShape, MyIIPrincipalCurvaturesFunctor > MyIIPrincipalCurvatureEstimator;
-  typedef MyIIPrincipalCurvaturesFunctor::Value Value_k;
-
-  const double h  = 1;//0.5;
-
-  Z3i::Point p1( -100, -100, -100 );
-  Z3i::Point p2( 100, 100, 100 );
-
-  trace.beginBlock( "Shape initialisation ..." );
-
-  Cube cube( Z3i::RealPoint( 0, 0, 0 ), radius );
-  Sphere sphere( Z3i::RealPoint( radius, 0, 0 ), radius/2.0 );
-  CubeSphere cubesphere( cube );
-  cubesphere.op_union( sphere );
-  DigitalShape dshape;
-  dshape.attach( cubesphere );
-  dshape.init( p1, p2, h );
-
-  Z3i::KSpace K;
-  if ( !K.init( p1, p2, true ) )
-  {
-    trace.error() << "Problem with Khalimsky space" << std::endl;
-    return false;
-  }
-
-  Z3i::KSpace::Surfel bel = Surfaces<Z3i::KSpace>::findABel( K, dshape, 1000000 );
-  Boundary boundary( K, dshape, SurfelAdjacency<Z3i::KSpace::dimension>( true ), bel );
-  MyDigitalSurface surf ( boundary );
-  trace.info() << "MyDigitalSurface " << surf.size() << std::endl;
-
-  trace.endBlock();
-
-  trace.beginBlock("Saving border");
-  std::vector<Z3i::SCell> v_border;
-
-  {
-    VisitorRange range( new Visitor( surf, *surf.begin() ));
-    VisitorConstIterator ibegin = range.begin();
-    VisitorConstIterator iend = range.end();
-
-    while( ibegin != iend )
-    {
-      v_border.push_back( *ibegin );
-      ++ibegin;
-    }
-  }
-
-  trace.endBlock();
-
-  std::vector< double > results;
-
-  double re = 10;//(6.0 + i) * h;
-
-  std::vector< Value_k > results_k;
-
-  {
-    trace.beginBlock( "Curvature estimator initialisation ...");
-
-    MyIIPrincipalCurvaturesFunctor kFunctor;
-    kFunctor.init( h, re );
-
-    MyIIPrincipalCurvatureEstimator kEstimator( kFunctor );
-    kEstimator.attach( K, dshape );
-    kEstimator.setParams( re/h );
-    kEstimator.init( h, v_border.begin(), v_border.end() );
-
-    trace.endBlock();
-
-    trace.beginBlock( "Curvature evaluation ...");
-
-    std::back_insert_iterator< std::vector< Value_k > > resultsIt( results_k );
-    kEstimator.eval( v_border.begin(), v_border.end(), resultsIt );
-
-    trace.endBlock();
-  }
-
-  {
-    trace.beginBlock( "Barycenter speed estimator initialisation ...");
-
-    MyIIBarycenterSpeedFunctor barycenterSpeedFunctor;
-    barycenterSpeedFunctor.init( h, re );
-
-    MyIIBarycenterEstimator barycenterEstimator( barycenterSpeedFunctor );
-    barycenterEstimator.attach( K, dshape );
-    barycenterEstimator.setParams( re/h );
-    barycenterEstimator.init( h, v_border.begin(), v_border.end() );
-
-    trace.endBlock();
-
-    trace.beginBlock( "Barycenter speed evaluation ...");
-
-    std::vector< Value > results_bar;
-    std::back_insert_iterator< std::vector< Value > > resultsIt( results_bar );
-    barycenterEstimator.eval( v_border.begin(), v_border.end(), resultsIt );
-
-    for(unsigned int j = 0; j < results_bar.size(); ++j )
-    {
-      double value = results_bar[j].norm();
-      // double value = 1.0 / ( alpha + beta * ( results_bar[j].norm() / re ) * ( results_bar[j].norm() / re ));
-      // double value = 1.0 / ( alpha + beta * (( results_bar[j].norm() * results_k[j][2] ) / ( re * results_k[j][0] )) * (( results_bar[j].norm() * results_k[j][2] ) / ( re * results_k[j][0] )));
-      results.push_back(value);
-    }
-
-    trace.endBlock();
-  }
-
-
-  {
-    trace.beginBlock ( "Comparing results ..." );
-    double maxval = *std::max_element(results.begin(), results.end());
-    double minval = *std::min_element(results.begin(), results.end());
-    trace.info() << "Min/max= "<< minval<<"/"<<maxval<<std::endl;
-    QApplication application( argc, argv );
-    typedef Viewer3D<Z3i::Space, Z3i::KSpace> Viewer;
-    Viewer viewer( K );
-    viewer.setWindowTitle("Features from Tensor Voting");
-    viewer.show();
-
-    typedef GradientColorMap< double > Gradient;
-    Gradient cmap_grad( minval, maxval );
-    cmap_grad.addColor( Color( 255, 50, 50 ) );
-    // cmap_grad.addColor( Color( 255, 255, 10 ) );
-    cmap_grad.addColor( Color( 50, 255, 50 ) );
-
-    viewer << SetMode3D((*(v_border.begin())).className(), "Basic" );
-
-    unsigned int i = 0;
-    std::vector< double >::iterator it_value = results.begin();
-    for( std::vector< Z3i::SCell >::iterator it = v_border.begin(), itend = v_border.end();
-         it != itend;
-         ++it, ++it_value, ++i )
-    {
-      viewer << CustomColors3D( Color::Black, cmap_grad( *it_value ))
-             << *it ;
-
-      trace.progressBar( i, v_border.size() );
-    }
-
-    viewer << Viewer3D<>::updateDisplay;
-
-    trace.endBlock();
-    application.exec();
-    return true;
-  }
-}*/
-
 ///////////////////////////////////////////////////////////////////////////////
 // Standard services - public :
 
@@ -371,7 +207,19 @@ int main( int argc, char** argv )
   }
   trace.info() << std::endl;
 
-  bool res = testT( 30, 1, 5, argc, argv );//testCube( 30, 1, 5, argc, argv );
+  double radius = 100;
+  double radius_kernel = 15;
+  double alpha = 1;
+  double beta = 5;
+  if( argc == 5 )
+  {
+    radius = atof(argv[1]);
+    radius_kernel = atof(argv[2]);
+    alpha = atof(argv[3]);
+    beta = atof(argv[4]);
+  }
+
+  bool res = testT( radius, radius_kernel, alpha, beta, argc, argv );
   trace.emphase() << ( res ? "Passed." : "Error." ) << std::endl;
   trace.endBlock();
   return res ? 0 : 1;
