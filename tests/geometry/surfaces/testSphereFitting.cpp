@@ -39,6 +39,7 @@
 
 #include "DGtal/shapes/Shapes.h"
 #include "DGtal/shapes/implicit/ImplicitBall.h"
+#include "DGtal/shapes/implicit/ImplicitHyperCube.h"
 #include "DGtal/shapes/GaussDigitizer.h"
 
 #include "DGtal/topology/CanonicSCellEmbedder.h"
@@ -66,6 +67,8 @@ using namespace DGtal;
  */
 bool testFitting()
 {
+  double radius = 10; // shape radius
+  double rad2 = 5.0; // digital kernel radius
   unsigned int nbok = 0;
   unsigned int nb = 0;
   trace.beginBlock ( "Testing init ..." );
@@ -73,10 +76,10 @@ bool testFitting()
   using namespace Z3i;
 
   trace.beginBlock("Creating Surface");
-  Point p1( -20, -20, -20 );
-  Point p2( 20, 20, 20 );
+  Point p1( -200, -200, -200 );
+  Point p2( 200, 200, 200 );
    
-  ImplicitBall<Z3i::Space> shape( RealPoint(6.0,0,0), 4);
+  ImplicitBall<Z3i::Space> shape( RealPoint(0,0,0), radius);
   typedef GaussDigitizer<Z3i::Space, ImplicitBall<Z3i::Space> > Gauss;
   Gauss gauss;
   gauss.attach(shape);
@@ -107,11 +110,11 @@ bool testFitting()
   typedef EstimatorCache<ReporterNormal> NormalCache;
 
   //estimator
-  DGtal::functors::GaussianKernel gaussKernelFunc(5.0);
+  DGtal::functors::GaussianKernel gaussKernelFunc(rad2);
   FunctorNormal functorNormal(embedder, 1.0);
   ReporterNormal reporterNormal;
   reporterNormal.attach(surface);
-  reporterNormal.setParams(l2Metric, functorNormal, gaussKernelFunc, 5.0);
+  reporterNormal.setParams(l2Metric, functorNormal, gaussKernelFunc, rad2);
 
   //caching normal field
   NormalCache normalCache(reporterNormal);
@@ -124,17 +127,17 @@ bool testFitting()
   typedef functors::ConstValue< double > ConvFunctor;
   typedef LocalEstimatorFromSurfelFunctorAdapter<SurfaceContainer, Z3i::L2Metric, Functor, ConvFunctor> Reporter;
 
-  Functor fitter(embedder,1, normalCache);
+  Functor fitter(embedder,1, normalCache, rad2);
   ConvFunctor convFunc(1.0);
   Reporter reporter;
   reporter.attach(surface);
-  reporter.setParams(l2Metric, fitter , convFunc, 15.0);
+  reporter.setParams(l2Metric, fitter , convFunc, rad2);
   
   reporter.init(1, surface.begin(), surface.end());
   for(Surface::ConstIterator it = surface.begin(), ite=surface.end(); it!=ite; ++it)
     {
       Functor::Quantity val = reporter.eval( it );
-      trace.info() << "Fitting = "<<val.center <<" rad="<<val.radius<<std::endl;
+      trace.info() << "Fitting = "<<val.eta <<" rad="<<val.radius<<std::endl;
     }
   trace.endBlock();
 

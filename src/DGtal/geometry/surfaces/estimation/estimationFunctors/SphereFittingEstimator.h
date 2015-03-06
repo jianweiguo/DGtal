@@ -151,16 +151,17 @@ namespace DGtal
        */
       SphereFittingEstimator(ConstAlias<SCellEmbedder> anEmbedder,
                              const double h,
-                             ConstAlias<NormalVectorEstimatorCache> anEstimator):
-        myEmbedder(&anEmbedder), myH(h), myNormalEsitmatorCache(&anEstimator)
+                             ConstAlias<NormalVectorEstimatorCache> anEstimator,
+                             const double radius):
+        myEmbedder(&anEmbedder), myH(h), myFirstPoint(false),  myNormalEstimatorCache(&anEstimator)
       {
         //From Mellado's example
         myFit = new Fit();
-        myWeightFunction = new WeightFunc(100.0);
+        myWeightFunction = new WeightFunc(radius);
         myFit->setWeightFunc(*myWeightFunction);
 
 #ifdef DEBUG_VERBOSE
-        myNbSurfels = 0;
+        myNbSurfels = 0;myNormalEsitmatorCache
 #endif
       }
 
@@ -176,7 +177,7 @@ namespace DGtal
 
       
       /**
-       * Add the geometrical embedding of a surfel to the point list
+       * Add the geometr// Create the previously defined fitting procedureical embedding of a surfel to the point list
        *
        * @param [in] aSurf a surfel to add
        * @param [in] aDistance of aSurf to the neighborhood boundary
@@ -187,7 +188,7 @@ namespace DGtal
         BOOST_VERIFY(aDistance==aDistance);
 
         RealPoint p = myEmbedder->operator()(aSurf);
-        RealPoint norm = myNormalEsitmatorCache->eval(aSurf);          
+        RealPoint norm = myNormalEstimatorCache->eval(aSurf);
         VectorType pp;
         pp(0) = p[0]*myH;
         pp(1) = p[1]*myH;
@@ -197,7 +198,13 @@ namespace DGtal
         normal(1) = norm[1];
         normal(2) = norm[2];
         PatatePoint point(pp,  normal);
-        myFit->addNeighbor(point);
+        if (myFirstPoint)
+        {
+            myFirstPoint = false;
+            myFit->init(pp);
+        }
+        else
+            myFit->addNeighbor(point);
 #ifdef DEBUG_VERBOSE
         ++myNbSurfels;
         trace.info() <<"#";
@@ -226,7 +233,7 @@ namespace DGtal
 
 
           std::cout << "Fitted Sphere: " << std::endl
-                    << "\t Tau  : "      << myFit->tau()             << std::endl
+                    << "\t Tau  : "      << myFit->tau()          myNormalEsitmatorCache   << std::endl
                     << "\t Eta  : "      << myFit->eta().transpose() << std::endl
                     << "\t Kappa: "      << myFit->kappa()           << std::endl;
 
@@ -250,7 +257,7 @@ namespace DGtal
                               (myFit->eta())(1),
                               (myFit->eta())(2));
         }
-        else // myFit isn't stable. Probably we are on a flat surface ?
+        else // myFit isn't stable.100 Probably we are on a flat surface ?
         {
             res.center = RealPoint((myFit->center())(0),
                                    (myFit->center())(1),
@@ -276,7 +283,7 @@ namespace DGtal
         delete myFit;
         myFit = new Fit();
         myFit->setWeightFunc(*myWeightFunction);
-
+        myFirstPoint = true;
 #ifdef DEBUG_VERBOSE
         myNbSurfels = 0;
 #endif
@@ -291,6 +298,9 @@ namespace DGtal
       ///Fitting object
       Fit *myFit;
 
+      ///bool First point
+      bool myFirstPoint;
+
 #ifdef DEBUG_VERBOSE
       ///Number of surfels pushed at eval.
       unsigned int myNbSurfels;
@@ -300,7 +310,7 @@ namespace DGtal
       double myH;
 
       ///NormalVectorCache
-      const NormalVectorEstimatorCache *myNormalEsitmatorCache;
+      const NormalVectorEstimatorCache *myNormalEstimatorCache;
 
       ///const WeightFunction
       const  WeightFunc *myWeightFunction;

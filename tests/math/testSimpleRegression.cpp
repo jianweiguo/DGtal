@@ -209,7 +209,7 @@ bool testSimpleModelRegression()
   trace.info() << "Got slope= "<< SLR.slope()<<std::endl;
   trace.info() << "Got Intercept= "<< SLR.intercept()<<std::endl;
 
-  nbok += ( std::abs(SLR.slope() + 0.25) < 0.1)  ? 1 : 0;
+  nbok += ( SLR.intercept() > -6 && SLR.intercept() < -5)  ? 1 : 0;
   nb++;
   trace.info() << "(" << nbok << "/" << nb << ") "
          << "|slope| =~= 1" << std::endl;
