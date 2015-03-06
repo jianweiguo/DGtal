@@ -153,7 +153,7 @@ namespace DGtal
                              const double h,
                              ConstAlias<NormalVectorEstimatorCache> anEstimator,
                              const double radius):
-        myEmbedder(&anEmbedder), myH(h), myFirstPoint(false),  myNormalEstimatorCache(&anEstimator)
+        myEmbedder(&anEmbedder), myH(h), myFirstPoint(true),  myNormalEstimatorCache(&anEstimator)
       {
         //From Mellado's example
         myFit = new Fit();
@@ -161,7 +161,7 @@ namespace DGtal
         myFit->setWeightFunc(*myWeightFunction);
 
 #ifdef DEBUG_VERBOSE
-        myNbSurfels = 0;myNormalEsitmatorCache
+        myNbSurfels = 0;
 #endif
       }
 
@@ -273,7 +273,6 @@ namespace DGtal
         return res;
       }
                              
-
       /**
        * Reset the point list.
        *
