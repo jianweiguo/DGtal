@@ -129,7 +129,7 @@ namespace DGtal
               matnorm += maxcol;
             }
         
-          myAccum = (myId - myVote/matnorm)*aDistance;
+          myAccum += (myId - myVote/matnorm)*aDistance;
         }
     }
 
@@ -168,6 +168,7 @@ namespace DGtal
     {
       myArea = 0.0;
       myFirstSurfel = true;
+      myAccum.clear();
     }
 
 
