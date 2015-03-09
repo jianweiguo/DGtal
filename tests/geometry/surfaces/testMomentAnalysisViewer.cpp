@@ -48,6 +48,7 @@
 /// Estimator
 #include "DGtal/geometry/surfaces/estimation/LocalEstimatorFromSurfelFunctorAdapter.h"
 #include "DGtal/geometry/surfaces/estimation/IntegralInvariantBarycenterEstimator.h"
+#include "DGtal/geometry/surfaces/estimation/IntegralInvariantCovarianceEstimator.h"
 
 #include "DGtal/io/viewers/Viewer3D.h"
 #include "DGtal/io/boards/Board3D.h"
@@ -219,13 +220,13 @@ bool testT2(const double radius, const double radius_kernel, const double alpha,
 
   //Shape
   Cube cube( Z3i::RealPoint( 0, 0, 0 ), radius );
-  Sphere sphere( Z3i::RealPoint( radius, 0, 0 ), radius/2.0 );
-  Sphere sphere2( Z3i::RealPoint( radius + radius/2.0, 0, 0 ), radius/4.0 );
-  Sphere sphere3( Z3i::RealPoint( radius + radius/2.0 + radius / 4.0, 0, 0 ), radius/8.0 );
+//  Sphere sphere( Z3i::RealPoint( radius, 0, 0 ), radius/2.0 );
+//  Sphere sphere2( Z3i::RealPoint( radius + radius/2.0, 0, 0 ), radius/4.0 );
+//  Sphere sphere3( Z3i::RealPoint( radius + radius/2.0 + radius / 4.0, 0, 0 ), radius/8.0 );
   Shape shape( cube );
-  shape.op_union( sphere );
-  shape.op_union( sphere2 );
-  shape.op_union( sphere3 );
+//  shape.op_union( sphere );
+//  shape.op_union( sphere2 );
+//  shape.op_union( sphere3 );
   Gauss gauss;
   gauss.attach(shape);
   gauss.init(p1,p2,h);
@@ -255,19 +256,39 @@ bool testT2(const double radius, const double radius_kernel, const double alpha,
   reporter.init(h, surface.begin() , surface.end());
 
   std::vector<Quantity> values;
-  reporter.eval( surface.begin(), surface.end(), std::back_insert_iterator<std::vector<Quantity> >(values));
+//  reporter.eval( surface.begin(), surface.end(), std::back_insert_iterator<std::vector<Quantity> >(values));
+  Quantity tmp = reporter.eval( surface.begin()).eigenvalues;
+  trace.info() << reporter.eval( surface.begin()).eigenvalues << std::endl;
+
+  typedef functors::IIPrincipalCurvatures3DFunctor<Z3i::Space> MyIICurvatureFunctor;
+  typedef IntegralInvariantCovarianceEstimator< Z3i::KSpace, Gauss, MyIICurvatureFunctor > MyIICurvatureEstimator;
+
+  MyIICurvatureFunctor curvatureFunctor;
+  curvatureFunctor.init( h, radius );
+
+  MyIICurvatureEstimator curvatureEstimator( curvatureFunctor );
+  curvatureEstimator.attach( K, gauss );
+  curvatureEstimator.setParams( radius/h );
+  curvatureEstimator.init( h, surface.begin(), surface.end() );
+
+  trace.info() << curvatureEstimator.eval( surface.begin()) << std::endl;
 
   std::vector<double> distance;
   for(uint i = 0; i < values.size(); ++i)
   {
-    double distanceBary = (values[i].barycenter*h - values[i].center*h).norm();
+    double distanceBary = (values[i].barycenter - values[i].center).norm();
 
-    // double a = ( distanceBary * values[i].eigenvalues[0] ) / ( radius_kernel * values[i].eigenvalues[2] );
-    // double dist = 1.0 / ( alpha + beta * a * a);
+//    double a = distanceBary / radius_kernel;
+    double a = ( distanceBary * values[i].eigenvalues[0] ) / ( radius_kernel * values[i].eigenvalues[2] );
+    double dist = 1.0 / ( alpha + beta * a * a);
+
+//    if( values[i].eigenvalues[0] != 0.0 )
+    {
+      trace.info() << "eigen_0 " << values[i].eigenvalues[0] << std::endl;
+      trace.info() << "eigen_2 " << values[i].eigenvalues[2] << std::endl;
+    }
 
     // double dist = distanceBary;
-    
-    double dist = 1.0 / ( alpha + beta * ( distanceBary / radius_kernel ) * ( distanceBary / radius_kernel ));
 
     // if( a != a )
     // {
