@@ -66,14 +66,16 @@ namespace DGtal
 
     typedef SimpleMatrix<double, Space::dimension, Space::dimension> Matrix;
     typedef typename RealVector::Component Component;
+    typedef typename EigenDecomposition<Space::dimension, Component, Matrix>::Matrix QuantityMatrix;
+    typedef typename EigenDecomposition<Space::dimension, Component, Matrix>::Vector QuantityVector;
 
     template<typename Space>
     struct BarycenterStruct
     {
       typename Space::RealVector barycenter;
       typename Space::RealVector center;
-      typename EigenDecomposition<Space::dimension, Component, Matrix>::Matrix eigenvectors;
-      typename EigenDecomposition<Space::dimension, Component, Matrix>::Vector eigenvalues;
+      QuantityMatrix eigenvectors;
+      QuantityVector eigenvalues;
 
       inline bool operator==(const BarycenterStruct& a)
       {

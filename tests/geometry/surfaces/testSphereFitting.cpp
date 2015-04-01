@@ -39,7 +39,6 @@
 
 #include "DGtal/shapes/Shapes.h"
 #include "DGtal/shapes/implicit/ImplicitBall.h"
-#include "DGtal/shapes/implicit/ImplicitHyperCube.h"
 #include "DGtal/shapes/GaussDigitizer.h"
 
 #include "DGtal/topology/CanonicSCellEmbedder.h"
@@ -127,7 +126,7 @@ bool testFitting()
   typedef functors::ConstValue< double > ConvFunctor;
   typedef LocalEstimatorFromSurfelFunctorAdapter<SurfaceContainer, Z3i::L2Metric, Functor, ConvFunctor> Reporter;
 
-  Functor fitter(embedder,1, normalCache, rad2);
+  Functor fitter(embedder,1.0, rad2, normalCache);
   ConvFunctor convFunc(1.0);
   Reporter reporter;
   reporter.attach(surface);
@@ -137,7 +136,7 @@ bool testFitting()
   for(Surface::ConstIterator it = surface.begin(), ite=surface.end(); it!=ite; ++it)
     {
       Functor::Quantity val = reporter.eval( it );
-      trace.info() << "Fitting = "<<val.eta <<" rad="<<val.radius<<std::endl;
+      trace.info() << "Fitting = "<<val.center <<" rad="<<val.radius<<std::endl;
     }
   trace.endBlock();
 

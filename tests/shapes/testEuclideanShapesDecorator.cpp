@@ -37,7 +37,7 @@
 #include "DGtal/shapes/EuclideanShapesDecorator.h"
 
 /////// Shapes 2D
-#include "DGtal/shapes/parametric/Ball2D.h"
+#include "DGtal/shapes/implicit/ImplicitBall.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -54,23 +54,23 @@ bool testEuclideanShapesDecorator()
 
   trace.beginBlock ( "Testing Unary operation on euclidean shapes ..." );
 
-  typedef Ball2D< Z2i::Space > ShapeA;
+  typedef ImplicitBall< Z2i::Space > ShapeA;
   typedef ShapeA::RealPoint RealPoint;
 
-  ShapeA shapeA(-2.501, 0.0, 2.5013);
-  ShapeA shapeB(2, 0.0, 2.5013);
-  ShapeA shapeC(0.0, 0.0, 2.5);
+  ShapeA shapeA(Z2i::RealPoint( -2.501, 0.0 ), 2.5013);
+  ShapeA shapeB(Z2i::RealPoint( 2, 0.0 ), 2.5013);
+  ShapeA shapeC(Z2i::RealPoint( 0.0, 0.0 ), 2.5);
 
   typedef EuclideanShapesCSG< ShapeA, ShapeA > CSG;
   CSG s_union ( shapeA );
-  s_union.op_union( shapeB );
+  s_union.plus( shapeB );
 
   CSG s_intersec ( shapeA );
-  s_intersec.op_union( shapeB );
-  s_intersec.op_intersection( shapeC );
+  s_intersec.plus( shapeB );
+  s_intersec.intersection( shapeC );
 
   CSG s_minus ( shapeA );
-  s_minus.op_minus( shapeC );
+  s_minus.minus( shapeC );
 
 
   nbok += (( s_union.orientation( RealPoint( -5.1, 0.0 )) == INSIDE )

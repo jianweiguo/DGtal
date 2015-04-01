@@ -90,6 +90,7 @@ namespace DGtal
       myId.identity();
       myArea = 0.0;
       myFirstSurfel = true;
+      myAccum.constant(0.0);
     }
 
     /**
@@ -168,7 +169,7 @@ namespace DGtal
     {
       myArea = 0.0;
       myFirstSurfel = true;
-      myAccum.clear();
+      myAccum.constant(0.0);
     }
 
 

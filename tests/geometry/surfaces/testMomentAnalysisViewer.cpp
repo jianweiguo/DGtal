@@ -95,7 +95,7 @@ bool testT(const double radius, const double radius_kernel, const double alpha, 
   Cube cube( Z3i::RealPoint( 0, 0, 0 ), radius );
   Sphere sphere( Z3i::RealPoint( radius, 0, 0 ), radius/2.0 );
   Shape shape( cube );
-  shape.op_union( sphere );
+  shape.plus( sphere );
   Gauss gauss;
   gauss.attach(shape);
   gauss.init(p1,p2,h);
@@ -257,7 +257,6 @@ bool testT2(const double radius, const double radius_kernel, const double alpha,
 
   std::vector<Quantity> values;
 //  reporter.eval( surface.begin(), surface.end(), std::back_insert_iterator<std::vector<Quantity> >(values));
-  Quantity tmp = reporter.eval( surface.begin()).eigenvalues;
   trace.info() << reporter.eval( surface.begin()).eigenvalues << std::endl;
 
   typedef functors::IIPrincipalCurvatures3DFunctor<Z3i::Space> MyIICurvatureFunctor;
