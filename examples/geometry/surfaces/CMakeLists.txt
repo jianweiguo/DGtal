@@ -1,8 +1,8 @@
 
 SET(DGTAL_EXAMPLES_SRC
-	exampleIntegralInvariantCurvature2D
+	curvature-estimation-II-2d
 	exampleEstimatorFromSurfelFunctors
-        dvcm-2d-curvature
+  dvcm-2d-curvature
 )
 
 FOREACH(FILE ${DGTAL_EXAMPLES_SRC})
@@ -17,8 +17,8 @@ if (  WITH_VISU3D_QGLVIEWER )
 	greedy-plane-segmentation
 	greedy-plane-segmentation-ex2
 	greedy-plane-segmentation-ex3
-	exampleIntegralInvariantCurvature3D
-        dvcm-3d
+	curvature-estimation-II-3d
+	dvcm-3d
    )
   FOREACH(FILE ${DGTAL_EXAMPLES_QGL_SRC})
    add_executable(${FILE} ${FILE})
