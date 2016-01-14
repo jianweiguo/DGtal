@@ -18,6 +18,7 @@ if (  WITH_VISU3D_QGLVIEWER )
 	greedy-plane-segmentation-ex2
 	greedy-plane-segmentation-ex3
 	curvature-estimation-II-3d
+	feature-extraction-II-3d
 	dvcm-3d
    )
   FOREACH(FILE ${DGTAL_EXAMPLES_QGL_SRC})
