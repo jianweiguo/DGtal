@@ -17,7 +17,7 @@ results and potential efficiency of the proposed work.
 
 DGtal is an opensource free software written by researchers and students from the
 DGtal research community. We wish to keep an estimate of the number of persons
-using the library. This is really important for us to justify the ressources spent
+using the library. This is really important for us to justify the resources spent
 in developing this software. Please, take a few seconds to fill in the registration
 form: http://dgtal.org/registration/
 
