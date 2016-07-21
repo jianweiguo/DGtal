@@ -1,3 +1,6 @@
+# DGtal 0.9.3
+
+
 # DGtal 0.9.2
 
 ## New Features / Critical Changes
@@ -8,11 +11,16 @@
  - New "@seeDGtalTools" doxygen command to cite a DGtalTools tool in
    DGtal documentation (David Coeurjolly,
    [#1179](https://github.com/DGtal-team/DGtal/pull/1179))
- 
+
 - *Geometry Package*
  - New robust normal vector estimator using spherical accumulators and statistical
    voting (Boulc'h & Marlet, SGP 2012).
    (David Coeurjolly, [#1149](https://github.com/DGtal-team/DGtal/pull/1149))
+
+- *Math Package*
+ - New RealFFT class for in-place real-complex Fast Fourier Transform using
+   fftw3 library.
+   (Roland Denis, [#1185](https://github.com/DGtal-team/DGtal/pull/1185))
 
 - *Topology Package*
  - Adding periodic closure for KhalimskySpaceND and per-dimension closure
@@ -54,7 +62,7 @@
    (https://github.com/DGtal-team/DGtal/pull/1164))
 
 - *IO Package*
- - Viewer3D: improvement of the viewer state record by saving the rendering 
+ - Viewer3D: improvement of the viewer state record by saving the rendering
    mode. A new setter was also added to desable/enable double face rendering.
    (Bertrand Kerautret [#1166](https://github.com/DGtal-team/DGtal/pull/1162))
  - Viewer3D: add a mode to display ball primitive with OpenGL point instead of
@@ -70,6 +78,11 @@
    when voxel are selected. The selected elements are now highlighted.
    (Bertrand Kerautret, [#1146](https://github.com/DGtal-team/DGtal/pull/1146))
 
+- *Topology Package*
+ - Add pre-calculated look up tables to speed up Object::isSimple calculations.
+   (Pablo Hernandez-Cerdan, [#1155](https://github.com/DGtal-team/DGtal/pull/1155))
+
+
 ## Bug Fixes
 - *Configuration/General*
  - Simplification of the windows build instructions. (David
@@ -78,7 +91,10 @@
    pages). (David Coeurjolly,
    [#1161](https://github.com/DGtal-team/DGtal/pull/1161))
  - Fixing issues raised on some algorithms when changing Euclidean ring
-   for SpaceND and KhalimskySpaceND. (Jérémy Levallois, [#1163](https://github.com/DGtal-team/DGtal/pull/1163))
+   for SpaceND and KhalimskySpaceND. (Jérémy Levallois,
+   [#1163](https://github.com/DGtal-team/DGtal/pull/1163))
+ - Moving last concepts to concepts:: namespace. (David Coeurjolly,
+   [#1193](https://github.com/DGtal-team/DGtal/pull/1193))
 
 - *DEC Package*
  - Fixing warnings in DiscreteExteriorCalculus and DiscreteExteriorCalculusFactory.
@@ -133,8 +149,6 @@
   - Fix interior/exterior fill methods of topology/helpers/Surfaces class which
     was wrong on 3d and on closed Khalimsky space.
     (Bertrand Kerautret, [#1156](https://github.com/DGtal-team/DGtal/pull/1156))
-  - Add pre-calculated look up tables to speed up Object::isSimple calculations.
-    (Pablo Hernandez-Cerdan, [#1155](https://github.com/DGtal-team/DGtal/pull/1155))
   - Fix issue [#1168]
     (https://github.com/DGtal-team/DGtal/issues/1168), related to bad
     linear interpolation for binary volume data in
